@@ -1,6 +1,7 @@
 // d3js
 import * as d3Base from './d3.min';
 import * as d3Sankey from './d3-sankey';
+// import & build Data
 import { getData } from './getData';
 
 // join d3 libraries
