@@ -1,0 +1,35 @@
+#dataviz {
+  width: 100vw;
+  height: 90vh;
+  border: 5px solid rgb(239, 239, 239);
+}
+
+.link {
+  stroke: #000;
+  stroke-opacity: .2;
+  fill: none;
+}
+
+.link:hover {
+  stroke-opacity: .3;
+}
+
+#update {
+  width: 10vw;
+  padding: 20px;
+  cursor: pointer;
+}
+
+.node rect {
+  fill: gray;
+  // stroke: black;
+  // stroke-width: 1px;
+}
+
+.node rect.fix {
+  fill: rgb(233, 233, 233);
+}
+
+.node rect.tema {
+  fill: rgb(233, 233, 233);
+}

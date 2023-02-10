@@ -1,0 +1,19 @@
+{
+  "name": "viz",
+  "version": "1.0.0",
+  "description": "visualización congreso",
+  "source": "src/index.html",
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "start": "parcel src/index.html --no-source-maps --open",
+    "build": "parcel build"
+  },
+  "author": "Cr1x",
+  "license": "ISC",
+  "devDependencies": {
+    "@parcel/transformer-sass": "^2.8.2",
+    "d3": "^7.8.2",
+    "d3-sankey": "^0.12.3",
+    "parcel": "^2.8.2"
+  }
+}
