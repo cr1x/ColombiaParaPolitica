@@ -1,4 +1,4 @@
-import { getWid, getLayerPos } from './d3viz'; // get max width of names, layers position array
+import { getLayerPos } from './d3viz'; // get max width of names, layers position array
 //
 // edited
 // https://github.com/d3/d3-sankey v0.12.3 Copyright 2019 Mike Bostock
@@ -106,11 +106,9 @@ import { getWid, getLayerPos } from './d3viz'; // get max width of names, layers
     let nodes = defaultNodes;
     let links = defaultLinks;
     let iterations = 6;
-    let autoresWid = 0; // max name width
     let layerPos;
 
     function sankey() {
-      autoresWid = getWid(); // get max name width
       layerPos = getLayerPos(); // get layers position array
 
       const graph = {
@@ -269,9 +267,7 @@ import { getWid, getLayerPos } from './d3viz'; // get max width of names, layers
       for (const node of nodes) {
         const i = Math.max(0, Math.min(x - 1, Math.floor(align.call(null, node, x))));
         node.layer = i;
-        layerPos === undefined
-          ? (node.x0 = 0 + dx * node.fix + autoresWid)
-          : (node.x0 = layerPos[i] + dx * node.fix + autoresWid);
+        node.x0 = layerPos[i] + dx * node.fix;
         node.x1 = node.x0 + node.nodeWid;
         if (columns[i]) columns[i].push(node);
         else columns[i] = [node];

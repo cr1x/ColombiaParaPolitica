@@ -33,3 +33,13 @@
 .node rect.tema {
   fill: rgb(233, 233, 233);
 }
+
+.guide {
+  stroke: black;
+  stroke-opacity: 0.4;
+  stroke-width: 0.5;
+  // stroke-linecap: round;
+  // stroke-linejoin: round;
+  // stroke-dasharray: 6, 4;
+  fill: none;
+}
