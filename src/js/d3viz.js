@@ -31,7 +31,7 @@ let layerPos;
 const buildDraw = async () => {
   // load CSV file
   sData = await getData();
-  await createGraph();
+  await drawGraph();
   ro.observe(sankeyBox);
 };
 buildDraw();
@@ -39,9 +39,6 @@ buildDraw();
 // format variables
 const formatNumber = d3.format(',.0f'), // zero decimal
   format = (d) => formatNumber(d);
-
-// calc percentage function
-const calcPercent = (num, percentage) => Math.floor((num / 100) * percentage);
 
 // append the svg object to the body of the page
 const svg = d3
@@ -59,8 +56,8 @@ let nodes = svg.append('g');
 let nAutores, nPeriodos, nProyectos, nAnno, nTemas, temaNodes;
 //
 //
-// Draw graph
-const createGraph = () => {
+// append elements
+const drawGraph = () => {
   // sankey
   // .nodeSort((a, b) => d3.ascending(a.id, b.id))
   // .linkSort((a, b) => d3.ascending(a.anno, b.anno));
@@ -137,48 +134,47 @@ const createGraph = () => {
     );
 };
 
-// update values
-const updateValues = async () => {
-  // load CSV file
-  // sData = await getData();
-  const getText = () => {
-    let titleAutores = [],
-      titleTemas = [];
-    nAutores.selectAll('text').each(function () {
-      titleAutores.push(Math.ceil(this.getBBox().width));
-    });
-    nTemas.selectAll('text').each(function () {
-      titleTemas.push(Math.ceil(this.getBBox().width));
-    });
-    autoresWid = d3.max(titleAutores);
-    temasWid = d3.max(titleTemas);
+// get max width of autor titles & tema titles
+const getText = () => {
+  let titleAutores = [],
+    titleTemas = [];
+  nAutores.selectAll('text').each(function () {
+    titleAutores.push(Math.ceil(this.getBBox().width));
+  });
+  nTemas.selectAll('text').each(function () {
+    titleTemas.push(Math.ceil(this.getBBox().width));
+  });
+  autoresWid = d3.max(titleAutores);
+  temasWid = d3.max(titleTemas);
 
-    return autoresWid + temasWid;
-  };
+  return autoresWid + temasWid;
+};
 
-  const getLayers = () => {
-    // sankey total width
-    let wTotal = newSize.width - margin - textWid - nWidth;
-    // custom layers position
-    return new Array(
-      0,
-      calcPercent(wTotal, 20),
-      calcPercent(wTotal, 80),
-      calcPercent(wTotal, 90),
-      wTotal
-    );
-  };
+// calc percentage function
+const calcPercent = (num, percentage) => Math.floor((num / 100) * percentage);
 
-  textWid = await getText();
-  layerPos = await getLayers();
-  updateGraph();
+// get array of layers X position
+const getLayers = () => {
+  // sankey total width
+  let wTotal = newSize.width - margin - textWid - nWidth;
+  // custom layers position
+  return new Array(
+    0,
+    calcPercent(wTotal, 20),
+    calcPercent(wTotal, 80),
+    calcPercent(wTotal, 90),
+    wTotal
+  );
 };
 
 //
 // update graph size
-const updateGraph = () => {
+const updateGraph = async () => {
   // console.clear();
   // console.log('//');
+
+  textWid = await getText();
+  layerPos = await getLayers();
 
   d3.select('#sankey').attr('width', newSize.width).attr('height', newSize.height);
 
@@ -232,14 +228,15 @@ const ro = new ResizeObserver((entries) => {
     newSize.width = entry.contentRect.width;
     newSize.height = entry.contentRect.height;
   }
-  updateValues();
+  updateGraph();
 });
 
+//
 const getNodes = () => {};
-
 // buttons
 const button = document.querySelector('#update');
 button.addEventListener('click', getNodes);
+//
 
 //  get max text width
 const getWid = () => autoresWid;
