@@ -1,4 +1,4 @@
-import { getWid } from './d3viz'; // get max width of names
+import { getWid, getLayerPos } from './d3viz'; // get max width of names, layers position array
 //
 // edited
 // https://github.com/d3/d3-sankey v0.12.3 Copyright 2019 Mike Bostock
@@ -91,8 +91,6 @@ import { getWid } from './d3viz'; // get max width of names
     }
   }
 
-  const calcPercent = (num, percentage) => Math.floor((num / 100) * percentage); // edited
-
   function Sankey() {
     let x0 = 0,
       y0 = 0,
@@ -108,10 +106,12 @@ import { getWid } from './d3viz'; // get max width of names
     let nodes = defaultNodes;
     let links = defaultLinks;
     let iterations = 6;
-    let textWid = 0; // edited - get max name width
+    let autoresWid = 0; // max name width
+    let layerPos;
 
     function sankey() {
-      textWid = getWid(); // edited
+      autoresWid = getWid(); // get max name width
+      layerPos = getLayerPos(); // get layers position array
 
       const graph = {
         nodes: nodes.apply(null, arguments),
@@ -265,20 +265,13 @@ import { getWid } from './d3viz'; // get max width of names
     function computeNodeLayers({ nodes }) {
       const x = d3Array.max(nodes, (d) => d.depth) + 1;
       const columns = new Array(x);
-      // sankey total width
-      const wTotal = x1 - x0 - dx;
-      // custom layers position
-      const layerPos = new Array(
-        x0,
-        calcPercent(wTotal, 20),
-        calcPercent(wTotal, 80),
-        calcPercent(wTotal, 90),
-        wTotal
-      );
+
       for (const node of nodes) {
         const i = Math.max(0, Math.min(x - 1, Math.floor(align.call(null, node, x))));
         node.layer = i;
-        node.x0 = layerPos[i] + dx * node.fix + textWid;
+        layerPos === undefined
+          ? (node.x0 = 0 + dx * node.fix + autoresWid)
+          : (node.x0 = layerPos[i] + dx * node.fix + autoresWid);
         node.x1 = node.x0 + node.nodeWid;
         if (columns[i]) columns[i].push(node);
         else columns[i] = [node];

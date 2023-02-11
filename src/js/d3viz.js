@@ -25,12 +25,13 @@ let nPadding = 6;
 let autoresWid = 0;
 let temasWid = 0;
 let textWid = 0;
+let layerPos;
 
 // build sankey chart
 const buildDraw = async () => {
   // load CSV file
   sData = await getData();
-  await drawGraph();
+  await createGraph();
   ro.observe(sankeyBox);
 };
 buildDraw();
@@ -38,6 +39,9 @@ buildDraw();
 // format variables
 const formatNumber = d3.format(',.0f'), // zero decimal
   format = (d) => formatNumber(d);
+
+// calc percentage function
+const calcPercent = (num, percentage) => Math.floor((num / 100) * percentage);
 
 // append the svg object to the body of the page
 const svg = d3
@@ -56,7 +60,7 @@ let nAutores, nPeriodos, nProyectos, nAnno, nTemas, temaNodes;
 //
 //
 // Draw graph
-const drawGraph = () => {
+const createGraph = () => {
   // sankey
   // .nodeSort((a, b) => d3.ascending(a.id, b.id))
   // .linkSort((a, b) => d3.ascending(a.anno, b.anno));
@@ -133,12 +137,10 @@ const drawGraph = () => {
     );
 };
 
-//
-// update graph size
-const updateGraph = () => {
-  // console.clear();
-  // console.log('//');
-
+// update values
+const updateValues = async () => {
+  // load CSV file
+  // sData = await getData();
   const getText = () => {
     let titleAutores = [],
       titleTemas = [];
@@ -153,7 +155,30 @@ const updateGraph = () => {
 
     return autoresWid + temasWid;
   };
-  textWid = getText();
+
+  const getLayers = () => {
+    // sankey total width
+    let wTotal = newSize.width - margin - textWid - nWidth;
+    // custom layers position
+    return new Array(
+      0,
+      calcPercent(wTotal, 20),
+      calcPercent(wTotal, 80),
+      calcPercent(wTotal, 90),
+      wTotal
+    );
+  };
+
+  textWid = await getText();
+  layerPos = await getLayers();
+  updateGraph();
+};
+
+//
+// update graph size
+const updateGraph = () => {
+  // console.clear();
+  // console.log('//');
 
   d3.select('#sankey').attr('width', newSize.width).attr('height', newSize.height);
 
@@ -207,28 +232,19 @@ const ro = new ResizeObserver((entries) => {
     newSize.width = entry.contentRect.width;
     newSize.height = entry.contentRect.height;
   }
-  updateGraph();
+  updateValues();
 });
 
-const getNodes = () => {
-  node
-    .selectAll('.node')
-    .filter((e) => e.depth == 0)
-    .each(function (d) {
-      let newPos = d.sourceLinks[0].target.y0;
-      d.y0 = newPos;
-      console.log(newPos);
-    });
-};
+const getNodes = () => {};
 
 // buttons
 const button = document.querySelector('#update');
 button.addEventListener('click', getNodes);
 
 //  get max text width
-const getWid = () => {
-  return autoresWid;
-};
+const getWid = () => autoresWid;
+//  get max text width
+const getLayerPos = () => layerPos;
 
 // exports
-export { getWid };
+export { getWid, getLayerPos };
