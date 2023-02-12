@@ -25,6 +25,7 @@ const colName = ['Autores', 'Periodos', 'Proyectos', 'Annos', 'Temas'];
 
 // set the dimensions and margins of the graph
 let margin = 40;
+let nRound = 4;
 let nWidth = 10;
 let nPadding = 6;
 let autoresWid = 0;
@@ -79,8 +80,8 @@ const getGuides = () => {
   for (let i = 0; i < layerPos.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       let line = [
-        [layerPos[i] + nWidth * j + nWidth / 2, -20 + 2 * j],
-        [layerPos[i] + nWidth * j + nWidth / 2, newSize.height - 50],
+        [layerPos[i] + nWidth * j - nRound / 2, -20 + 2 * j],
+        [layerPos[i] + nWidth * j - nRound / 2, newSize.height - 50],
       ];
       points.push(line);
     }
@@ -147,29 +148,8 @@ const drawGraph = () => {
     eval(`n${colName[i]} = nodes.filter((d) => d.depth === ${i})`);
   }
 
-  // add the rectangles for the nodes
-  nAutores
-    .filter((d) => d.fix > 0)
-    .append('rect')
-    .attr('class', 'fix');
-
-  nodes.append('rect');
-
-  // add in the title for the nodes
-  nAutores
-    .append('text')
-    .attr('class', 'nombre')
-    .text((d) => d.nombre);
-
-  nAutores
-    .append('text')
-    .attr('class', 'apellido')
-    .text((d) => d.apellido);
-
-  nTemas.append('text').text((d) => d.nombre);
-
   // update nodeWidth in data
-  nodes.data(graph.nodes, (d) => (d.nodeWid = nWidth));
+  nodes.data(graph.nodes, (d) => (d.nodeWid = nWidth - nRound));
 
   d3.selectAll([...nProyectos, ...nAnnos, ...nTemas]).each((d) => {
     let para = Math.round(
@@ -191,8 +171,10 @@ const drawGraph = () => {
     .append('title')
     .text((d) => d.nombre);
 
+  // add the rectangles for the nodes
   nodes
-    .selectAll('rect')
+    .append('rect')
+    .attr('rx', nRound)
     .attr('class', (d) =>
       d.depth === 0
         ? `autor para${d.paraPol}`
@@ -202,8 +184,22 @@ const drawGraph = () => {
     )
     .append('title')
     .text((d) => d.nombre);
+
+  // add in the title for the nodes
+  nAutores
+    .append('text')
+    .attr('class', 'nombre')
+    .text((d) => d.nombre);
+
+  nAutores
+    .append('text')
+    .attr('class', 'apellido')
+    .text((d) => d.apellido);
+
+  nTemas.append('text').text((d) => d.nombre);
 };
 
+//
 //
 // update graph size
 const updateGraph = async () => {
@@ -231,22 +227,15 @@ const updateGraph = async () => {
 
   nodes
     .selectAll('rect')
-    .attr('x', (d) => d.x0)
+    .attr('x', (d) => d.x0 - nRound / 2)
     .attr('y', (d) => d.y0 + 0.5)
     .attr('height', (d) => d.y1 - d.y0 - 1)
     .attr('width', () => nWidth);
 
-  nAutores
-    .select('.fix')
-    .attr('x', (d) => d.x0 - nWidth * d.fix)
-    .attr('y', (d) => d.y0 + 0.5)
-    .attr('height', (d) => d.y1 - d.y0 - 1)
-    .attr('width', (d) => nWidth * d.fix);
-
   // add in the title for the nodes
   nAutores
     .selectAll('text')
-    .attr('x', (d) => d.x0 - nWidth * d.fix - 6)
+    .attr('x', (d) => d.x0 - nWidth * d.fix - nRound - 6)
     .attr('y', (d) => (d.y1 + d.y0) / 2)
     .attr('text-anchor', 'end');
 

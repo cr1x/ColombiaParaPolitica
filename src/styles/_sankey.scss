@@ -22,13 +22,9 @@
 }
 
 .node rect {
-  fill: gray;
-  // stroke: black;
-  // stroke-width: 1px;
-}
-
-.node rect.fix {
-  fill: rgb(233, 233, 233);
+  fill: white;
+  stroke: rgb(84, 77, 152);
+  stroke-width: 2;
 }
 
 .node rect.tema {
