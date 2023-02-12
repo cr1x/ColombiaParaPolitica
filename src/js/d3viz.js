@@ -2,7 +2,7 @@
 import * as d3Base from './d3.min';
 import * as d3Sankey from './d3-sankey';
 // import & build Data
-import { getData } from './getData';
+import { dataGet } from './dataGet';
 import { selectAll } from 'd3';
 
 // join d3 libraries
@@ -19,6 +19,10 @@ let newSize = {
   width: 0,
   height: 0,
 };
+
+// columns name
+const colName = ['Autores', 'Periodos', 'Proyectos', 'Annos', 'Temas'];
+
 // set the dimensions and margins of the graph
 let margin = 40;
 let nWidth = 10;
@@ -31,7 +35,7 @@ let layerPos;
 // build sankey chart
 const buildDraw = async () => {
   // load CSV file
-  sData = await getData();
+  sData = await dataGet();
   await drawGraph();
   ro.observe(sankeyBox);
 };
@@ -104,7 +108,11 @@ const sankey = d3.sankey().nodeWidth(nWidth).nodePadding(nPadding).iterations(0)
 let guides = svg.append('g').attr('id', 'guides');
 let links = svg.append('g').attr('id', 'links');
 let nodes = svg.append('g').attr('id', 'nodes');
-let nAutores, nPeriodos, nProyectos, nAnnos, nTemas;
+
+// var nodes by layer
+for (let i = 0; i < colName.length; ++i) {
+  eval(`let n${colName[i]};`);
+}
 
 //
 // append elements of the graph
@@ -134,11 +142,10 @@ const drawGraph = () => {
     .append('g')
     .attr('class', 'node');
 
-  nAutores = nodes.filter((d) => d.depth === 0);
-  nPeriodos = nodes.filter((d) => d.depth === 1);
-  nProyectos = nodes.filter((d) => d.depth === 2);
-  nAnnos = nodes.filter((d) => d.depth === 3);
-  nTemas = nodes.filter((d) => d.depth === 4);
+  // nodes by layer
+  for (let i = 0; i < colName.length; ++i) {
+    eval(`n${colName[i]} = nodes.filter((d) => d.depth === ${i})`);
+  }
 
   // add the rectangles for the nodes
   nAutores
@@ -200,8 +207,8 @@ const drawGraph = () => {
 //
 // update graph size
 const updateGraph = async () => {
-  console.clear();
-  console.log('//');
+  // console.clear();
+  // console.log('//');
 
   textWid = await getText();
   layerPos = await getLayers();
