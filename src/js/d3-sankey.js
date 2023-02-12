@@ -283,6 +283,8 @@ import { getLayerPos } from './d3viz'; // get max width of names, layers positio
     function initializeNodeBreadths(columns) {
       const newCols = new Array(...columns); // clone array columns
 
+      let nodesAll = columns.flat();
+
       const pyGroup = 3; // value group padding
 
       // grouped nodes by nGroup (tema)
@@ -310,17 +312,12 @@ import { getLayerPos } from './d3viz'; // get max width of names, layers positio
 
       const ky = getKy();
 
-      const newCols0 = new Array(columns[0]); // clone columns 0
-      const newCols12 = new Array(newCols[1], newCols[2]); // clone newCols 1 and 2
-      const newCols3 = new Array(newCols[3]); // clone newCols 3
-      const newCols4 = new Array(newCols[4]); // clone newCols 4
-
-      for (let cols of newCols12) {
-        let y = y0;
+      for (let cols of [newCols[1], newCols[2]]) {
+        let y = 0;
         for (let node of cols) {
           for (let i = 0; i < node.length; i++) {
             node[i].y0 = y;
-            node[i].y1 = y + node[i].value * ky;
+            node[i].y1 = node[i].y0 + node[i].value * ky;
             for (const link of node[i].sourceLinks) {
               link.width = link.value * ky;
             }
@@ -332,49 +329,42 @@ import { getLayerPos } from './d3viz'; // get max width of names, layers positio
           }
         }
       }
-      for (let nodes of newCols0) {
-        let y = y0;
-        for (let node of nodes) {
-          let posLink = node.sourceLinks[0].target.y0;
-          node.y0 = posLink;
-          node.y1 = posLink + node.value * ky;
-          y = node.y1 + py;
-          for (const link of node.sourceLinks) {
+      for (let node of [...newCols[0].flat()]) {
+        let y = node.sourceLinks[0].target.y0;
+        node.y0 = y;
+        node.y1 = node.y0 + node.value * ky;
+        for (const link of node.sourceLinks) {
+          link.width = link.value * ky;
+        }
+      }
+
+      // for (let node of cols) {
+      //   node.reverse();
+      //   let last = node[i].targetLinks.length - 1;
+      //   let y = node[0].targetLinks[0].source.y0;
+      //   for (let i = 0; i < node.length; i++) {
+      //     node[i].y0 = y;
+      //     node[i].y1 = y + node[i].value * ky;
+      //     y = node[i].y1;
+      //     for (const link of node[i].sourceLinks) {
+      //       link.width = link.value * ky;
+      //     }
+      //   }
+      // }
+      for (let node of [...newCols[3], ...newCols[4]]) {
+        let lastNode = node.length - 1;
+        let lastLink = node[lastNode].targetLinks.length - 1;
+        let y = node[lastNode].targetLinks[lastLink].source.y1;
+        for (let i = node.length - 1; i >= 0; i--) {
+          node[i].y0 = y - node[i].value * ky;
+          node[i].y1 = node[i].y0 + node[i].value * ky;
+          y = node[i].y0;
+          for (const link of node[i].sourceLinks) {
             link.width = link.value * ky;
           }
         }
       }
-      for (let cols of newCols3) {
-        for (let node of cols) {
-          let y = node[0].targetLinks[0].source.y0;
-          for (let i = 0; i < node.length; i++) {
-            node[i].y0 = y;
-            node[i].y1 = y + node[i].value * ky;
-            y = node[i].y1;
-            for (const link of node[i].sourceLinks) {
-              link.width = link.value * ky;
-            }
-          }
-        }
-      }
-      for (let cols of newCols4) {
-        let y = y0;
-        for (let node of cols) {
-          for (let i = 0; i < node.length; i++) {
-            let posLink = node[i].targetLinks[0].source.y0;
-            node[i].y0 = posLink;
-            node[i].y1 = posLink + node[i].value * ky;
-            for (const link of node[i].sourceLinks) {
-              link.width = link.value * ky;
-            }
-            if (i + 1 == node.length) {
-              y = node[i].y1 + py * pyGroup;
-            } else {
-              y = node[i].y1 + py;
-            }
-          }
-        }
-      }
+      reorderLinks(nodesAll);
     }
 
     function computeNodeBreadths(graph) {

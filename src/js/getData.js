@@ -129,7 +129,7 @@ const buildData = (data) => {
 
   //
   // Nodes data
-  //
+
   // nodes group by 'id' and 'anno'
   let uniqueNodes = d3.group(
     sData.nodes,
@@ -167,11 +167,7 @@ const buildData = (data) => {
       : (d.fix = 3);
   });
 
-  sData.nodes.sort(
-    (a, b) =>
-      d3.ascending(Math.min(...a.anno), Math.min(...b.anno)) ||
-      d3.ascending(a.nGroup, b.nGroup)
-  );
+  sData.nodes.sort((a, b) => d3.ascending(Math.min(...a.anno), Math.min(...b.anno)));
 
   //
   // Links data
@@ -215,11 +211,6 @@ const buildData = (data) => {
     d.source = sData.nodes.map((obj) => obj.id).indexOf(d.source);
     d.target = sData.nodes.map((obj) => obj.id).indexOf(d.target);
   });
-
-  // links array order by 'source' and 'target'
-  sData.links.sort(
-    (a, b) => d3.ascending(a.source, b.source) || d3.ascending(a.target, b.target)
-  );
 
   // console.log('nodes =', sData.nodes);
   // console.log('links =', sData.links);

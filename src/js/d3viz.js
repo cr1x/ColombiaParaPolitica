@@ -10,10 +10,10 @@ const d3 = {
   ...d3Base,
   ...d3Sankey,
 };
-//
+
 // main data container
 let sData;
-//
+
 // size of graph container
 let newSize = {
   width: 0,
@@ -75,7 +75,7 @@ const getGuides = () => {
   for (let i = 0; i < layerPos.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       let line = [
-        [layerPos[i] + nWidth * j + nWidth / 2, 0],
+        [layerPos[i] + nWidth * j + nWidth / 2, -20 + 2 * j],
         [layerPos[i] + nWidth * j + nWidth / 2, newSize.height - 50],
       ];
       points.push(line);
@@ -104,23 +104,13 @@ const sankey = d3.sankey().nodeWidth(nWidth).nodePadding(nPadding).iterations(0)
 let guides = svg.append('g').attr('id', 'guides');
 let links = svg.append('g').attr('id', 'links');
 let nodes = svg.append('g').attr('id', 'nodes');
-let nAutores,
-  nPeriodos,
-  nProyectos,
-  nAnno,
-  nTemas,
-  temaNodes,
-  guides0,
-  guides1,
-  guides2,
-  guides3;
+let nAutores, nPeriodos, nProyectos, nAnnos, nTemas;
 
 //
 // append elements of the graph
 const drawGraph = () => {
-  // sankey
-  // .nodeSort((a, b) => d3.ascending(a.id, b.id))
-  // .linkSort((a, b) => d3.ascending(a.anno, b.anno));
+  // sankey.nodeSort((a, b) => d3.ascending(a.nGroup, b.nGroup));
+  // sankey.linkSort((a, b) => d3.descending(a.anno, b.anno));
 
   layerPos = getLayers();
 
@@ -147,9 +137,8 @@ const drawGraph = () => {
   nAutores = nodes.filter((d) => d.depth === 0);
   nPeriodos = nodes.filter((d) => d.depth === 1);
   nProyectos = nodes.filter((d) => d.depth === 2);
-  nAnno = nodes.filter((d) => d.depth === 3);
+  nAnnos = nodes.filter((d) => d.depth === 3);
   nTemas = nodes.filter((d) => d.depth === 4);
-  temaNodes = d3.selectAll([...nProyectos, ...nAnno, ...nTemas]);
 
   // add the rectangles for the nodes
   nAutores
@@ -175,7 +164,7 @@ const drawGraph = () => {
   // update nodeWidth in data
   nodes.data(graph.nodes, (d) => (d.nodeWid = nWidth));
 
-  temaNodes.each((d) => {
+  d3.selectAll([...nProyectos, ...nAnnos, ...nTemas]).each((d) => {
     let para = Math.round(
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
     );
@@ -184,13 +173,16 @@ const drawGraph = () => {
     lSource.forEach((e) => (e.paraPol = para));
   });
 
-  links.attr('class', (d) =>
-    d.lColumn === 0
-      ? `link pp${d.idPartido} para${d.paraPol}`
-      : d.lColumn === 1
-      ? `link pp${d.idPartido} c${d.congreso} para${d.paraPol}`
-      : `link t${d.idTema} para${d.paraPol}`
-  );
+  links
+    .attr('class', (d) =>
+      d.lColumn === 0
+        ? `link pp${d.idPartido} para${d.paraPol}`
+        : d.lColumn === 1
+        ? `link pp${d.idPartido} c${d.congreso} para${d.paraPol}`
+        : `link t${d.idTema} para${d.paraPol}`
+    )
+    .append('title')
+    .text((d) => d.nombre);
 
   nodes
     .selectAll('rect')
@@ -200,7 +192,9 @@ const drawGraph = () => {
         : d.depth === 1
         ? `pp${d.idPartido} c${d.congreso}`
         : `t${d.idTema} para${d.paraPol}`
-    );
+    )
+    .append('title')
+    .text((d) => d.nombre);
 };
 
 //
@@ -258,6 +252,12 @@ const updateGraph = async () => {
     .attr('y', (d) => (d.y1 + d.y0) / 2)
     .attr('dy', '0.35em')
     .attr('text-anchor', 'start');
+
+  // console.log(`nAutores =`, nAutores.nodes());
+  // console.log(`nPeriodos =`, nPeriodos.nodes());
+  // console.log(`nProyectos =`, nProyectos.nodes());
+  // console.log(`nAnnos =`, nAnnos.nodes());
+  // console.log(`nTemas =`, nTemas.nodes());
 };
 
 const sankeyBox = document.querySelector('#dataviz');
