@@ -26,7 +26,7 @@ const colName = ['Autores', 'Periodos', 'Proyectos', 'Annos', 'Temas'];
 // set the dimensions and margins of the graph
 let margin = 40;
 let nRound = 4;
-let nWidth = 10;
+let nWidth = 12;
 let nPadding = 6;
 let autoresWid = 0;
 let temasWid = 0;
@@ -80,8 +80,8 @@ const getGuides = () => {
   for (let i = 0; i < layerPos.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       let line = [
-        [layerPos[i] + nWidth * j - nRound / 2, -20 + 2 * j],
-        [layerPos[i] + nWidth * j - nRound / 2, newSize.height - 50],
+        [layerPos[i] + nWidth / 2 + nWidth * j - nRound / 2, -20 + 1 * j],
+        [layerPos[i] + nWidth / 2 + nWidth * j - nRound / 2, newSize.height - 50],
       ];
       points.push(line);
     }
@@ -188,15 +188,18 @@ const drawGraph = () => {
   // add in the title for the nodes
   nAutores
     .append('text')
-    .attr('class', 'nombre')
+    .attr('class', 'title--nombre')
     .text((d) => d.nombre);
 
   nAutores
     .append('text')
-    .attr('class', 'apellido')
+    .attr('class', 'title--apellido')
     .text((d) => d.apellido);
 
-  nTemas.append('text').text((d) => d.nombre);
+  nTemas
+    .append('text')
+    .attr('class', 'title--tema')
+    .text((d) => d.nombre);
 };
 
 //
@@ -230,7 +233,7 @@ const updateGraph = async () => {
     .attr('x', (d) => d.x0 - nRound / 2)
     .attr('y', (d) => d.y0 + 0.5)
     .attr('height', (d) => d.y1 - d.y0 - 1)
-    .attr('width', () => nWidth);
+    .attr('width', () => nWidth - nRound / 2);
 
   // add in the title for the nodes
   nAutores
@@ -239,8 +242,8 @@ const updateGraph = async () => {
     .attr('y', (d) => (d.y1 + d.y0) / 2)
     .attr('text-anchor', 'end');
 
-  nAutores.selectAll('.nombre').attr('dy', '-0.1em');
-  nAutores.selectAll('.apellido').attr('dy', '0.9em');
+  nAutores.selectAll('.title--nombre').attr('dy', '-0.1em');
+  nAutores.selectAll('.title--apellido').attr('dy', '0.9em');
 
   nTemas
     .selectAll('text')

@@ -1,0 +1,37 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('../fonts/Inter.ttf') format('truetype-variations');
+  font-weight: 100 900;
+  font-display: fallback;
+}
+
+$font-sankey: 'Inter';
+
+text {
+  font-size: clamp(var(--min), var(--val), var(--max));
+}
+
+#sankey {
+  font-family: $font-sankey;
+}
+
+.title {
+  &--nombre {
+    font-size: clamp(.7rem, calc(.2rem + .7vw), .8rem);
+    fill: rgb(84, 77, 152);
+    font-variation-settings: 'wght' 300, 'slnt' -10;
+  }
+
+  &--apellido {
+    font-size: clamp(.75rem, calc(.1rem + .9vw), .9rem);
+    fill: rgb(84, 77, 152);
+    font-variation-settings: 'wght' 600, 'slnt' 0;
+  }
+
+  &--tema {
+    text-transform: capitalize;
+    font-size: clamp(.9rem, calc(.3rem + .9vw), 1rem);
+    fill: rgb(84, 77, 152);
+    font-variation-settings: 'wght' 600, 'slnt' 0;
+  }
+}
