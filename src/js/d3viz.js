@@ -89,6 +89,55 @@ const getGuides = () => {
   return points;
 };
 
+function click() {
+  let prevNodes = [],
+    prevNew = [],
+    nextNodes = [],
+    nextNew = [];
+
+  let nSel = d3.select(this);
+
+  nSel.classed('fixed', !nSel.classed('fixed'));
+
+  nSel.each((d) => {
+    d['targetLinks'].forEach((e) => {
+      prevNodes.push(e.source);
+      highlight_link(e.id, e.source['id']);
+    });
+    d['sourceLinks'].forEach((e) => {
+      nextNodes.push(e.target);
+      highlight_link(e.id, e.target['id']);
+    });
+  });
+
+  while (nextNodes.length) {
+    nextNew = [];
+    nextNodes.forEach(function (d) {
+      d['sourceLinks'].forEach((e) => {
+        nextNew.push(e.target);
+        highlight_link(e.id, e.target['id']);
+      });
+    });
+    nextNodes = nextNew;
+  }
+
+  while (prevNodes.length) {
+    prevNew = [];
+    prevNodes.forEach(function (d) {
+      d['targetLinks'].forEach((e) => {
+        prevNew.push(e.source);
+        highlight_link(e.id, e.source['id']);
+      });
+    });
+    prevNodes = prevNew;
+  }
+}
+
+function highlight_link(id, source) {
+  d3.select(`#node${source}`).classed('fixed', true);
+  d3.select(`#link${id}`).classed('fixed', true);
+}
+
 const lineGen = d3.line();
 
 // format variables
@@ -141,7 +190,9 @@ const drawGraph = () => {
     .data(graph.nodes)
     .enter()
     .append('g')
-    .attr('class', 'node');
+    .attr('id', (d) => `node${d.id}`)
+    .attr('class', 'node')
+    .on('click', click);
 
   // nodes by layer
   for (let i = 0; i < colName.length; ++i) {
@@ -156,11 +207,15 @@ const drawGraph = () => {
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
     );
     d.paraPol = para;
-    let lSource = [...d.sourceLinks];
+    let lSource = d.sourceLinks;
     lSource.forEach((e) => (e.paraPol = para));
   });
 
   links
+    .attr('id', (d, i) => {
+      d.id = i;
+      return `link${i}`;
+    })
     .attr('class', (d) =>
       d.lColumn === 0
         ? `link pp${d.idPartido} para${d.paraPol}`
@@ -177,10 +232,10 @@ const drawGraph = () => {
     .attr('rx', nRound)
     .attr('class', (d) =>
       d.depth === 0
-        ? `autor para${d.paraPol}`
+        ? `nRect autor para${d.paraPol}`
         : d.depth === 1
-        ? `pp${d.idPartido} c${d.congreso}`
-        : `t${d.idTema} para${d.paraPol}`
+        ? `nRect pp${d.idPartido} c${d.congreso}`
+        : `nRect t${d.idTema} para${d.paraPol}`
     )
     .append('title')
     .text((d) => d.nombre);
@@ -230,7 +285,7 @@ const updateGraph = async () => {
 
   nodes
     .selectAll('rect')
-    .attr('x', (d) => d.x0 - nRound / 2)
+    .attr('x', (d) => d.x0 + 1 - nRound / 2)
     .attr('y', (d) => d.y0 + 0.5)
     .attr('height', (d) => d.y1 - d.y0 - 1)
     .attr('width', () => nWidth - nRound / 2);
@@ -252,6 +307,7 @@ const updateGraph = async () => {
     .attr('dy', '0.35em')
     .attr('text-anchor', 'start');
 
+  // console.log(links);
   // console.log(`nAutores =`, nAutores.nodes());
   // console.log(`nPeriodos =`, nPeriodos.nodes());
   // console.log(`nProyectos =`, nProyectos.nodes());

@@ -8,6 +8,10 @@
   stroke: #000;
   stroke-opacity: .2;
   fill: none;
+
+  &.fixed {
+    stroke: blue;
+  }
 }
 
 .link:hover {
@@ -21,17 +25,22 @@
   opacity: 0.3;
 }
 
-.node rect {
+.nRect {
   fill: white;
   stroke: rgb(84, 77, 152);
-  stroke-width: 2;
+  stroke-width: 1.5;
+
+  .fixed & {
+    fill: blue;
+  }
 }
+
 
 
 .guide {
   stroke: rgb(84, 77, 152);
-  stroke-opacity: 1;
-  stroke-width: 0.4;
+  stroke-opacity: .5;
+  stroke-width: .5;
   // stroke-linecap: round;
   // stroke-linejoin: round;
   // stroke-dasharray: 6, 4;
