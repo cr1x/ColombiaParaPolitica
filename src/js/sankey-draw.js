@@ -13,11 +13,6 @@ const d3 = {
 };
 // main data container
 let sData;
-// set the dimensions and margins of the graph
-let margin = 40,
-  nRound = 4,
-  nWidth = 12,
-  nPadding = 6;
 // columns name
 const colName = ['Autores', 'Periodos', 'Proyectos', 'Annos', 'Temas'];
 
@@ -38,7 +33,7 @@ const svg = d3
   .attr('id', 'sankeyBox');
 
 // Set the sankey diagram properties
-const sankey = d3.sankey().nodeWidth(nWidth).nodePadding(nPadding).iterations(0);
+const sankey = d3.sankey().iterations(0);
 
 let guides = svg.append('g').attr('id', 'guides');
 let links = svg.append('g').attr('id', 'links');
@@ -82,9 +77,6 @@ const drawSankey = () => {
     eval(`n${colName[i]} = nodes.filter((d) => d.depth === ${i})`);
   }
 
-  // update nodeWidth in data
-  nodes.data(graph.nodes, (d) => (d.nodeWid = nWidth - nRound));
-
   d3.selectAll([...nProyectos, ...nAnnos, ...nTemas]).each((d) => {
     let para = Math.round(
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
@@ -112,7 +104,6 @@ const drawSankey = () => {
   // add the rectangles for the nodes
   nodes
     .append('rect')
-    .attr('rx', nRound)
     .attr('class', (d) =>
       d.depth === 0
         ? `nRect autor para${d.paraPol}`
@@ -140,17 +131,4 @@ const drawSankey = () => {
     .text((d) => d.nombre);
 };
 
-export {
-  sData,
-  margin,
-  nRound,
-  nWidth,
-  nPadding,
-  colName,
-  svg,
-  sankey,
-  guides,
-  links,
-  nodes,
-  createSankey,
-};
+export { sData, colName, svg, sankey, guides, links, nodes, createSankey };

@@ -51,7 +51,6 @@ const getValues = (w, h, m, nw, nr) => {
     layerPos: layerPos,
     points: points,
   };
-  // console.log(`values =`, values);
   return values;
 };
 

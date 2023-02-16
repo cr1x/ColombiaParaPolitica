@@ -4,17 +4,7 @@ import * as d3Sankey from './d3-sankey';
 // get text widths, layer position, guides points
 import { getValues } from './sankey-getValues';
 //
-import {
-  sData,
-  margin,
-  nRound,
-  nWidth,
-  sankey,
-  guides,
-  links,
-  nodes,
-  createSankey,
-} from './sankey-draw';
+import { sData, v, sankey, guides, links, nodes, createSankey } from './sankey-draw';
 
 // div size observer
 const sankeyBox = document.querySelector('#dataviz');
@@ -24,11 +14,13 @@ const d3 = {
   ...d3Base,
   ...d3Sankey,
 };
-// size of graph container
-let newSize = {
-  w: 0,
-  h: 0,
-};
+// set the dimensions and margins of the graph
+let margin = 40,
+  nRound = 4,
+  nWidth = 12,
+  nPadding = 6,
+  w = 0,
+  h = 0;
 
 //
 // update graph size
@@ -36,14 +28,19 @@ const updateGraph = async () => {
   // console.clear();
   // console.log('//');
 
-  let values = await getValues(newSize.w, newSize.h, margin, nWidth, nRound);
+  // update nodeWidth in data
+  nodes.data(graph.nodes, (d) => (d.nodeWid = nWidth - nRound));
 
-  d3.select('#sankey').attr('width', newSize.w).attr('height', newSize.h);
+  let values = await getValues(w, h, margin, nWidth, nRound);
+
+  d3.select('#sankey').attr('width', w).attr('height', h);
 
   d3.select('#sankeyBox').attr('transform', `translate(${margin / 2}, ${margin})`);
 
   sankey
-    .size([newSize.w - margin - values.textWid, newSize.h - margin])
+    .size([w - margin - values.textWid, h - margin])
+    .nodeWidth(nWidth)
+    .nodePadding(nPadding)
     .layersPos(values.layerPos);
 
   guides.data(values.points).attr('d', (d, i) => d3.line()(values.points[i]));
@@ -54,6 +51,7 @@ const updateGraph = async () => {
 
   nodes
     .selectAll('rect')
+    .attr('rx', nRound)
     .attr('x', (d) => d.x0 + 1 - nRound / 2)
     .attr('y', (d) => d.y0 + 0.5)
     .attr('height', (d) => d.y1 - d.y0 - 1)
@@ -87,8 +85,8 @@ const updateGraph = async () => {
 // resize observer
 const ro = new ResizeObserver((entries) => {
   for (let entry of entries) {
-    newSize.w = Math.round(entry.contentRect.width);
-    newSize.h = Math.round(entry.contentRect.height);
+    w = Math.round(entry.contentRect.width);
+    h = Math.round(entry.contentRect.height);
   }
   updateGraph();
 });
