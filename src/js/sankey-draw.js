@@ -4,7 +4,7 @@ import * as d3Sankey from './d3-sankey';
 // import & build Data
 import { dataGet } from './dataGet';
 // hightlighting flow of node selection
-import { hightlight } from './sankey-highlight';
+import { hightlight, linksConnect, overlinks, outlinks } from './sankey-highlight';
 
 // join d3 libraries
 const d3 = {
@@ -60,7 +60,34 @@ const drawSankey = () => {
   guides = d3.selectAll('.guide');
 
   // add in the links
-  links = links.selectAll('.link').data(graph.links).enter().append('path');
+  links = links
+    .selectAll('.link')
+    .data(graph.links)
+    .enter()
+    .append('g')
+    .attr('id', (d, i) => {
+      d.id = `link${i + 1}`;
+      return d.id;
+    })
+    .each((d) => {
+      d.connect = linksConnect(d.id);
+    })
+    .on('mouseover', function () {
+      d3.select(this).each((d) => {
+        overlinks(d['connect']);
+      });
+    })
+    .on('mouseout', function () {
+      d3.select(this).each((d) => {
+        outlinks(d['connect']);
+      });
+    })
+    .attr('class', 'link')
+    .append('path');
+
+  // .on('click', function (d) {
+  //   return overlighting(this['id']);
+  // })
 
   // add in the nodes
   nodes = nodes
@@ -87,16 +114,12 @@ const drawSankey = () => {
   });
 
   links
-    .attr('id', (d, i) => {
-      d.id = i;
-      return `link${i}`;
-    })
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `link pp${d.idPartido} para${d.paraPol}`
+        ? `linkPath pp${d.idPartido} para${d.paraPol}`
         : d.lColumn === 1
-        ? `link pp${d.idPartido} c${d.congreso} para${d.paraPol}`
-        : `link t${d.idTema} para${d.paraPol}`
+        ? `linkPath pp${d.idPartido} c${d.congreso} para${d.paraPol}`
+        : `linkPath t${d.idTema} para${d.paraPol}`
     )
     .append('title')
     .text((d) => d.nombre);

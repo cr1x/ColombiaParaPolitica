@@ -30,7 +30,7 @@ const getValues = (w, h, m, nw, nr) => {
   let layerPos = new Array(
     0 + autoresWid,
     calcPercent(wTotal, 20) + autoresWid,
-    calcPercent(wTotal, 80) + autoresWid,
+    calcPercent(wTotal, 75) + autoresWid,
     calcPercent(wTotal, 90) + autoresWid,
     wTotal + autoresWid
   );

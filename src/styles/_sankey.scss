@@ -4,21 +4,22 @@
   border: 5px solid rgb(239, 239, 239);
 }
 
-.link {
+.linkPath {
   stroke: #000;
   stroke-opacity: .2;
   fill: none;
-  transition: stroke .3s ease-out;
+  transition: stroke .3s ease, stroke-opacity .3s ease;
 
-  &.fixed {
+  .over & {
+    stroke-opacity: .4;
+  }
+
+  .fixed & {
     stroke: blue;
-    transition: stroke .3s ease;
+    transition: stroke .3s ease, stroke-opacity .3s ease;
   }
 }
 
-.link:hover {
-  stroke-opacity: .3;
-}
 
 #update {
   width: 10vw;
@@ -36,7 +37,7 @@
   stroke: rgb(84, 77, 152);
   stroke-width: 1.5;
   will-change: fill;
-  transition: fill .3s ease-out;
+  transition: fill .3s linear;
 
   .fixed & {
     fill: blue;
