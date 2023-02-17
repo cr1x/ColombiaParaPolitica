@@ -7,64 +7,59 @@ const delay = (time) => {
   });
 };
 
-// nodes highlighting
-async function hightlight() {
-  let prevNodes = [],
-    newPrev = [],
-    nextNodes = [],
-    newNext = [];
+// nodes highlighting by flow levels
+const nodeslight = (id) => {
+  let prev = [],
+    next = [],
+    where = ['source', 'target'],
+    whereR = ['target', 'source'],
+    np = [next, prev],
+    flow = [];
 
-  let nSel = d3.select(this);
+  let nodeSel = d3.select(`#${id}`);
 
-  d3.selectAll('.node').on('click', null);
-
-  // nSel.classed('fixed', !nSel.classed('fixed'));
-
-  if (nSel.classed('fixed')) {
-    d3.selectAll('.node').classed('fixed fixed2', false);
-    d3.selectAll('.link').classed('fixed', false);
-  } else {
-    d3.selectAll('.node').classed('fixed fixed2', false);
-    d3.selectAll('.link').classed('fixed', false);
-    nSel.classed('fixed', true);
-
-    await delay(250);
-
-    nSel.each((d) => {
-      d['targetLinks'].forEach((e) => {
-        prevNodes.push(e.source);
-        highlight_flow(e.id, e.source['id']);
+  nodeSel.each((d) => {
+    where.forEach((x, i) => {
+      d[`${x}Links`].forEach((e) => {
+        flow.push({ nivel: 0, id: e.id });
+        np[i].push(e[whereR[i]]);
       });
-      d['sourceLinks'].forEach((e) => {
-        nextNodes.push(e.target);
-        highlight_flow(e.id, e.target['id']);
-      });
+
+      let n = 0,
+        news = [];
+
+      while (np[i].length) {
+        news = [];
+        n++;
+        np[i].forEach((d) => {
+          flow.push({ nivel: n, id: `node${d.id}` });
+          d[`${x}Links`].forEach((e) => {
+            flow.push({ nivel: n + 1, id: e.id });
+            news.push(e[whereR[i]]);
+          });
+        });
+        np[i] = news;
+        n++;
+      }
     });
+  });
 
-    await delay(500);
+  // unique nodes by 'value'
+  flow = Array.from([...new Map(flow.map((obj) => [obj['id'], obj])).values()]);
 
-    while (nextNodes.length || prevNodes.length) {
-      newNext = [];
-      newPrev = [];
-      nextNodes.forEach((d) => {
-        d['sourceLinks'].forEach((e) => {
-          newNext.push(e.target);
-          highlight_flow(e.id, e.target['id']);
-        });
-      });
-      nextNodes = newNext;
-      prevNodes.forEach((d) => {
-        d['targetLinks'].forEach((e) => {
-          newPrev.push(e.source);
-          highlight_flow(e.id, e.source['id']);
-        });
-      });
-      prevNodes = newPrev;
-      await delay(200);
-    }
-  }
-  d3.selectAll('.node').on('click', hightlight);
-}
+  flow.sort((a, b) => a.nivel - b.nivel);
+
+  flow = d3.group(
+    flow,
+    (d) => d.nivel,
+    (d) => d.id
+  );
+
+  // array with the years of each node + order
+  flow = Array.from(flow, (entry) => Array.from(entry[1].keys()));
+
+  return flow;
+};
 
 const highlight_flow = async (id, source) => {
   await delay(50);
@@ -73,7 +68,7 @@ const highlight_flow = async (id, source) => {
   d3.select(`#node${source}`).classed('fixed2', true);
 };
 
-// links mousover hightlighting
+// links mousover nodeslighting
 const linksConnect = (id) => {
   let prevLinks = [],
     newPrev = [],
@@ -121,44 +116,4 @@ const outlinks = (links) => {
   }
 };
 
-export { hightlight, linksConnect, overlinks, outlinks };
-
-// // links mousover hightlighting
-// const linkslighting = (id) => {
-//   let prevLinks = [],
-//     newPrev = [],
-//     nextLinks = [],
-//     newNext = [],
-//     linksId = [];
-//
-//   let linkSel = d3.select(`#${id}`);
-//
-//   linkSel.each((d) => {
-//     prevLinks.push(d.source);
-//     nextLinks.push(d.target);
-//     linksId.push(`#${d.id}`);
-//     d3.select(`#${d.id}`).classed('fixed', true);
-//   });
-//
-//   while (nextLinks.length || prevLinks.length) {
-//     newNext = [];
-//     newPrev = [];
-//     nextLinks.forEach((d) => {
-//       d['sourceLinks'].forEach((e) => {
-//         newNext.push(e.target);
-//         linksId.push(`#${e.id}`);
-//         d3.select(`#${e.id}`).classed('fixed', true);
-//       });
-//     });
-//     nextLinks = newNext;
-//     prevLinks.forEach((d) => {
-//       d['targetLinks'].forEach((e) => {
-//         newPrev.push(e.source);
-//         linksId.push(`#${e.id}`);
-//         d3.select(`#${e.id}`).classed('fixed', true);
-//       });
-//     });
-//     prevLinks = newPrev;
-//   }
-//   console.log(`linksId =`, linksId);
-// };
+export { nodeslight, linksConnect, overlinks, outlinks };

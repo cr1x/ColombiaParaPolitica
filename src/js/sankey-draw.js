@@ -4,7 +4,7 @@ import * as d3Sankey from './d3-sankey';
 // import & build Data
 import { dataGet } from './dataGet';
 // hightlighting flow of node selection
-import { hightlight, linksConnect, overlinks, outlinks } from './sankey-highlight';
+import { nodeslight, linksConnect, overlinks, outlinks } from './sankey-highlight';
 
 // join d3 libraries
 const d3 = {
@@ -85,10 +85,6 @@ const drawSankey = () => {
     .attr('class', 'link')
     .append('path');
 
-  // .on('click', function (d) {
-  //   return overlighting(this['id']);
-  // })
-
   // add in the nodes
   nodes = nodes
     .selectAll('.node')
@@ -96,8 +92,11 @@ const drawSankey = () => {
     .enter()
     .append('g')
     .attr('id', (d) => `node${d.id}`)
-    .attr('class', 'node')
-    .on('click', hightlight);
+    .each((d) => {
+      d.connect = nodeslight(`node${d.id}`);
+    })
+    .attr('class', 'node');
+  // .on('click', hightlight)
 
   // nodes by layer
   for (let i = 0; i < colName.length; ++i) {
@@ -122,7 +121,7 @@ const drawSankey = () => {
         : `linkPath t${d.idTema} para${d.paraPol}`
     )
     .append('title')
-    .text((d) => d.nombre);
+    .text((d) => `${d.id} - ${d.nombre}`);
 
   // add the rectangles for the nodes
   nodes
@@ -135,7 +134,7 @@ const drawSankey = () => {
         : `nRect t${d.idTema} para${d.paraPol}`
     )
     .append('title')
-    .text((d) => d.nombre);
+    .text((d) => `${d.id} - ${d.nombre}`);
 
   // add in the title for the nodes
   nAutores

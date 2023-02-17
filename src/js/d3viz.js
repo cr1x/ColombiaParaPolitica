@@ -74,7 +74,8 @@ const updateGraph = async () => {
     .attr('dy', '0.35em')
     .attr('text-anchor', 'start');
 
-  console.log(links);
+  // console.log(links);
+  // console.log(nodes);
   // console.log(`nAutores =`, nAutores.nodes());
   // console.log(`nPeriodos =`, nPeriodos.nodes());
   // console.log(`nProyectos =`, nProyectos.nodes());
