@@ -19,8 +19,8 @@ const d3 = {
 };
 // main data container
 let sData;
-// columns name
-const colName = ['Autores', 'Periodos', 'Proyectos', 'Annos', 'Temas'];
+// column name
+const column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
 
 // build sankey chart
 const createSankey = async () => {
@@ -28,7 +28,6 @@ const createSankey = async () => {
   sData = await dataGet();
   drawSankey();
 };
-// createSankey();
 
 // append the svg object to the body of the page
 const svg = d3
@@ -45,11 +44,6 @@ let guides = svg.append('g').attr('id', 'guides');
 let links = svg.append('g').attr('id', 'links');
 let nodes = svg.append('g').attr('id', 'nodes');
 
-// var nodes by layer
-for (let i = 0; i < colName.length; ++i) {
-  eval(`let n${colName[i]};`);
-}
-
 //
 // append elements of the graph
 const drawSankey = () => {
@@ -58,7 +52,7 @@ const drawSankey = () => {
 
   graph = sankey(sData);
 
-  for (let i = 0; i < colName.length - 1; ++i) {
+  for (let i = 0; i < column.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       guides.append('path').attr('class', 'guide');
     }
@@ -105,11 +99,11 @@ const drawSankey = () => {
     .attr('class', 'node');
 
   // nodes by layer
-  for (let i = 0; i < colName.length; ++i) {
-    eval(`n${colName[i]} = nodes.filter((d) => d.depth === ${i})`);
+  for (let i = 0; i < column.length; ++i) {
+    column[i] = nodes.filter((d) => d.depth === i);
   }
 
-  d3.selectAll([...nProyectos, ...nAnnos, ...nTemas]).each((d) => {
+  d3.selectAll([...column[2], ...column[3], ...column[4]]).each((d) => {
     let para = Math.round(
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
     );
@@ -143,20 +137,25 @@ const drawSankey = () => {
     .text((d) => `${d.id} - ${d.nombre}`);
 
   // add in the title for the nodes
-  nAutores
+  column[0]
     .append('text')
     .attr('class', 'title--nombre')
     .text((d) => d.nombre);
 
-  nAutores
+  column[0]
     .append('text')
     .attr('class', 'title--apellido')
     .text((d) => d.apellido);
 
-  nTemas
+  d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
+    .append('text')
+    .attr('class', 'title--value')
+    .text((d) => d.nombre);
+
+  column[4]
     .append('text')
     .attr('class', 'title--tema')
     .text((d) => d.nombre);
 };
 
-export { sData, colName, svg, sankey, guides, links, nodes, createSankey };
+export { sData, column, svg, sankey, guides, links, nodes, createSankey };

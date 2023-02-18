@@ -4,7 +4,10 @@ import * as d3Sankey from './d3-sankey';
 // get text widths, layer position, guides points
 import { getValues } from './sankey-getValues';
 //
-import { sData, v, sankey, guides, links, nodes, createSankey } from './sankey-draw';
+import { sData, column, sankey, guides, links, nodes, createSankey } from './sankey-draw';
+
+// column name guide
+// column = [autores, periodos, proyectos, annos, temas];
 
 // div size observer
 const sankeyBox = document.querySelector('#dataviz');
@@ -58,16 +61,30 @@ const updateGraph = async () => {
     .attr('width', () => nWidth - nRound / 2);
 
   // add in the title for the nodes
-  nAutores
+  column[0]
     .selectAll('text')
     .attr('x', (d) => d.x0 - nWidth * d.fix - nRound - 6)
     .attr('y', (d) => (d.y1 + d.y0) / 2)
     .attr('text-anchor', 'end');
 
-  nAutores.selectAll('.title--nombre').attr('dy', '-0.1em');
-  nAutores.selectAll('.title--apellido').attr('dy', '0.9em');
+  column[0].selectAll('.title--nombre').attr('dy', '-0.1em');
+  column[0].selectAll('.title--apellido').attr('dy', '0.9em');
 
-  nTemas
+  column[1]
+    .selectAll('.title--value')
+    .attr('x', (d) => d.x0 + nWidth + 6)
+    .attr('y', (d) => (d.y1 + d.y0) / 2)
+    .attr('dy', '0.35em')
+    .attr('text-anchor', 'start');
+
+  d3.selectAll([...column[2], ...column[3]])
+    .selectAll('.title--value')
+    .attr('x', (d) => d.x0 + nWidth + 6)
+    .attr('y', (d) => (d.y1 + d.y0) / 2)
+    .attr('dy', '0.35em')
+    .attr('text-anchor', 'start');
+
+  column[4]
     .selectAll('text')
     .attr('x', (d) => d.x0 + nWidth + 6)
     .attr('y', (d) => (d.y1 + d.y0) / 2)
@@ -76,11 +93,11 @@ const updateGraph = async () => {
 
   // console.log(links);
   // console.log(nodes);
-  // console.log(`nAutores =`, nAutores.nodes());
-  // console.log(`nPeriodos =`, nPeriodos.nodes());
-  // console.log(`nProyectos =`, nProyectos.nodes());
-  // console.log(`nAnnos =`, nAnnos.nodes());
-  // console.log(`nTemas =`, nTemas.nodes());
+  // console.log(`autores =`, column[0].nodes());
+  // console.log(`periodos =`, column[1].nodes());
+  // console.log(`proyectos =`, column[2].nodes());
+  // console.log(`annos =`, column[3].nodes());
+  // console.log(`temas =`, column[4].nodes());
 };
 
 // resize observer
