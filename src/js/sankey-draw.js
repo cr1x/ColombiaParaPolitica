@@ -3,8 +3,14 @@ import * as d3Base from './d3.min';
 import * as d3Sankey from './d3-sankey';
 // import & build Data
 import { dataGet } from './dataGet';
-// hightlighting flow of node selection
-import { nodeslight, linksConnect, overlinks, outlinks } from './sankey-highlight';
+// highlighting flow of node selection
+import {
+  linksConnect,
+  nodesConnect,
+  highlight_flow,
+  overlinks,
+  outlinks,
+} from './sankey-highlight';
 
 // join d3 libraries
 const d3 = {
@@ -93,10 +99,10 @@ const drawSankey = () => {
     .append('g')
     .attr('id', (d) => `node${d.id}`)
     .each((d) => {
-      d.connect = nodeslight(`node${d.id}`);
+      d.connect = nodesConnect(d.id);
     })
+    .on('click', highlight_flow)
     .attr('class', 'node');
-  // .on('click', hightlight)
 
   // nodes by layer
   for (let i = 0; i < colName.length; ++i) {

@@ -1,108 +1,47 @@
 import * as d3 from './d3.min';
 //
 
+let where = ['source', 'target'],
+  whereR = ['target', 'source'];
+
 const delay = (time) => {
   return new Promise((resolve) => {
     setTimeout(resolve, time);
   });
 };
 
-// nodes highlighting by flow levels
-const nodeslight = (id) => {
-  let prev = [],
-    next = [],
-    where = ['source', 'target'],
-    whereR = ['target', 'source'],
-    np = [next, prev],
-    flow = [];
-
-  let nodeSel = d3.select(`#${id}`);
-
-  nodeSel.each((d) => {
-    where.forEach((x, i) => {
-      d[`${x}Links`].forEach((e) => {
-        flow.push({ nivel: 0, id: e.id });
-        np[i].push(e[whereR[i]]);
-      });
-
-      let n = 0,
-        news = [];
-
-      while (np[i].length) {
-        news = [];
-        n++;
-        np[i].forEach((d) => {
-          flow.push({ nivel: n, id: `node${d.id}` });
-          d[`${x}Links`].forEach((e) => {
-            flow.push({ nivel: n + 1, id: e.id });
-            news.push(e[whereR[i]]);
-          });
-        });
-        np[i] = news;
-        n++;
-      }
-    });
-  });
-
-  // unique nodes by 'value'
-  flow = Array.from([...new Map(flow.map((obj) => [obj['id'], obj])).values()]);
-
-  flow.sort((a, b) => a.nivel - b.nivel);
-
-  flow = d3.group(
-    flow,
-    (d) => d.nivel,
-    (d) => d.id
-  );
-
-  // array with the years of each node + order
-  flow = Array.from(flow, (entry) => Array.from(entry[1].keys()));
-
-  return flow;
-};
-
-const highlight_flow = async (id, source) => {
-  await delay(50);
-  d3.select(`#${id}`).classed('fixed', true);
-  await delay(200);
-  d3.select(`#node${source}`).classed('fixed2', true);
-};
-
 // links mousover nodeslighting
 const linksConnect = (id) => {
-  let prevLinks = [],
-    newPrev = [],
-    nextLinks = [],
-    newNext = [],
-    linksId = [];
+  let prev = [],
+    next = [],
+    np = [next, prev],
+    flow = [];
 
   let linkSel = d3.select(`#${id}`);
 
   linkSel.each((d) => {
-    prevLinks.push(d.source);
-    nextLinks.push(d.target);
-    linksId.push(`#${d.id}`);
-  });
+    flow.push(`#${d.id}`);
+    where.forEach((x, i) => {
+      np[i].push(d[whereR[i]]);
+      flow.push(`#node${d[whereR[i]].id}`);
 
-  while (nextLinks.length || prevLinks.length) {
-    newNext = [];
-    newPrev = [];
-    nextLinks.forEach((d) => {
-      d['sourceLinks'].forEach((e) => {
-        newNext.push(e.target);
-        linksId.push(`#${e.id}`);
-      });
+      let news = [];
+
+      while (np[i].length) {
+        news = [];
+
+        np[i].forEach((d) => {
+          d[`${x}Links`].forEach((e) => {
+            flow.push(`#${e.id}`);
+            news.push(e[whereR[i]]);
+            flow.push(`#node${e[whereR[i]].id}`);
+          });
+        });
+        np[i] = news;
+      }
     });
-    nextLinks = newNext;
-    prevLinks.forEach((d) => {
-      d['targetLinks'].forEach((e) => {
-        newPrev.push(e.source);
-        linksId.push(`#${e.id}`);
-      });
-    });
-    prevLinks = newPrev;
-  }
-  return linksId;
+  });
+  return flow;
 };
 
 const overlinks = (links) => {
@@ -116,4 +55,90 @@ const outlinks = (links) => {
   }
 };
 
-export { nodeslight, linksConnect, overlinks, outlinks };
+//
+// nodes connections by flow levels
+const nodesConnect = (id) => {
+  let prev = [],
+    next = [],
+    np = [next, prev],
+    flow = [];
+
+  let nodeSel = d3.select(`#node${id}`);
+
+  nodeSel.each((d) => {
+    where.forEach((x, i) => {
+      d[`${x}Links`].forEach((e) => {
+        flow.push({ level: 0, id: `#${e.id}` });
+        np[i].push(e[whereR[i]]);
+      });
+
+      let n = 0,
+        news = [];
+
+      while (np[i].length) {
+        news = [];
+        n++;
+        np[i].forEach((d) => {
+          flow.push({ level: n, id: `#node${d.id}` });
+          d[`${x}Links`].forEach((e) => {
+            flow.push({ level: n + 1, id: `#${e.id}` });
+            news.push(e[whereR[i]]);
+          });
+        });
+        np[i] = news;
+        n++;
+      }
+    });
+  });
+
+  // unique nodes by 'value'
+  flow = Array.from([...new Map(flow.map((obj) => [obj['id'], obj])).values()]);
+
+  // result sort by level
+  flow.sort((a, b) => a.level - b.level);
+
+  flow = d3.group(
+    flow,
+    (d) => d.level,
+    (d) => d.id
+  );
+
+  // array by node with levels nodes & link
+  flow = Array.from(flow, (entry) => Array.from(entry[1].keys()));
+
+  return flow;
+};
+
+async function highlight_flow() {
+  let nodeSel = d3.select(this),
+    levelTime = 150,
+    active;
+
+  d3.selectAll('.node').on('click', null);
+
+  if (nodeSel.classed('fixed')) {
+    d3.selectAll('.node').classed('fixed fixed2', false);
+    d3.selectAll('.link').classed('fixed2', false);
+  } else {
+    d3.selectAll('.node').classed('fixed fixed2', false);
+    d3.selectAll('.link').classed('fixed2', false);
+    nodeSel.classed('fixed', true);
+
+    await delay(levelTime);
+
+    nodeSel.each(async (d) => {
+      active = (d.connect.length + 3) * levelTime;
+      console.log(d.connect.length);
+      for (let level of d.connect) {
+        await delay(levelTime);
+        for (let item of level) {
+          d3.select(item).classed('fixed2', true);
+        }
+      }
+    });
+  }
+  await delay(active);
+  d3.selectAll('.node').on('click', highlight_flow);
+}
+
+export { linksConnect, nodesConnect, highlight_flow, overlinks, outlinks };
