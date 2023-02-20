@@ -36,4 +36,33 @@ const sankeyLinkPath = (link) => {
   return path.toString();
 };
 
-export { sankeyLinkPath };
+// links patterns
+let patternC1 = d3
+  .select('defs')
+  .append('pattern')
+  .attr('id', 'patternC1')
+  .attr('class', 'pattern--c1')
+  .attr('width', '8')
+  .attr('height', '8')
+  .attr('patternUnits', 'userSpaceOnUse')
+  .attr('patternTransform', 'rotate(60)')
+  .append('rect')
+  .attr('width', '4')
+  .attr('height', '8')
+  .attr('transform', 'translate(0,0)');
+
+let patternC2 = d3
+  .select('defs')
+  .append('pattern')
+  .attr('id', 'patternC2')
+  .attr('class', 'pattern--c2')
+  .attr('width', '8')
+  .attr('height', '8')
+  .attr('patternUnits', 'userSpaceOnUse')
+  .attr('patternTransform', 'rotate(-60)')
+  .append('rect')
+  .attr('width', '4')
+  .attr('height', '8')
+  .attr('transform', 'translate(0,0)');
+
+export { sankeyLinkPath, patternC1, patternC2 };

@@ -38,7 +38,9 @@ const svg = d3
   .attr('id', 'sankeyBox');
 
 // Set the sankey diagram properties
-const sankey = d3.sankey().iterations(0);
+const sankey = d3.sankey();
+
+const defs = svg.append('defs');
 
 let links = svg.append('g').attr('id', 'links');
 let guides = svg.append('g').attr('id', 'guides');
@@ -106,11 +108,15 @@ const drawSankey = () => {
       d.lColumn === 0
         ? `linkPath pp--${d.idPartido} para--${d.paraPol}`
         : d.lColumn === 1
-        ? `linkPath pp--${d.idPartido} c--${d.congreso} para--${d.paraPol}`
+        ? `linkPath pp--${d.idPartido} para--${d.paraPol}`
         : `linkPath t--${d.idTema} para--${d.paraPol}`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
+
+  links
+    .filter((d) => d.lColumn === 0 || d.lColumn === 1)
+    .attr('fill', (d) => `url('#patternC${d.congreso}')`);
 
   // add the rectangles for the nodes
   nodes
@@ -119,7 +125,7 @@ const drawSankey = () => {
       d.depth === 0
         ? `nRect autor para--${d.paraPol}`
         : d.depth === 1
-        ? `nRect pp--${d.idPartido} c--${d.congreso}`
+        ? `nRect pp--${d.idPartido}`
         : `nRect t--${d.idTema} para--${d.paraPol}`
     )
     .append('title')

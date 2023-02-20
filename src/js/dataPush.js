@@ -94,6 +94,7 @@ const dataLoad = (dataCsv) => {
       nombre: `${d.nombre} ${d.apellido} ${d.anno}`,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
+      congreso: +d.congreso,
       idPartido: +d.idPartido,
       partido: d.partido,
       paraPol: +d.paraPol,

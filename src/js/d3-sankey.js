@@ -103,7 +103,7 @@
     let linkSort;
     let nodes = defaultNodes;
     let links = defaultLinks;
-    let iterations = 6;
+    let iterations = 0;
     let nRound = 2;
     let layersPos = [];
 

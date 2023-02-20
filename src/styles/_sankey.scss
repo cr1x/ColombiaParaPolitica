@@ -7,9 +7,9 @@
 .linkPath {
   // stroke: white;
   // stroke-width: 5;
-  fill: #000;
-  fill-opacity: .2;
-  transition: fill .3s ease, fill-opacity .3s ease;
+  // fill: #000;
+  // fill-opacity: .2;
+  // transition: fill .3s ease, fill-opacity .3s ease;
 
   .over & {
     fill-opacity: .4;
@@ -23,9 +23,20 @@
 
 .para {
   &--100 {
-    fill: #ef5375;
+    // fill: #ef5375;
   }
 }
+
+.pattern {
+  &--c1 {
+    fill: #ef5375;
+  }
+
+  &--c2 {
+    fill: #3ec1d5;
+  }
+}
+
 
 #update {
   width: 10vw;
@@ -39,7 +50,7 @@
 }
 
 .nRect {
-  fill: transparent;
+  fill: white;
   stroke: rgb(84, 77, 152);
   stroke-width: 1.5;
   will-change: fill;
