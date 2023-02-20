@@ -7,10 +7,6 @@
 
 $font-sankey: 'Inter';
 
-text {
-  font-size: clamp(var(--min), var(--val), var(--max));
-}
-
 #sankey {
   font-family: $font-sankey;
 }
@@ -33,5 +29,12 @@ text {
     font-size: clamp(.9rem, calc(.3rem + .9vw), 1rem);
     fill: rgb(84, 77, 152);
     font-variation-settings: 'wght' 600, 'slnt' 0;
+  }
+
+  &--value {
+    font-size: clamp(.75rem, calc(.1rem + .9vw), .9rem);
+    fill: rgb(84, 77, 152);
+    font-variation-settings: 'wght' 400, 'slnt' 0;
+    pointer-events: none;
   }
 }

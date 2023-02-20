@@ -44,16 +44,26 @@ const linksConnect = (id) => {
   return flow;
 };
 
-const overlinks = (links) => {
+// mouseover highlighting ON links flow
+function overlink() {
+  let links = d3.select(this);
+  links.each((d) => {
+    links = d.connect;
+  });
   for (let link of links) {
     d3.select(link).classed('over', true);
   }
-};
-const outlinks = (links) => {
+}
+// mouseout highlighting OFF links flow
+function outlink() {
+  let links = d3.select(this);
+  links.each((d) => {
+    links = d.connect;
+  });
   for (let link of links) {
     d3.select(link).classed('over', false);
   }
-};
+}
 
 //
 // nodes connections by flow levels
@@ -111,7 +121,7 @@ const nodesConnect = (id) => {
 
 async function highlight_flow() {
   let nodeSel = d3.select(this),
-    levelTime = 150,
+    levelTime = 200,
     active;
 
   d3.selectAll('.node').on('click', null);
@@ -128,7 +138,6 @@ async function highlight_flow() {
 
     nodeSel.each(async (d) => {
       active = (d.connect.length + 3) * levelTime;
-      console.log(d.connect.length);
       for (let level of d.connect) {
         await delay(levelTime);
         for (let item of level) {
@@ -141,4 +150,4 @@ async function highlight_flow() {
   d3.selectAll('.node').on('click', highlight_flow);
 }
 
-export { linksConnect, nodesConnect, highlight_flow, overlinks, outlinks };
+export { linksConnect, nodesConnect, highlight_flow, overlink, outlink };

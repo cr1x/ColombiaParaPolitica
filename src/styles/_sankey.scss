@@ -5,21 +5,27 @@
 }
 
 .linkPath {
-  stroke: #000;
-  stroke-opacity: .2;
-  fill: none;
-  transition: stroke .3s ease, stroke-opacity .3s ease;
+  // stroke: white;
+  // stroke-width: 5;
+  fill: #000;
+  fill-opacity: .2;
+  transition: fill .3s ease, fill-opacity .3s ease;
 
   .over & {
-    stroke-opacity: .4;
+    fill-opacity: .4;
   }
 
   .fixed2 & {
-    stroke: blue;
-    transition: stroke .5s ease, stroke-opacity .3s ease;
+    fill: blue;
+    transition: fill .5s ease, fill-opacity .3s ease;
   }
 }
 
+.para {
+  &--100 {
+    fill: #ef5375;
+  }
+}
 
 #update {
   width: 10vw;
@@ -33,7 +39,7 @@
 }
 
 .nRect {
-  fill: white;
+  fill: transparent;
   stroke: rgb(84, 77, 152);
   stroke-width: 1.5;
   will-change: fill;
@@ -50,12 +56,10 @@
   }
 }
 
-
-
 .guide {
-  stroke: rgb(84, 77, 152);
+  stroke: white;
   stroke-opacity: .5;
-  stroke-width: .5;
+  stroke-width: 1;
   // stroke-linecap: round;
   // stroke-linejoin: round;
   // stroke-dasharray: 6, 4;

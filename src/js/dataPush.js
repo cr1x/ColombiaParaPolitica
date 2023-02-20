@@ -21,7 +21,7 @@ const dataLoad = (dataCsv) => {
       anno: +d.anno,
       nGroup: 'autor',
       paraPol: +d.paraPol,
-      nodeWid: 0,
+      nodeWid: 5,
       lColumn: 0,
     });
     nodes.push({
@@ -35,7 +35,7 @@ const dataLoad = (dataCsv) => {
       paraPol: +d.paraPol,
       idPartido: +d.idPartido,
       partido: d.partido,
-      nodeWid: 0,
+      nodeWid: 5,
       lColumn: 1,
     });
     nodes.push({
@@ -46,7 +46,7 @@ const dataLoad = (dataCsv) => {
       nGroup: +d.idTema,
       idTema: +d.idTema,
       tema: d.tema,
-      nodeWid: 0,
+      nodeWid: 5,
       lColumn: 2,
     });
     nodes.push({
@@ -57,7 +57,7 @@ const dataLoad = (dataCsv) => {
       nGroup: +d.idTema,
       idTema: +d.idTema,
       tema: d.tema,
-      nodeWid: 0,
+      nodeWid: 5,
       lColumn: 3,
     });
     nodes.push({
@@ -66,7 +66,7 @@ const dataLoad = (dataCsv) => {
       anno: 0,
       idTema: +d.idTema,
       nGroup: +d.idTema,
-      nodeWid: 0,
+      nodeWid: 5,
       lColumn: 4,
     });
 

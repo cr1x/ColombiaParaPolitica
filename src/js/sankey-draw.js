@@ -8,8 +8,8 @@ import {
   linksConnect,
   nodesConnect,
   highlight_flow,
-  overlinks,
-  outlinks,
+  overlink,
+  outlink,
 } from './sankey-highlight';
 
 // join d3 libraries
@@ -19,8 +19,8 @@ const d3 = {
 };
 // main data container
 let sData;
-// column name
-const column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
+// column name => store nodes by layers
+let column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
 
 // build sankey chart
 const createSankey = async () => {
@@ -40,8 +40,8 @@ const svg = d3
 // Set the sankey diagram properties
 const sankey = d3.sankey().iterations(0);
 
-let guides = svg.append('g').attr('id', 'guides');
 let links = svg.append('g').attr('id', 'links');
+let guides = svg.append('g').attr('id', 'guides');
 let nodes = svg.append('g').attr('id', 'nodes');
 
 //
@@ -52,6 +52,7 @@ const drawSankey = () => {
 
   graph = sankey(sData);
 
+  // year guides by column
   for (let i = 0; i < column.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       guides.append('path').attr('class', 'guide');
@@ -69,19 +70,9 @@ const drawSankey = () => {
       d.id = `link${i + 1}`;
       return d.id;
     })
-    .each((d) => {
-      d.connect = linksConnect(d.id);
-    })
-    .on('mouseover', function () {
-      d3.select(this).each((d) => {
-        overlinks(d['connect']);
-      });
-    })
-    .on('mouseout', function () {
-      d3.select(this).each((d) => {
-        outlinks(d['connect']);
-      });
-    })
+    .each((d) => (d.connect = linksConnect(d.id)))
+    .on('mouseover', overlink)
+    .on('mouseout', outlink)
     .attr('class', 'link')
     .append('path');
 
@@ -92,9 +83,7 @@ const drawSankey = () => {
     .enter()
     .append('g')
     .attr('id', (d) => `node${d.id}`)
-    .each((d) => {
-      d.connect = nodesConnect(d.id);
-    })
+    .each((d) => (d.connect = nodesConnect(d.id)))
     .on('click', highlight_flow)
     .attr('class', 'node');
 
@@ -115,10 +104,10 @@ const drawSankey = () => {
   links
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `linkPath pp${d.idPartido} para${d.paraPol}`
+        ? `linkPath pp--${d.idPartido} para--${d.paraPol}`
         : d.lColumn === 1
-        ? `linkPath pp${d.idPartido} c${d.congreso} para${d.paraPol}`
-        : `linkPath t${d.idTema} para${d.paraPol}`
+        ? `linkPath pp--${d.idPartido} c--${d.congreso} para--${d.paraPol}`
+        : `linkPath t--${d.idTema} para--${d.paraPol}`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
@@ -128,10 +117,10 @@ const drawSankey = () => {
     .append('rect')
     .attr('class', (d) =>
       d.depth === 0
-        ? `nRect autor para${d.paraPol}`
+        ? `nRect autor para--${d.paraPol}`
         : d.depth === 1
-        ? `nRect pp${d.idPartido} c${d.congreso}`
-        : `nRect t${d.idTema} para${d.paraPol}`
+        ? `nRect pp--${d.idPartido} c--${d.congreso}`
+        : `nRect t--${d.idTema} para--${d.paraPol}`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
@@ -150,7 +139,7 @@ const drawSankey = () => {
   d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
     .append('text')
     .attr('class', 'title--value')
-    .text((d) => d.nombre);
+    .text((d) => d.value);
 
   column[4]
     .append('text')
