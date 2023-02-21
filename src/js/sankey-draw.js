@@ -114,9 +114,9 @@ const drawSankey = () => {
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
 
-  links
-    .filter((d) => d.lColumn === 0 || d.lColumn === 1)
-    .attr('fill', (d) => `url('#patternC${d.congreso}')`);
+  // links
+  //   .filter((d) => d.lColumn === 0 || d.lColumn === 1)
+  //   .attr('fill', (d) => `url('#patternC${d.congreso}')`);
 
   // add the rectangles for the nodes
   nodes

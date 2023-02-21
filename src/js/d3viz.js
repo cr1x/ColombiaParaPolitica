@@ -6,7 +6,7 @@ import { getValues } from './sankey-getValues';
 //
 import { sData, column, sankey, guides, links, nodes, createSankey } from './sankey-draw';
 // Link path generator
-import { sankeyLinkPath, patternC1, patternC2 } from './sankeyLinkPath';
+import { sankeyLinkPath } from './sankeyLinkPath';
 
 // column name guide
 // column = [autores, periodos, proyectos, annos, temas];
@@ -54,8 +54,19 @@ const updateGraph = async () => {
 
   graph = sankey(sData);
 
-  // links.attr('d', d3.sankeyLinkHorizontal()).attr('stroke-width', (d) => d.width);
-  links.attr('d', (d) => sankeyLinkPath(d));
+  // links
+  //   .attr('d', d3.sankeyLinkHorizontal())
+  //   .attr('fill', 'none')
+  //   .attr('stroke', 'salmon')
+  //   .attr('stroke-width', (d) => d.width);
+
+  links
+    .attr('d', (d) => sankeyLinkPath(d))
+    .attr('fill', 'none')
+    .attr('stroke', 'none')
+    .attr('marker-start', (d) => `url('#markerC1')`)
+    .attr('marker-mid', (d) => `url('#markerC1')`)
+    .attr('marker-end', (d) => `url('#markerC1')`);
 
   // links.attr('fill', 'url("#patternC1")');
 

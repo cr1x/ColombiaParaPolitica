@@ -50,9 +50,10 @@
 }
 
 .nRect {
-  fill: white;
+  fill: transparent;
   stroke: rgb(84, 77, 152);
   stroke-width: 1.5;
+  stroke-width: 1;
   will-change: fill;
   transition: fill .3s linear;
 
