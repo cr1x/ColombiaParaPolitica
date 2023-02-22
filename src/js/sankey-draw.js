@@ -104,20 +104,28 @@ const drawSankey = () => {
   links
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `link autor para`
+        ? `link aut pp--${d.idPartido} para`
         : d.lColumn === 1
-        ? `link proy para`
-        : `link tema tema--${d.idTema} para`
+        ? `link proy pp--${d.idPartido} para`
+        : `link tem--${d.idTema} para`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
 
-  links.append('path').attr('class', (d) => `para--${d.paraPol}`);
+  links
+    .filter((d) => d.lColumn === 0 || d.lColumn === 1)
+    .append('path')
+    .attr('class', (d) => `paraBg para--${d.paraPol}`);
+
+  links
+    .filter((d) => d.lColumn === 2 || d.lColumn === 3)
+    .append('path')
+    .attr('class', (d) => `para--${d.paraPol}`);
 
   links
     .filter((d) => d.lColumn === 0 || d.lColumn === 1)
     .append('path')
-    .attr('class', (d) => `partido partido--${d.idPartido} congreso--${d.congreso}`);
+    .attr('class', (d) => `con--${d.congreso} para--${d.paraPol}`);
 
   links = links.selectAll('path');
 

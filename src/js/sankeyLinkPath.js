@@ -37,21 +37,21 @@ const sankeyLinkPath = (link) => {
   return path.toString();
 };
 
-const lineW = '2';
-const lineH = '6';
-const rotate = '10';
+const area = '6';
+const line = `${area - 1}`;
+const rotate = '30';
 
 const patternC1 = d3
   .select('defs')
   .append('pattern')
   .attr('id', 'patternC1')
-  .attr('width', lineH)
-  .attr('height', lineH)
+  .attr('width', area)
+  .attr('height', area / 2)
   .attr('patternUnits', 'userSpaceOnUse')
   .attr('patternTransform', `rotate(${rotate})`)
   .append('rect')
-  .attr('width', lineW)
-  .attr('height', lineH)
+  .attr('width', line)
+  .attr('height', area / 2)
   .attr('fill', 'white');
 
 const maskC1 = d3
@@ -67,13 +67,13 @@ const patternC2 = d3
   .select('defs')
   .append('pattern')
   .attr('id', 'patternC2')
-  .attr('width', lineH)
-  .attr('height', lineH)
+  .attr('width', area)
+  .attr('height', area / 2)
   .attr('patternUnits', 'userSpaceOnUse')
   .attr('patternTransform', `rotate(-${rotate})`)
   .append('rect')
-  .attr('width', lineW)
-  .attr('height', lineH)
+  .attr('width', line)
+  .attr('height', area / 2)
   .attr('fill', 'white');
 
 const maskC2 = d3
