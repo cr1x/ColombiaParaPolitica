@@ -54,21 +54,11 @@ const updateGraph = async () => {
 
   graph = sankey(sData);
 
+  links.attr('d', (d) => sankeyLinkPath(d));
+
   // links
-  //   .attr('d', d3.sankeyLinkHorizontal())
-  //   .attr('fill', 'none')
-  //   .attr('stroke', 'salmon')
-  //   .attr('stroke-width', (d) => d.width);
-
-  links
-    .attr('d', (d) => sankeyLinkPath(d))
-    .attr('fill', 'none')
-    .attr('stroke', 'none')
-    .attr('marker-start', (d) => `url('#markerC1')`)
-    .attr('marker-mid', (d) => `url('#markerC1')`)
-    .attr('marker-end', (d) => `url('#markerC1')`);
-
-  // links.attr('fill', 'url("#patternC1")');
+  //   .filter((d) => d.lColumn === 0 || d.lColumn === 1)
+  //   .attr('fill', (d) => `url('#patternG')`);
 
   nodes
     .selectAll('rect')

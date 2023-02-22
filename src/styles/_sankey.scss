@@ -4,38 +4,73 @@
   border: 5px solid rgb(239, 239, 239);
 }
 
-.linkPath {
+.link {
   // stroke: white;
-  // stroke-width: 5;
+  // stroke-width: 1.5;
+  // mask: url(#maskC1);
   // fill: #000;
   // fill-opacity: .2;
   // transition: fill .3s ease, fill-opacity .3s ease;
 
-  .over & {
-    fill-opacity: .4;
+  //   .over & {
+  //     fill-opacity: .4;
+  //   }
+  // 
+  //   .fixed2 & {
+  //     fill: blue;
+  //     transition: fill .5s ease, fill-opacity .3s ease;
+  //   }
+}
+
+.autor,
+.proy {
+
+  .congreso {
+    &--1 {
+      mask: url(#maskC1);
+      fill: rgb(214, 215, 127);
+    }
+
+    &--2 {
+      mask: url(#maskC2);
+      fill: #89ade6;
+    }
   }
 
-  .fixed2 & {
-    fill: blue;
-    transition: fill .5s ease, fill-opacity .3s ease;
+  &.para {
+    .para {
+      &--0 {
+        fill: white;
+      }
+
+      &--100 {
+        fill: #ee316d;
+      }
+    }
   }
+}
+
+.tema {
+  fill: #c2c2c2;
 }
 
 .para {
-  &--100 {
-    // fill: #ef5375;
+  .para {
+    &--0 {
+      fill: #b8fff1;
+    }
+
+    &--50 {
+      fill: #c46583;
+    }
+
+    &--100 {
+      fill: #ee316d;
+    }
   }
 }
 
-.pattern {
-  &--c1 {
-    fill: #ef5375;
-  }
 
-  &--c2 {
-    fill: #3ec1d5;
-  }
-}
 
 
 #update {
@@ -50,10 +85,9 @@
 }
 
 .nRect {
-  fill: transparent;
+  fill: white;
   stroke: rgb(84, 77, 152);
   stroke-width: 1.5;
-  stroke-width: 1;
   will-change: fill;
   transition: fill .3s linear;
 

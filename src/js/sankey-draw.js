@@ -74,9 +74,7 @@ const drawSankey = () => {
     })
     .each((d) => (d.connect = linksConnect(d.id)))
     .on('mouseover', overlink)
-    .on('mouseout', outlink)
-    .attr('class', 'link')
-    .append('path');
+    .on('mouseout', outlink);
 
   // add in the nodes
   nodes = nodes
@@ -106,17 +104,22 @@ const drawSankey = () => {
   links
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `linkPath pp--${d.idPartido} para--${d.paraPol}`
+        ? `link autor para`
         : d.lColumn === 1
-        ? `linkPath pp--${d.idPartido} para--${d.paraPol}`
-        : `linkPath t--${d.idTema} para--${d.paraPol}`
+        ? `link proy para`
+        : `link tema tema--${d.idTema} para`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
 
-  // links
-  //   .filter((d) => d.lColumn === 0 || d.lColumn === 1)
-  //   .attr('fill', (d) => `url('#patternC${d.congreso}')`);
+  links.append('path').attr('class', (d) => `para--${d.paraPol}`);
+
+  links
+    .filter((d) => d.lColumn === 0 || d.lColumn === 1)
+    .append('path')
+    .attr('class', (d) => `partido partido--${d.idPartido} congreso--${d.congreso}`);
+
+  links = links.selectAll('path');
 
   // add the rectangles for the nodes
   nodes
