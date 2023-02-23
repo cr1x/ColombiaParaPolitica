@@ -27,6 +27,17 @@ let margin = 40,
   sWidth = 0,
   sHeigh = 0;
 
+// for (let i = 0; i <= 5; i++) {
+//   d3.select('#sankey')
+//     .append('rect')
+//     .attr('width', '100')
+//     .attr('height', '200')
+//     .attr('x', `${i * 100 + 150}`)
+//     .attr('y', '0')
+//     .attr('fill', 'gray')
+//     .attr('class', `box--${i * 20}`);
+// }
+
 //
 // update graph size
 const updateGraph = async () => {
@@ -54,11 +65,7 @@ const updateGraph = async () => {
 
   graph = sankey(sData);
 
-  links.attr('d', (d) => sankeyLinkPath(d));
-
-  // links
-  //   .filter((d) => d.lColumn === 0 || d.lColumn === 1)
-  //   .attr('fill', (d) => `url('#patternG')`);
+  links.selectAll('path').attr('d', (d) => sankeyLinkPath(d));
 
   nodes
     .selectAll('rect')

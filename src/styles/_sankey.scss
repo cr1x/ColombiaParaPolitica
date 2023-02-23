@@ -1,3 +1,17 @@
+// colors
+$color-para: #ED263A;
+$color-tema: #cbe1f2;
+$color-stops: 5;
+// partidos políticos colors
+$color-pp-01: #f90;
+
+@function tint($color-end, $color-start, $percentage) {
+  @return mix($color-end, $color-start, $percentage);
+}
+
+// #D3D7BE
+
+
 #dataviz {
   width: 100vw;
   height: 90vh;
@@ -5,31 +19,34 @@
 }
 
 .link {
-  fill: #e5e2d6;
+  opacity: .4;
+  transition: opacity .2s linear;
 
-  .paraBg {
-    fill: transparent;
+  &.fixed2 {
+    opacity: .7;
+    transition: opacity .3s linear;
   }
 
-  // stroke: white;
-  // stroke-width: 1.5;
-  // mask: url(#maskC1);
-  // fill-opacity: .2;
-  // transition: fill .3s ease, fill-opacity .3s ease;
+  &.over {
+    opacity: .9;
+  }
 
-  //   .over & {
-  //     fill-opacity: .4;
-  //   }
-  // 
-  //   .fixed2 & {
-  //     fill: blue;
-  //     transition: fill .5s ease, fill-opacity .3s ease;
-  //   }
+  path {
+    fill: #e5e2d6;
+  }
+}
+
+.box {
+  @for $i from 0 through $color-stops {
+    &--#{($i * 20)} {
+      fill: tint($color-para, $color-tema, $i * 20%);
+    }
+  }
 }
 
 .aut,
 .proy {
-  .con {
+  &.con {
     &--1 {
       mask: url(#maskC1);
     }
@@ -50,17 +67,6 @@
       fill: #ee316d;
     }
   }
-
-  .paraBg {
-    // stroke: white;
-    // stroke-width: 4;
-
-    &.para {
-      &--100 {
-        fill: transparent;
-      }
-    }
-  }
 }
 
 
@@ -79,9 +85,9 @@
 
 .nRect {
   fill: white;
-  stroke: rgb(84, 77, 152);
+  stroke: #544d98;
   stroke-width: 1.5;
-  will-change: fill;
+  stroke-opacity: .6;
   transition: fill .3s linear;
 
   .fixed & {
@@ -99,8 +105,5 @@
   stroke: white;
   stroke-opacity: .5;
   stroke-width: 1;
-  // stroke-linecap: round;
-  // stroke-linejoin: round;
-  // stroke-dasharray: 6, 4;
   fill: none;
 }

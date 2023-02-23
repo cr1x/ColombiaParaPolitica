@@ -104,30 +104,15 @@ const drawSankey = () => {
   links
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `link aut pp--${d.idPartido} para`
+        ? `link aut pp--${d.idPartido} con--${d.congreso} para`
         : d.lColumn === 1
-        ? `link proy pp--${d.idPartido} para`
+        ? `link proy pp--${d.idPartido} con--${d.congreso} para`
         : `link tem--${d.idTema} para`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
 
-  links
-    .filter((d) => d.lColumn === 0 || d.lColumn === 1)
-    .append('path')
-    .attr('class', (d) => `paraBg para--${d.paraPol}`);
-
-  links
-    .filter((d) => d.lColumn === 2 || d.lColumn === 3)
-    .append('path')
-    .attr('class', (d) => `para--${d.paraPol}`);
-
-  links
-    .filter((d) => d.lColumn === 0 || d.lColumn === 1)
-    .append('path')
-    .attr('class', (d) => `con--${d.congreso} para--${d.paraPol}`);
-
-  links = links.selectAll('path');
+  links.append('path').attr('class', (d) => `para--${d.paraPol}`);
 
   // add the rectangles for the nodes
   nodes
@@ -164,4 +149,4 @@ const drawSankey = () => {
     .text((d) => d.nombre);
 };
 
-export { sData, column, svg, sankey, guides, links, nodes, createSankey };
+export { sData, column, sankey, guides, links, nodes, createSankey };
