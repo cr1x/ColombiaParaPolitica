@@ -1,16 +1,11 @@
 // colors
-$color-para: #ED263A;
-$color-tema: #cbe1f2;
-$color-stops: 5;
-// partidos políticos colors
-$color-pp-01: #f90;
+@use 'colors' as color;
 
-@function tint($color-end, $color-start, $percentage) {
-  @return mix($color-end, $color-start, $percentage);
-}
+// @function tint($color-end, $color-start, $percentage) {
+//   @return mix($color-end, $color-start, $percentage);
+// }
 
-// #D3D7BE
-
+// @debug "partidos: #{length(color.$partidos)}";
 
 #dataviz {
   width: 100vw;
@@ -31,46 +26,57 @@ $color-pp-01: #f90;
     opacity: .9;
   }
 
-  path {
-    fill: #e5e2d6;
-  }
-}
-
-.box {
-  @for $i from 0 through $color-stops {
-    &--#{($i * 20)} {
-      fill: tint($color-para, $color-tema, $i * 20%);
-    }
-  }
+  // path {
+  //   fill: #e5e2d6;
+  // }
 }
 
 .aut,
 .proy {
-  &.con {
-    &--1 {
-      mask: url(#maskC1);
-    }
+  // &.con {
+  //   @for $i from 1 through 2 {
+  //     &--#{$i} {
+  //       mask: url('#maskC' + $i);
+  //     }
+  //   }
+  // }
 
-    &--2 {
-      mask: url(#maskC2);
+  //   &.con {
+  //     &--1 {
+  //       mask: url(#maskC1);
+  //     }
+  // 
+  //     &--2 {
+  //       mask: url(#maskC2);
+  //     }
+  //   }
+
+  &.pp {
+    @for $i from 1 through length(color.$partidos) {
+      &--#{($i)} {
+        fill: nth(color.$partidos, $i);
+      }
+    }
+  }
+
+  &.para {
+    .para--100 {
+      fill: color.$para;
     }
   }
 }
 
-.para {
-  .para {
-    &--50 {
-      fill: #c46583;
-    }
-
-    &--100 {
-      fill: #ee316d;
+.tema {
+  &.para {
+    .para {
+      @for $i from 0 through color.$tema-stops {
+        &--#{($i * 20)} {
+          fill: mix(color.$para, color.$tema, $i * 20%);
+        }
+      }
     }
   }
 }
-
-
-
 
 #update {
   width: 10vw;

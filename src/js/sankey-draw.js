@@ -2,7 +2,7 @@
 import * as d3Base from './d3.min';
 import * as d3Sankey from './d3-sankey';
 // import & build Data
-import { dataGet } from './dataGet';
+import { dataGet, partidos } from './dataGet';
 // highlighting flow of node selection
 import {
   linksConnect,
@@ -21,6 +21,8 @@ const d3 = {
 let sData;
 // column name => store nodes by layers
 let column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
+
+let partidos = [];
 
 // build sankey chart
 const createSankey = async () => {
@@ -46,6 +48,13 @@ let links = svg.append('g').attr('id', 'links');
 let guides = svg.append('g').attr('id', 'guides');
 let nodes = svg.append('g').attr('id', 'nodes');
 
+// array from pp colors "25 colors" unordered
+const ppColors = Array.from(Array(25), (_, index) => index + 1).sort(
+  () => Math.random() - 0.5
+);
+// console.log(`ppColors =`, ppColors);
+//
+//
 //
 // append elements of the graph
 const drawSankey = () => {
@@ -87,31 +96,51 @@ const drawSankey = () => {
     .on('click', highlight_flow)
     .attr('class', 'node');
 
-  // nodes by layer
+  // selectAll nodes by layer(column)
   for (let i = 0; i < column.length; ++i) {
     column[i] = nodes.filter((d) => d.depth === i);
   }
 
+  // assigment tp nodes & links paraPol value
   d3.selectAll([...column[2], ...column[3], ...column[4]]).each((d) => {
     let para = Math.round(
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
     );
+    para < 20
+      ? (para = 0)
+      : para >= 20 && para < 40
+      ? (para = 20)
+      : para >= 40 && para < 60
+      ? (para = 40)
+      : para >= 60 && para < 80
+      ? (para = 60)
+      : para >= 80 && para < 100
+      ? (para = 80)
+      : (para = para);
     d.paraPol = para;
     let lSource = d.sourceLinks;
     lSource.forEach((e) => (e.paraPol = para));
   });
 
+  // assigment links classes
   links
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `link aut pp--${d.idPartido} con--${d.congreso} para`
+        ? `link aut pp--${ppColors[partidos.indexOf(d.idPartido)]} con--${
+            d.congreso
+          } para`
         : d.lColumn === 1
-        ? `link proy pp--${d.idPartido} con--${d.congreso} para`
-        : `link tem--${d.idTema} para`
+        ? `link proy pp--${ppColors[partidos.indexOf(d.idPartido)]} con--${
+            d.congreso
+          } para`
+        : `link tema tem--${d.idTema} para`
     )
     .append('title')
     .text((d) => `${d.id} - ${d.nombre}`);
 
+  // links.classed('para', false);
+
+  // add links path
   links.append('path').attr('class', (d) => `para--${d.paraPol}`);
 
   // add the rectangles for the nodes

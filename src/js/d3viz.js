@@ -27,17 +27,6 @@ let margin = 40,
   sWidth = 0,
   sHeigh = 0;
 
-// for (let i = 0; i <= 5; i++) {
-//   d3.select('#sankey')
-//     .append('rect')
-//     .attr('width', '100')
-//     .attr('height', '200')
-//     .attr('x', `${i * 100 + 150}`)
-//     .attr('y', '0')
-//     .attr('fill', 'gray')
-//     .attr('class', `box--${i * 20}`);
-// }
-
 //
 // update graph size
 const updateGraph = async () => {

@@ -7,6 +7,8 @@ const dataLoad = (dataCsv) => {
   let links = [];
   // temporary data container
   let linksTemp = [];
+  // partidos políticos
+  let partidos = [];
 
   // load data in the container
   dataCsv.forEach((d) => {
@@ -122,8 +124,11 @@ const dataLoad = (dataCsv) => {
       anno: +d.anno,
       lColumn: 3,
     });
+
+    // partidos políticos
+    partidos.push(+d.idPartido);
   });
-  return [nodes, links, linksTemp];
+  return [nodes, links, linksTemp, partidos];
 };
 
 // async function for load data
