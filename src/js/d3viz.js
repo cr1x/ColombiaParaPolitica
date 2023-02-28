@@ -38,7 +38,7 @@ const updateGraph = async () => {
     col.each((d) => (d.nodeWid = nWidth[i]));
   });
 
-  let values = await getValues(sWidth, sHeigh, margin, nWidth, round);
+  let values = await getValues(sWidth, sHeigh, margin, nWidth);
 
   d3.select('#sankey').attr('width', sWidth).attr('height', sHeigh);
 
@@ -46,7 +46,6 @@ const updateGraph = async () => {
 
   sankey
     .size([sWidth - margin - values.textWid, sHeigh - margin])
-    .nRound(round)
     .nodePadding(nPadding)
     .layersPos(values.layerPos);
 
@@ -54,16 +53,35 @@ const updateGraph = async () => {
 
   graph = sankey(sData);
 
-  links.selectAll('path').attr('d', (d) => sankeyLinkPath(d));
+  links
+    .selectAll('path')
+    .attr('d', d3.sankeyLinkHorizontal())
+    .attr('stroke-width', (d) => d.width - 1);
+  // links.selectAll('path').attr('d', (d) => sankeyLinkPath(d));
 
   nodes
-    .selectAll('rect')
-    .attr('rx', (d) => d.nodeWid / round)
-    // .attr('x', (d) => d.x0)
-    .attr('x', (d) => d.x0 - d.nodeWid / 2 + d.nodeWid / (round * 2))
+    .selectAll('.nRect')
+    .attr('x', (d) => d.x0)
     .attr('y', (d) => d.y0)
     .attr('width', (d) => d.nodeWid)
     .attr('height', (d) => d.y1 - d.y0);
+
+  column[2]
+    .selectAll('.pp')
+    .attr('x', (d) => d.x0)
+    .attr('width', (d) => d.nodeWid / 2);
+
+  column[2].each(function (d) {
+    let pps = d3.select(this).selectAll('.pp');
+    let targets = Array.from(d3.selectAll(d.targetLinks));
+    // console.log(`pps =`, pps);
+    // console.log(`targets =`, targets);
+    pps.each(function (d, i) {
+      d3.select(this)
+        .attr('y', targets[i].y1 - targets[i].width / 2 + 0.5)
+        .attr('height', targets[i].width - 1);
+    });
+  });
 
   // add in the title for the nodes
   column[0]

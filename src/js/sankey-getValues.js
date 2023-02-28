@@ -5,7 +5,7 @@ const calcPercent = (num, percentage) => Math.floor((num / 100) * percentage);
 
 // get max width of autor titles & tema titles
 // (widht, heigh, margin, nWidth, nRound)
-const getValues = (sWidth, sHeigh, sMargin, nWidth, round) => {
+const getValues = (sWidth, sHeigh, sMargin, nWidth) => {
   let titles0 = [],
     titles4 = [],
     points = [];
@@ -43,13 +43,9 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, round) => {
   // guides position "4" by layer
   for (let i = 0; i < layerPos.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
-      // let line = [
-      //   [layerPos[i] + nWidth[i] / 2 + nWidth[i] * j - nr / 2, -20 + 1 * j],
-      //   [layerPos[i] + nWidth[i] / 2 + nWidth[i] * j - nr / 2, sHeigh - 50],
-      // ];
       let line = [
-        [layerPos[i] + nWidth[i] / (round * 2) + nWidth[i] * j, -20 + 1 * j],
-        [layerPos[i] + nWidth[i] / (round * 2) + nWidth[i] * j, sHeigh - 50],
+        [layerPos[i] + nWidth[i] / 2 + nWidth[i] * j, -20 + 1 * j],
+        [layerPos[i] + nWidth[i] / 2 + nWidth[i] * j, sHeigh - 50],
       ];
       points.push(line);
     }

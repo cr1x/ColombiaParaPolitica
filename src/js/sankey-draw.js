@@ -42,7 +42,7 @@ const svg = d3
 // Set the sankey diagram properties
 const sankey = d3.sankey();
 
-const defs = svg.append('defs');
+// const defs = svg.append('defs');
 
 let links = svg.append('g').attr('id', 'links');
 let guides = svg.append('g').attr('id', 'guides');
@@ -93,8 +93,7 @@ const drawSankey = () => {
     .append('g')
     .attr('id', (d) => `node${d.id}`)
     .each((d) => (d.connect = nodesConnect(d.id)))
-    .on('click', highlight_flow)
-    .attr('class', 'node');
+    .on('click', highlight_flow);
 
   // selectAll nodes by layer(column)
   for (let i = 0; i < column.length; ++i) {
@@ -122,6 +121,18 @@ const drawSankey = () => {
     lSource.forEach((e) => (e.paraPol = para));
   });
 
+  nodes.attr('class', (d) =>
+    d.depth === 0
+      ? `node autor para`
+      : d.depth === 1
+      ? `node periodo para`
+      : d.depth === 2
+      ? `node proy para`
+      : d.depth === 3
+      ? `node anno para`
+      : `node tema t--${d.idTema} para`
+  );
+
   // assigment links classes
   links
     .attr('class', (d) =>
@@ -136,35 +147,44 @@ const drawSankey = () => {
         : `link tema tem--${d.idTema} para`
     )
     .append('title')
-    .text((d) => `${d.id} - ${d.nombre}`);
+    .text((d) => `${d.nombre}`);
 
   // links.classed('para', false);
 
   // add links path
   links.append('path').attr('class', (d) => `para--${d.paraPol}`);
 
+  // add node title
+  nodes.append('title').text((d) => `${d.nombre}`);
+
   // add the rectangles for the nodes
   nodes
     .append('rect')
     .attr('class', (d) =>
       d.depth === 0
-        ? `nRect autor para--${d.paraPol}`
+        ? `nRect para--${d.paraPol}`
         : d.depth === 1
-        ? `nRect pp--${d.idPartido}`
-        : `nRect t--${d.idTema} para--${d.paraPol}`
-    )
-    .append('title')
-    .text((d) => `${d.id} - ${d.nombre}`);
+        ? `nRect pp--${ppColors[partidos.indexOf(d.idPartido)]}`
+        : `nRect para--${d.paraPol}`
+    );
+
+  column[2].each(function (d) {
+    let nod = d3.select(this);
+    let targets = d.targetLinks;
+    targets.forEach(() => {
+      nod.append('rect').attr('class', 'pp');
+    });
+  });
 
   // add in the title for the nodes
   column[0]
     .append('text')
-    .attr('class', 'title--nombre')
+    .attr('class', (d) => `title--nombre para--${d.paraPol}`)
     .text((d) => d.nombre);
 
   column[0]
     .append('text')
-    .attr('class', 'title--apellido')
+    .attr('class', (d) => `title--apellido para--${d.paraPol}`)
     .text((d) => d.apellido);
 
   d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
@@ -174,7 +194,7 @@ const drawSankey = () => {
 
   column[4]
     .append('text')
-    .attr('class', 'title--tema')
+    .attr('class', (d) => `title--tema para--${d.paraPol}`)
     .text((d) => d.nombre);
 };
 

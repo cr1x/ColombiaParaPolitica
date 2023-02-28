@@ -7,10 +7,15 @@
 
 // @debug "partidos: #{length(color.$partidos)}";
 
+body {
+  background: color.$bg;
+}
+
 #dataviz {
   width: 100vw;
   height: 90vh;
-  border: 5px solid rgb(239, 239, 239);
+  border: 5px solid darken(color.$bg, 2%);
+  background: color.$bg;
 }
 
 .link {
@@ -26,56 +31,137 @@
     opacity: .9;
   }
 
-  // path {
-  //   fill: #e5e2d6;
-  // }
-}
+  path {
+    fill: none;
+  }
 
-.aut,
-.proy {
-  // &.con {
-  //   @for $i from 1 through 2 {
-  //     &--#{$i} {
-  //       mask: url('#maskC' + $i);
-  //     }
-  //   }
-  // }
+  &.aut,
+  &.proy {
+    // &.con {
+    //   @for $i from 1 through 2 {
+    //     &--#{$i} {
+    //       mask: url('#maskC' + $i);
+    //     }
+    //   }
+    // }
 
-  //   &.con {
-  //     &--1 {
-  //       mask: url(#maskC1);
-  //     }
-  // 
-  //     &--2 {
-  //       mask: url(#maskC2);
-  //     }
-  //   }
+    //   &.con {
+    //     &--1 {
+    //       mask: url(#maskC1);
+    //     }
+    // 
+    //     &--2 {
+    //       mask: url(#maskC2);
+    //     }
+    //   }
 
-  &.pp {
-    @for $i from 1 through length(color.$partidos) {
-      &--#{($i)} {
-        fill: nth(color.$partidos, $i);
+    &.pp {
+      @for $i from 1 through length(color.$partidos) {
+        &--#{($i)} {
+          stroke: nth(color.$partidos, $i);
+        }
+      }
+    }
+
+    &.para {
+      stroke: color.$neutral;
+
+      .para--100 {
+        stroke: color.$para;
       }
     }
   }
 
-  &.para {
-    .para--100 {
-      fill: color.$para;
-    }
-  }
-}
-
-.tema {
-  &.para {
-    .para {
-      @for $i from 0 through color.$tema-stops {
-        &--#{($i * 20)} {
-          fill: mix(color.$para, color.$tema, $i * 20%);
+  &.tema {
+    &.para {
+      path {
+        &.para {
+          @for $i from 0 through color.$tema-stops {
+            &--#{($i * 20)} {
+              stroke: mix(color.$para, color.$tema, $i * 20%);
+            }
+          }
         }
       }
     }
   }
+}
+
+
+
+.node {
+  cursor: pointer;
+
+  .nRect {
+    fill: transparent;
+    stroke: none; // #544d98;
+    stroke-width: 1.5;
+    stroke-opacity: .6;
+    transition: fill .3s linear;
+
+    .fixed & {
+      fill: blue;
+      transition: fill .5s ease;
+    }
+
+    .fixed2 & {
+      fill: rgb(170, 135, 251);
+      transition: fill 0.5s ease-out;
+    }
+  }
+
+  &.autor {
+    &.para {
+      rect {
+        stroke: none;
+        fill: color.$neutral;
+      }
+
+      .para--100 {
+        fill: color.$para;
+      }
+    }
+  }
+
+  &.periodo {
+    &.para {
+      rect {
+        stroke: none;
+
+        &.pp {
+          @for $i from 1 through length(color.$partidos) {
+            &--#{($i)} {
+              fill: nth(color.$partidos, $i);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  &.tema {
+    &.para {
+      rect {
+        stroke: none;
+      }
+
+      .para {
+        @for $i from 0 through color.$tema-stops {
+          &--#{($i * 20)} {
+            fill: mix(color.$para, color.$tema, $i * 20%);
+          }
+        }
+      }
+    }
+  }
+
+}
+
+.guide {
+  stroke: color.$bg;
+  stroke-opacity: .5;
+  stroke-width: 1;
+  fill: none;
 }
 
 #update {
@@ -83,33 +169,4 @@
   padding: 20px;
   cursor: pointer;
   opacity: 0.3;
-}
-
-.node {
-  cursor: pointer;
-}
-
-.nRect {
-  fill: white;
-  stroke: #544d98;
-  stroke-width: 1.5;
-  stroke-opacity: .6;
-  transition: fill .3s linear;
-
-  .fixed & {
-    fill: blue;
-    transition: fill .5s ease;
-  }
-
-  .fixed2 & {
-    fill: rgb(170, 135, 251);
-    transition: fill 0.5s ease-out;
-  }
-}
-
-.guide {
-  stroke: white;
-  stroke-opacity: .5;
-  stroke-width: 1;
-  fill: none;
 }

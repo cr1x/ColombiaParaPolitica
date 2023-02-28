@@ -104,7 +104,6 @@
     let nodes = defaultNodes;
     let links = defaultLinks;
     let iterations = 0;
-    let nRound = 2;
     let layersPos = [];
 
     function sankey() {
@@ -189,10 +188,6 @@
       return arguments.length ? ((layersPos = _), sankey) : layersPos;
     };
 
-    sankey.nRound = function (_) {
-      return arguments.length ? ((nRound = +_), sankey) : nRound;
-    };
-
     function computeNodeLinks({ nodes, links }) {
       for (const [i, node] of nodes.entries()) {
         node.index = i;
@@ -273,7 +268,7 @@
         const i = Math.max(0, Math.min(x - 1, Math.floor(align.call(null, node, x))));
         node.layer = i;
         node.x0 = layersPos[i] + node.nodeWid * node.fix;
-        node.x1 = node.x0 + node.nodeWid / nRound;
+        node.x1 = node.x0 + node.nodeWid;
         if (columns[i]) columns[i].push(node);
         else columns[i] = [node];
       }
