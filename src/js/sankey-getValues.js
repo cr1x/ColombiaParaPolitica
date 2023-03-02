@@ -5,7 +5,7 @@ const calcPercent = (num, percentage) => Math.floor((num / 100) * percentage);
 
 // get max width of autor titles & tema titles
 // (widht, heigh, margin, nWidth, nRound)
-const getValues = (sWidth, sHeigh, sMargin, nWidth) => {
+const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, vPadding) => {
   let titles0 = [],
     titles4 = [],
     points = [];
@@ -22,30 +22,35 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth) => {
     .each(function () {
       titles4.push(Math.ceil(this.getBBox().width));
     });
-  let title0Wid = d3.max(titles0);
 
+  // max text width column[0]
+  let title0Wid = d3.max(titles0) + 10;
+  // title0Wid + max text width column[4]
   let textWid = title0Wid + d3.max(titles4);
-
-  let wTotal = sWidth - sMargin - nWidth[nWidth.length - 1] - textWid;
-
+  // total width
+  let wTotal = sWidth - sMargin - nWidth[nWidth.length - 1] - textWid - 15;
   // nodes width max value * 3 lapse
-  let lapseWid = title0Wid - Math.max(...nWidth) * 3;
+  let lapseWid = title0Wid - Math.max(...nWidth) * 4;
 
   // custom layers position
   let layerPos = new Array(
-    0 + title0Wid,
-    calcPercent(wTotal, 20) + title0Wid,
-    calcPercent(wTotal, 75) + lapseWid,
-    calcPercent(wTotal, 94) + lapseWid,
+    colPercent[0] + title0Wid,
+    calcPercent(wTotal, colPercent[1]),
+    calcPercent(wTotal, colPercent[2]) + lapseWid,
+    calcPercent(wTotal, colPercent[3]) + lapseWid,
     wTotal + title0Wid
   );
+  // calcPercent(wTotal, colPercent[1]) + title0Wid,
+
+  let gLayers = [...layerPos];
+  gLayers[2] = gLayers[2] + vPadding;
 
   // guides position "4" by layer
-  for (let i = 0; i < layerPos.length - 1; ++i) {
+  for (let i = 0; i < gLayers.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       let line = [
-        [layerPos[i] + nWidth[i] / 2 + nWidth[i] * j, -20 + 1 * j],
-        [layerPos[i] + nWidth[i] / 2 + nWidth[i] * j, sHeigh - 50],
+        [gLayers[i] + nWidth[i] / 2 + nWidth[i] * j, -20 + 1 * j],
+        [gLayers[i] + nWidth[i] / 2 + nWidth[i] * j, sHeigh - 50],
       ];
       points.push(line);
     }

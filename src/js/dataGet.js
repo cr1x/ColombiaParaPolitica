@@ -1,15 +1,12 @@
 import * as d3 from './d3.min';
 import { dataPush } from './dataPush';
-//
-let partidos;
+
 // data load and build main array data
 const buildData = (data) => {
   // data containers
   let sData = { nodes: data[0], links: data[1] };
   // temporary data container
   let linksTemp = data[2];
-  // array partidos políticos
-  partidos = data[3];
 
   //
   //
@@ -99,14 +96,8 @@ const buildData = (data) => {
     d.target = sData.nodes.map((obj) => obj.id).indexOf(d.target);
   });
 
-  //
-  // partidos data
-  //
-  partidos = Array.from(new Set(partidos));
-
   // console.log('nodes =', sData.nodes);
   // console.log('links =', sData.links);
-  // console.log(`partidos =`, partidos);
 
   return sData;
 };
@@ -120,4 +111,4 @@ const dataGet = async () => {
   return data;
 };
 
-export { dataGet, partidos };
+export { dataGet };

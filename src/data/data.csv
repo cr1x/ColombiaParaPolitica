@@ -1,16 +1,16 @@
-idAutor,nombre,apellido,congreso,paraPol,anno,idPartido,partido,idProyecto,proyecto,idTema,tema
-18,Vanessa,Ives,2,0,2006,502,partido 02,2006002,Proyecto 002,701,tema 01
-18,Vanessa,Ives,2,0,2002,501,partido 01,2002001,Proyecto 001,701,tema 01
-18,Vanessa,Ives,1,0,2010,502,partido 02,2010003,Proyecto 003,701,tema 01
-18,Vanessa,Ives,2,0,2002,501,partido 01,2002007,Proyecto 007,702,tema 02
-18,Vanessa,Ives,1,0,2014,503,partido 03,2014004,Proyecto 004,702,tema 02
-18,Vanessa,Ives,2,0,2002,501,partido 01,2002008,Proyecto 008,703,tema 03
-2,Sir Malcom,Murray,2,100,2010,504,partido 04,2010005,Proyecto 005,703,tema 03
-2,Sir Malcom,Murray,2,100,2014,505,partido 05,2014006,Proyecto 006,703,tema 03
-9,Dorian,Gray,2,100,2006,505,partido 05,2006002,Proyecto 002,701,tema 01
-10,Brona,Croft,1,100,2010,507,partido 07,2010003,Proyecto 003,701,tema 01
-11,Ethan,Chandler,1,0,2002,507,partido 07,2002008,Proyecto 008,703,tema 03
-2,Sir Malcom,Murray,1,100,2006,502,partido 02,2006060,Proyecto 060,701,tema 01
-9,Dorian,Gray,2,100,2006,505,partido 05,2006060,Proyecto 060,701,tema 01
-2,Sir Malcom,Murray,1,100,2006,502,partido 02,2006080,Proyecto 080,701,tema 01
-9,Dorian,Gray,2,100,2006,505,partido 05,2006080,Proyecto 080,701,tema 01
+idAutor,nombre,apellido,old,congreso,paraPol,anno,idPartido,partido,idProyecto,proyecto,idTema,tema
+18,Vanessa,Ives,2,2,0,2006,502,partido 02,2006002,Proyecto 002,701,tema 01
+18,Vanessa,Ives,2,2,0,2002,501,partido 01,2002001,Proyecto 001,701,tema 01
+18,Vanessa,Ives,2,1,0,2010,502,partido 02,2010003,Proyecto 003,701,tema 01
+18,Vanessa,Ives,2,2,0,2002,501,partido 01,2002007,Proyecto 007,702,tema 02
+18,Vanessa,Ives,2,1,0,2014,503,partido 03,2014004,Proyecto 004,702,tema 02
+18,Vanessa,Ives,2,2,0,2002,501,partido 01,2002008,Proyecto 008,703,tema 03
+2,Sir Malcom,Murray,1,2,100,2010,504,partido 04,2010005,Proyecto 005,703,tema 03
+2,Sir Malcom,Murray,1,2,100,2014,505,partido 05,2014006,Proyecto 006,703,tema 03
+9,Dorian,Gray,1,2,100,2006,505,partido 05,2006002,Proyecto 002,701,tema 01
+10,Brona,Croft,1,1,100,2010,507,partido 07,2010003,Proyecto 003,701,tema 01
+11,Ethan,Chandler,1,1,0,2002,507,partido 07,2002008,Proyecto 008,703,tema 03
+2,Sir Malcom,Murray,1,1,100,2006,502,partido 02,2006060,Proyecto 060,701,tema 01
+9,Dorian,Gray,1,2,100,2006,505,partido 05,2006060,Proyecto 060,701,tema 01
+2,Sir Malcom,Murray,1,1,100,2006,502,partido 02,2006080,Proyecto 080,701,tema 01
+9,Dorian,Gray,1,2,100,2006,505,partido 05,2006080,Proyecto 080,701,tema 01

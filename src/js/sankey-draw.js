@@ -2,7 +2,7 @@
 import * as d3Base from './d3.min';
 import * as d3Sankey from './d3-sankey';
 // import & build Data
-import { dataGet, partidos } from './dataGet';
+import { dataGet } from './dataGet';
 // highlighting flow of node selection
 import {
   linksConnect,
@@ -21,8 +21,6 @@ const d3 = {
 let sData;
 // column name => store nodes by layers
 let column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
-
-let partidos = [];
 
 // build sankey chart
 const createSankey = async () => {
@@ -43,7 +41,8 @@ const svg = d3
 const sankey = d3.sankey();
 
 // const defs = svg.append('defs');
-
+let nodesFix = [];
+let fixes = svg.append('g').attr('id', 'fixes');
 let links = svg.append('g').attr('id', 'links');
 let guides = svg.append('g').attr('id', 'guides');
 let nodes = svg.append('g').attr('id', 'nodes');
@@ -125,31 +124,25 @@ const drawSankey = () => {
     d.depth === 0
       ? `node autor para`
       : d.depth === 1
-      ? `node periodo para`
+      ? `node lapse para`
       : d.depth === 2
-      ? `node proy para`
+      ? `node proj para`
       : d.depth === 3
       ? `node anno para`
-      : `node tema t--${d.idTema} para`
+      : `node topic t--${d.idTema} para`
   );
 
   // assigment links classes
   links
     .attr('class', (d) =>
       d.lColumn === 0
-        ? `link aut pp--${ppColors[partidos.indexOf(d.idPartido)]} con--${
-            d.congreso
-          } para`
+        ? `link aut pp--${d.idPartido} con--${d.congreso} para`
         : d.lColumn === 1
-        ? `link proy pp--${ppColors[partidos.indexOf(d.idPartido)]} con--${
-            d.congreso
-          } para`
-        : `link tema tem--${d.idTema} para`
+        ? `link proj pp--${d.idPartido} con--${d.congreso} para`
+        : `link topic tem--${d.idTema} para`
     )
     .append('title')
     .text((d) => `${d.nombre}`);
-
-  // links.classed('para', false);
 
   // add links path
   links.append('path').attr('class', (d) => `para--${d.paraPol}`);
@@ -158,22 +151,46 @@ const drawSankey = () => {
   nodes.append('title').text((d) => `${d.nombre}`);
 
   // add the rectangles for the nodes
+  column[0]
+    .filter((d) => d.old > 1)
+    .append('rect')
+    .attr('class', (d) => `old para--${d.paraPol}`);
+
+  // nodesFix
+  column[0]
+    .filter((d) => d.fix > 0)
+    .each((d) => {
+      nodesFix.push(d);
+    });
+
+  nodesFix.forEach(() => {
+    fixes.append('g').attr('class', `fix`);
+  });
+
+  fixes = fixes.selectAll('.fix');
+
+  fixes.each(function (d, i) {
+    for (let j = 0; j < nodesFix[i].fix; ++j) {
+      d3.select(this).append('path');
+    }
+  });
+
   nodes
     .append('rect')
     .attr('class', (d) =>
       d.depth === 0
         ? `nRect para--${d.paraPol}`
         : d.depth === 1
-        ? `nRect pp--${ppColors[partidos.indexOf(d.idPartido)]}`
+        ? `nRect pp--${d.idPartido}`
         : `nRect para--${d.paraPol}`
     );
 
   column[2].each(function (d) {
     let nod = d3.select(this);
-    let targets = d.targetLinks;
-    targets.forEach(() => {
-      nod.append('rect').attr('class', 'pp');
-    });
+    let targ = Array.from(d.targetLinks);
+    for (let i = 0; i < targ.length; ++i) {
+      nod.append('rect').attr('class', 'pRect');
+    }
   });
 
   // add in the title for the nodes
@@ -189,13 +206,13 @@ const drawSankey = () => {
 
   d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
     .append('text')
-    .attr('class', 'title--value')
+    .attr('class', (d) => `title--value para--${d.paraPol}`)
     .text((d) => d.value);
 
   column[4]
     .append('text')
-    .attr('class', (d) => `title--tema para--${d.paraPol}`)
+    .attr('class', (d) => `title--topic para--${d.paraPol}`)
     .text((d) => d.nombre);
 };
 
-export { sData, column, sankey, guides, links, nodes, createSankey };
+export { sData, column, sankey, nodesFix, fixes, guides, links, nodes, createSankey };

@@ -14,26 +14,22 @@ $font-sankey: 'Inter';
 .title {
   &--nombre {
     font-size: clamp(.7rem, calc(.2rem + .7vw), .8rem);
-    fill: rgb(84, 77, 152);
     font-variation-settings: 'wght' 300, 'slnt' -10;
   }
 
   &--apellido {
     font-size: clamp(.75rem, calc(.1rem + .9vw), .9rem);
-    fill: rgb(84, 77, 152);
     font-variation-settings: 'wght' 600, 'slnt' 0;
   }
 
-  &--tema {
+  &--topic {
     text-transform: capitalize;
     font-size: clamp(.9rem, calc(.3rem + .9vw), 1rem);
-    fill: rgb(84, 77, 152);
     font-variation-settings: 'wght' 600, 'slnt' 0;
   }
 
   &--value {
     font-size: clamp(.75rem, calc(.1rem + .9vw), .9rem);
-    fill: rgb(84, 77, 152);
     font-variation-settings: 'wght' 400, 'slnt' 0;
     pointer-events: none;
   }
