@@ -9,43 +9,56 @@ import {
   column,
   sankey,
   nodesFix,
-  fixes,
   guides,
   links,
   nodes,
   createSankey,
 } from './sankey-draw';
 
-// Link path generator
-// import { sankeyLinkPath } from './sankeyLinkPath';
-
-// div size observer
-const sankeyBox = document.querySelector('#dataviz');
-
 // join d3 libraries
 const d3 = {
   ...d3Base,
   ...d3Sankey,
 };
+
+// div size observer
+const sankeyBox = document.querySelector('#dataviz');
+
 // set the dimensions and margins of the graph
-let margin = 40,
+let margin = 20,
   nPadding = 6,
   sWidth = 0,
   sHeigh = 0,
   vPadding = 4;
 
 // columns percentage
-let colPercent = [0, 15, 68, 94];
+let colPercent = [0, 20, 72, 96];
 // column name guide
 // column = [autores, periodos, proyectos, annos, temas];
-let nWidth = [10, 24, 26 + vPadding / 2, 32, 10];
+let nWidth = [8, 24, 26 + vPadding / 2, 32, 10];
+
+//
+// build sankey chart
+const buildSankey = async () => {
+  // create elements of sankey
+  await createSankey();
+  // add observer to sankey container
+  ro.observe(sankeyBox);
+};
+buildSankey();
+
+// resize observer
+const ro = new ResizeObserver((entries) => {
+  for (let entry of entries) {
+    sWidth = Math.round(entry.contentRect.width);
+    sHeigh = Math.round(entry.contentRect.height);
+  }
+  updateGraph();
+});
 
 //
 // update graph size
 const updateGraph = async () => {
-  // console.clear();
-  // console.log('//');
-
   // update nodeWidth in data
   column.forEach((col, i) => {
     col.each((d) => (d.nodeWid = nWidth[i]));
@@ -55,11 +68,10 @@ const updateGraph = async () => {
 
   d3.select('#sankey').attr('width', sWidth).attr('height', sHeigh);
 
-  d3.select('#sankeyBox').attr('transform', `translate(${margin / 2}, ${margin})`);
-
   sankey
-    .size([sWidth - margin - values.textWid, sHeigh - margin])
+    .size([sWidth - values.textWid, sHeigh - margin])
     .nodePadding(nPadding)
+    .margen(margin)
     .layersPos(values.layerPos);
 
   guides.attr('d', (d, i) => d3.line()(values.points[i]));
@@ -70,7 +82,6 @@ const updateGraph = async () => {
     .selectAll('path')
     .attr('d', d3.sankeyLinkHorizontal())
     .attr('stroke-width', (d) => d.width - 1);
-  // links.selectAll('path').attr('d', (d) => sankeyLinkPath(d));
 
   nodes
     .selectAll('rect')
@@ -85,44 +96,39 @@ const updateGraph = async () => {
     .attr('width', (d) => d.nodeWid - vPadding);
 
   column[2].each(function (d) {
-    let targets = Array.from(d3.selectAll(d.targetLinks));
     d3.select(this)
       .selectAll('.pRect')
-      .each(function (e, i) {
-        d3.select(this)
-          .attr('x', d.x0 + vPadding / 2)
-          .attr('y', targets[i].y1 - targets[i].width / 2 + 0.5)
-          .attr('width', d.nodeWid / 5)
-          .attr('height', targets[i].width - 1)
-          .attr('class', `pRect pp--${targets[i].idPartido}`);
+      .attr('x', d.x0 + vPadding / 2)
+      .attr('y', (e, i) => {
+        return d.targetLinks[i].y1 - d.targetLinks[i].width / 2 + 0.5;
+      })
+      .attr('width', d.nodeWid / 5)
+      .attr('height', (e, i) => {
+        return d.targetLinks[i].width - 1;
+      })
+      .attr('class', (e, i) => {
+        return `pRect pp--${d.targetLinks[i].idPartido}`;
       });
   });
 
   column[4]
     .selectAll('.nRect')
-    .attr('x', (d) => d.x0 + vPadding)
-    .attr('width', (d) => d.nodeWid - vPadding);
+    .attr('x', (d) => d.x0 + 2)
+    .attr('width', values.title4Wid - 2);
 
-  // fixes.each(function (d, i) {
-  //   let nf = nodesFix[i];
-  //   d3.select(this)
-  //     .attr('x', values.layerPos[0])
-  //     .attr('y', nf.y0 + 0.5)
-  //     .attr('width', nf.nodeWid * nf.fix)
-  //     .attr('height', nf.y1 - nf.y0 - 1);
-  // });
-
-  fixes.each(function (d, i) {
-    let nf = nodesFix[i];
+  // line "fix" position
+  nodesFix.each(function (d) {
     d3.select(this)
-      .selectAll('path')
-      .attr('d', (d, j) => {
+      .selectAll('.fix')
+      .attr('d', (e, j) => {
         return d3.line()([
-          [values.points[j][0][0], nf.y0 + 0.5],
-          [values.points[j][0][0], nf.y1 - 0.5],
+          [values.points[j][0][0], d.y0 + 1],
+          [values.points[j][0][0], d.y1 - 0.5],
         ]);
       });
   });
+
+  d3.selectAll('.old').attr('x', '0').attr('width', values.title0Wid);
 
   // add in the title for the nodes
   column[0]
@@ -176,7 +182,7 @@ const updateGraph = async () => {
     .selectAll('.title--value')
     .attr('dx', '.2%')
     .attr('alignment-baseline', 'hanging')
-    .attr('baseline-shift', '-10%');
+    .attr('baseline-shift', '-30%');
 
   // console.log(links.nodes());
   // console.log(nodes.nodes());
@@ -186,28 +192,3 @@ const updateGraph = async () => {
   // console.log(`annos =`, column[3].nodes());
   // console.log(`temas =`, column[4].nodes());
 };
-
-// resize observer
-const ro = new ResizeObserver((entries) => {
-  for (let entry of entries) {
-    sWidth = Math.round(entry.contentRect.width);
-    sHeigh = Math.round(entry.contentRect.height);
-  }
-  updateGraph();
-});
-
-// build sankey chart
-const buildSankey = async () => {
-  // create elements of sankey
-  await createSankey();
-  // add observer to sankey container
-  ro.observe(sankeyBox);
-};
-buildSankey();
-
-//
-const prueba = () => {};
-// buttons
-const button = document.querySelector('#update');
-button.addEventListener('click', prueba);
-//

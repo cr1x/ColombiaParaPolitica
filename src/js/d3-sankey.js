@@ -104,6 +104,7 @@
     let nodes = defaultNodes;
     let links = defaultLinks;
     let iterations = 0;
+    let margen = 20;
     let layersPos = [];
 
     function sankey() {
@@ -182,6 +183,10 @@
 
     sankey.iterations = function (_) {
       return arguments.length ? ((iterations = +_), sankey) : iterations;
+    };
+
+    sankey.margen = function (_) {
+      return arguments.length ? ((margen = +_), sankey) : margen;
     };
 
     sankey.layersPos = function (_) {
@@ -313,7 +318,7 @@
       const ky = getKy();
 
       for (let cols of [newCols[1], newCols[2]]) {
-        let y = 0;
+        let y = margen;
         for (let node of cols) {
           for (let i = 0; i < node.length; i++) {
             node[i].y0 = y;

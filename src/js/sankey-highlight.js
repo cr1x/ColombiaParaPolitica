@@ -1,4 +1,5 @@
 import * as d3 from './d3.min';
+import { sTooltip } from './sankey-draw';
 //
 
 let where = ['source', 'target'],
@@ -44,26 +45,114 @@ const linksConnect = (id) => {
   return flow;
 };
 
+// mousemove tooltip
+const linkTooltip = (e, d) => {
+  let wBody = document.body.offsetWidth;
+  let relativeX = (e.x / wBody) * 100;
+
+  document.documentElement.style.setProperty('--mouse-x', relativeX);
+
+  sTooltip
+    .style('left', `${e.x}px`)
+    .style('top', `${e.y - 3}px`)
+    .style('opacity', 1)
+    .select('#sTipBox')
+    .html(
+      `<div class="para--${d.paraPol}"></div>
+      <div class="tipC">
+      ${d.autor}<br>
+      ${d.partido}<br>
+      ${d.congreso}<br>
+      ${d.periodo}<br>
+      <span class="idP">#${d.idProyecto}</span><br>
+      <span class="proj">${d.proyecto}</span>
+      ${d.tema}
+      </div>`
+    );
+};
+
+// mouseover nodes
+const moveNodes = (e, d) => {
+  let wBody = document.body.offsetWidth;
+  let relativeX = (e.x / wBody) * 100;
+  document.documentElement.style.setProperty('--mouse-x', relativeX);
+
+  sTooltip
+    .style('left', `${e.x}px`)
+    .style('top', `${d.y0 + 4}px`)
+    .style('opacity', 1);
+};
+
+// mouseover nodes
+const overNodes = (e, d) => {
+  let content;
+  switch (d.lColumn) {
+    case 0:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipC">
+        <b>${d.nombre} ${d.apellido}</b><br>
+        ${d.anno.join(', ')}<br>
+        ${d.value} proyectos
+        </div>`;
+      break;
+    case 1:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipC">
+        <b>${d.nombre}</b><br>
+        ${d.periodo}<br>
+        ${d.value} proyectos<br>
+        ${d.congreso}<br>
+        ${d.partido}<br>
+        </div>`;
+      break;
+    case 2:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipC">
+        <span class="idP">#${d.id}</span><br>
+        <span class="proj">${d.proyecto}</span>
+        ${d.periodo}<br>
+        ${d.value} autores<br>
+        Tema: ${d.tema}<br>
+        </div>`;
+      break;
+    case 3:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipC">
+        <b>${d.tema}</b><br>
+        ${d.periodo}<br>
+        ${d.value} proyectos<br>
+        </div>`;
+      break;
+    case 4:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipC">
+        <b>${d.tema}</b><br>
+        ${d.value} proyectos<br>
+        </div>`;
+      break;
+  }
+  sTooltip.select('#sTipBox').html(content);
+};
+
+// mouseout node
+const outNodes = (e) => {
+  sTooltip.style('opacity', 0);
+};
+
 // mouseover highlighting ON links flow
-function overlink() {
-  let links = d3.select(this);
-  links.each((d) => {
-    links = d.connect;
-  });
-  for (let link of links) {
+const overlink = (e, d) => {
+  for (let link of d.connect) {
     d3.select(link).classed('over', true);
   }
-}
+};
+
 // mouseout highlighting OFF links flow
-function outlink() {
-  let links = d3.select(this);
-  links.each((d) => {
-    links = d.connect;
-  });
-  for (let link of links) {
+const outlink = (e, d) => {
+  for (let link of d.connect) {
     d3.select(link).classed('over', false);
   }
-}
+  sTooltip.style('opacity', 0);
+};
 
 //
 // nodes connections by flow levels
@@ -150,4 +239,14 @@ async function highlight_flow() {
   d3.selectAll('.node').on('click', highlight_flow);
 }
 
-export { linksConnect, nodesConnect, highlight_flow, overlink, outlink };
+export {
+  linksConnect,
+  nodesConnect,
+  moveNodes,
+  overNodes,
+  outNodes,
+  highlight_flow,
+  linkTooltip,
+  overlink,
+  outlink,
+};

@@ -24,11 +24,13 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, vPadding) => {
     });
 
   // max text width column[0]
-  let title0Wid = d3.max(titles0) + 10;
+  let title0Wid = d3.max(titles0) + sMargin;
+  // max text width column[4]
+  let title4Wid = d3.max(titles4) + sMargin * 2;
   // title0Wid + max text width column[4]
-  let textWid = title0Wid + d3.max(titles4);
+  let textWid = title0Wid + title4Wid;
   // total width
-  let wTotal = sWidth - sMargin - nWidth[nWidth.length - 1] - textWid - 15;
+  let wTotal = sWidth - textWid;
   // nodes width max value * 3 lapse
   let lapseWid = title0Wid - Math.max(...nWidth) * 4;
 
@@ -49,8 +51,8 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, vPadding) => {
   for (let i = 0; i < gLayers.length - 1; ++i) {
     for (let j = 0; j < 4; ++j) {
       let line = [
-        [gLayers[i] + nWidth[i] / 2 + nWidth[i] * j, -20 + 1 * j],
-        [gLayers[i] + nWidth[i] / 2 + nWidth[i] * j, sHeigh - 50],
+        [gLayers[i] + nWidth[i] / 2 + nWidth[i] * j, 0],
+        [gLayers[i] + nWidth[i] / 2 + nWidth[i] * j, sHeigh],
       ];
       points.push(line);
     }
@@ -58,6 +60,7 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, vPadding) => {
 
   let values = {
     title0Wid: title0Wid,
+    title4Wid: title4Wid,
     textWid: textWid,
     layerPos: layerPos,
     points: points,

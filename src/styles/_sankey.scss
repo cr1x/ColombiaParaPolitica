@@ -23,16 +23,78 @@ body {
   }
 }
 
+$sOptionsH: 60px;
+
+#sOptions {
+  width: 100vw;
+  height: $sOptionsH;
+  border-bottom: 2px solid darken(color.$bg, 10%);
+}
+
 #dataviz {
   width: 100vw;
-  height: 90vh;
-  // border: 5px solid darken(color.$bg, 2%);
+  height: calc(100vh - $sOptionsH);
   background: color.$bg;
+}
+
+input {
+  &[type=checkbox] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+}
+
+#sTooltip {
+  z-index: 1000;
+  opacity: 0;
+  position: absolute;
+  width: 220px;
+  height: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0);
+  transition: opacity .2s ease-out;
+}
+
+#sTipBox {
+  background: color.$toolTip;
+  position: absolute;
+  padding: 1rem 1.5rem 1rem 1.5rem;
+  bottom: 100%;
+  margin-bottom: 0.6rem;
+  left: 50%;
+  width: 100%;
+  height: auto;
+  overflow: hidden;
+  border-radius: 2px;
+  color: color.$bg;
+  transform: translateX(calc(var(--mouse-x) * -1%));
+}
+
+.proj {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: pre-wrap;
+}
+
+#sTipMark {
+  width: 1rem;
+  height: 0.6rem;
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  border-left: solid transparent 0.5rem;
+  border-right: solid transparent 0.5rem;
+  border-top: solid 0.6rem color.$toolTip;
+  transform: translateX(calc(var(--mouse-x) * -1%));
 }
 
 .link {
   opacity: .4;
   transition: opacity .2s linear;
+  mix-blend-mode: multiply;
 
   &.fixed2 {
     opacity: .7;
@@ -51,10 +113,8 @@ body {
   &.proj {
 
     // &.con {
-    //   @for $i from 1 through 2 {
-    //     &--#{$i} {
-    //       mask: url('#maskC' + $i);
-    //     }
+    //   &--1 {
+    //     stroke-dasharray: 4 1.5;
     //   }
     // }
     &.pp {
@@ -106,9 +166,24 @@ body {
       fill: scale-color(color.$neutral, $blackness: 90%);
     }
 
+    .old {
+      fill: color.$bg;
+
+      &--2 {
+        fill: scale-color(color.$neutral, $alpha: -85%);
+        mix-blend-mode: multiply;
+      }
+    }
+
     &.para {
       .para--100 {
         fill: color.$para;
+      }
+
+      .old--2 {
+        &.para--100 {
+          fill: scale-color(color.$para, $alpha: -90%);
+        }
       }
     }
   }
@@ -151,36 +226,29 @@ body {
 
   &.topic {
     &.para {
-
-      rect,
-      text {
+      rect {
         @include para-scale(fill);
       }
+    }
+
+    text {
+      fill: color.$bg;
     }
   }
 }
 
 .fix {
-  path {
-    // stroke: scale-color(color.$bg, $lightness: -10%);
-    stroke: color.$para;
-    stroke-width: 1;
-    stroke-opacity: 1;
-  }
+  stroke: scale-color(color.$bg, $lightness: -50%);
+  stroke-width: 0.5;
+  stroke-opacity: 1;
 }
 
-// .guide {
-// stroke: black;
-// stroke-opacity: 1;
-// stroke-width: 0.5;
-// mix-blend-mode: overlay;
-// fill: none;
-// }
 .guide {
   stroke: color.$bg;
   stroke-opacity: .6;
   stroke-width: 1;
   fill: none;
+  pointer-events: none;
 }
 
 #update {

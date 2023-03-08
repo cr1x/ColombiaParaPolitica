@@ -27,12 +27,13 @@ const dataLoad = (dataCsv) => {
     });
     nodes.push({
       id: +(d.idAutor + d.anno),
-      nombre: `${d.nombre} ${d.apellido} ${d.anno}-${+d.anno + 4}`,
+      nombre: `${d.nombre} ${d.apellido}`,
       anno: +d.anno,
       nGroup: +d.idAutor,
       autor: `${d.nombre} ${d.apellido}`,
       periodo: `${d.anno}-${+d.anno + 4}`,
-      congreso: +d.congreso,
+      idCongreso: +d.idCongreso,
+      congreso: +d.idCongreso,
       paraPol: +d.paraPol,
       idPartido: +d.idPartido,
       partido: d.partido,
@@ -41,7 +42,7 @@ const dataLoad = (dataCsv) => {
     });
     nodes.push({
       id: +d.idProyecto,
-      nombre: d.proyecto,
+      proyecto: d.proyecto,
       anno: +d.anno,
       periodo: `${d.anno}-${+d.anno + 4}`,
       nGroup: +d.idTema,
@@ -52,7 +53,6 @@ const dataLoad = (dataCsv) => {
     });
     nodes.push({
       id: +(d.idTema + d.anno),
-      nombre: `${d.tema} ${d.anno}-${+d.anno + 4}`,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
       nGroup: +d.idTema,
@@ -63,7 +63,7 @@ const dataLoad = (dataCsv) => {
     });
     nodes.push({
       id: +d.idTema,
-      nombre: d.tema,
+      tema: d.tema,
       anno: 0,
       idTema: +d.idTema,
       nGroup: +d.idTema,
@@ -76,13 +76,16 @@ const dataLoad = (dataCsv) => {
       source: +(d.idAutor + d.anno),
       target: +d.idProyecto,
       value: 1,
-      nombre: `${d.nombre} ${d.apellido} - ${d.proyecto}`,
+      idProyecto: d.idProyecto,
+      proyecto: d.proyecto,
+      tema: d.tema,
+      autor: `${d.nombre} ${d.apellido}`,
       idPartido: +d.idPartido,
       partido: d.partido,
       periodo: `${d.anno}-${+d.anno + 4}`,
-      autor: `${d.nombre} ${d.apellido}`,
       anno: +d.anno,
-      congreso: +d.congreso,
+      idCongreso: +d.idCongreso,
+      congreso: +d.idCongreso,
       paraPol: +d.paraPol,
       lColumn: 1,
     });
@@ -95,7 +98,7 @@ const dataLoad = (dataCsv) => {
       nombre: `${d.nombre} ${d.apellido} ${d.anno}`,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
-      congreso: +d.congreso,
+      idCongreso: +d.idCongreso,
       idPartido: +d.idPartido,
       partido: d.partido,
       paraPol: +d.paraPol,
@@ -123,6 +126,22 @@ const dataLoad = (dataCsv) => {
       anno: +d.anno,
       lColumn: 3,
     });
+
+    nodes
+      .filter((d) => d.lColumn === 1)
+      .forEach((d) => {
+        d.idCongreso === 1
+          ? (d.congreso = 'Senado')
+          : (d.congreso = 'Cámara de Representantes');
+      });
+
+    links
+      .filter((d) => d.lColumn === 1)
+      .forEach((d) => {
+        d.idCongreso === 1
+          ? (d.congreso = 'Senado')
+          : (d.congreso = 'Cámara de Representantes');
+      });
   });
   return [nodes, links, linksTemp];
 };

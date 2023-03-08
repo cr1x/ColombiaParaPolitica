@@ -8,8 +8,12 @@ import {
   linksConnect,
   nodesConnect,
   highlight_flow,
+  moveNodes,
+  overNodes,
+  outNodes,
   overlink,
   outlink,
+  linkTooltip,
 } from './sankey-highlight';
 
 // join d3 libraries
@@ -29,6 +33,11 @@ const createSankey = async () => {
   drawSankey();
 };
 
+// tooltip div
+const sTooltip = d3.select('body').append('div').attr('id', 'sTooltip');
+sTooltip.append('div').attr('id', 'sTipBox');
+sTooltip.append('div').attr('id', 'sTipMark');
+
 // append the svg object to the body of the page
 const svg = d3
   .select('#dataviz')
@@ -41,25 +50,14 @@ const svg = d3
 const sankey = d3.sankey();
 
 // const defs = svg.append('defs');
-let nodesFix = [];
-let fixes = svg.append('g').attr('id', 'fixes');
+let nodesFix;
 let links = svg.append('g').attr('id', 'links');
 let guides = svg.append('g').attr('id', 'guides');
 let nodes = svg.append('g').attr('id', 'nodes');
 
-// array from pp colors "25 colors" unordered
-const ppColors = Array.from(Array(25), (_, index) => index + 1).sort(
-  () => Math.random() - 0.5
-);
-// console.log(`ppColors =`, ppColors);
-//
-//
 //
 // append elements of the graph
 const drawSankey = () => {
-  // sankey.nodeSort((a, b) => d3.ascending(a.nGroup, b.nGroup));
-  // sankey.linkSort((a, b) => d3.descending(a.anno, b.anno));
-
   graph = sankey(sData);
 
   // year guides by column
@@ -84,6 +82,8 @@ const drawSankey = () => {
     .on('mouseover', overlink)
     .on('mouseout', outlink);
 
+  links.filter((d) => d.lColumn === 1).on('mousemove', linkTooltip);
+
   // add in the nodes
   nodes = nodes
     .selectAll('.node')
@@ -92,6 +92,9 @@ const drawSankey = () => {
     .append('g')
     .attr('id', (d) => `node${d.id}`)
     .each((d) => (d.connect = nodesConnect(d.id)))
+    .on('mousemove', moveNodes)
+    .on('mouseover', overNodes)
+    .on('mouseout', outNodes)
     .on('click', highlight_flow);
 
   // selectAll nodes by layer(column)
@@ -116,8 +119,7 @@ const drawSankey = () => {
       ? (para = 80)
       : (para = para);
     d.paraPol = para;
-    let lSource = d.sourceLinks;
-    lSource.forEach((e) => (e.paraPol = para));
+    d.sourceLinks.forEach((e) => (e.paraPol = para));
   });
 
   nodes.attr('class', (d) =>
@@ -133,46 +135,30 @@ const drawSankey = () => {
   );
 
   // assigment links classes
-  links
-    .attr('class', (d) =>
-      d.lColumn === 0
-        ? `link aut pp--${d.idPartido} con--${d.congreso} para`
-        : d.lColumn === 1
-        ? `link proj pp--${d.idPartido} con--${d.congreso} para`
-        : `link topic tem--${d.idTema} para`
-    )
-    .append('title')
-    .text((d) => `${d.nombre}`);
+  links.attr('class', (d) =>
+    d.lColumn === 0
+      ? `link aut pp--${d.idPartido} con--${d.idCongreso} para`
+      : d.lColumn === 1
+      ? `link proj pp--${d.idPartido} con--${d.idCongreso} para`
+      : `link topic tem--${d.idTema} para`
+  );
 
   // add links path
   links.append('path').attr('class', (d) => `para--${d.paraPol}`);
 
-  // add node title
-  nodes.append('title').text((d) => `${d.nombre}`);
-
   // add the rectangles for the nodes
   column[0]
-    .filter((d) => d.old > 1)
     .append('rect')
-    .attr('class', (d) => `old para--${d.paraPol}`);
+    .attr('class', (d) => (d.old > 1 ? `old old--${d.old} para--${d.paraPol}` : `old`));
 
   // nodesFix
-  column[0]
-    .filter((d) => d.fix > 0)
-    .each((d) => {
-      nodesFix.push(d);
+  nodesFix = column[0].filter((d) => d.fix > 0);
+
+  nodesFix.each(function (d) {
+    let self = d3.select(this);
+    d3.range(d.fix).forEach(function () {
+      self.append('path').attr('class', `fix`);
     });
-
-  nodesFix.forEach(() => {
-    fixes.append('g').attr('class', `fix`);
-  });
-
-  fixes = fixes.selectAll('.fix');
-
-  fixes.each(function (d, i) {
-    for (let j = 0; j < nodesFix[i].fix; ++j) {
-      d3.select(this).append('path');
-    }
   });
 
   nodes
@@ -186,10 +172,9 @@ const drawSankey = () => {
     );
 
   column[2].each(function (d) {
-    let nod = d3.select(this);
-    let targ = Array.from(d.targetLinks);
-    for (let i = 0; i < targ.length; ++i) {
-      nod.append('rect').attr('class', 'pRect');
+    let self = d3.select(this);
+    for (let i = 0; i < d.targetLinks.length; ++i) {
+      self.append('rect').attr('class', 'pRect');
     }
   });
 
@@ -215,4 +200,4 @@ const drawSankey = () => {
     .text((d) => d.nombre);
 };
 
-export { sData, column, sankey, nodesFix, fixes, guides, links, nodes, createSankey };
+export { sData, column, sTooltip, sankey, nodesFix, guides, links, nodes, createSankey };

@@ -1,4 +1,4 @@
-idAutor,nombre,apellido,old,congreso,paraPol,anno,idPartido,partido,idProyecto,proyecto,idTema,tema
+idAutor,nombre,apellido,old,idCongreso,paraPol,anno,idPartido,partido,idProyecto,proyecto,idTema,tema
 18,Vanessa,Ives,2,2,0,2006,502,partido 02,2006002,Proyecto 002,701,tema 01
 18,Vanessa,Ives,2,2,0,2002,501,partido 01,2002001,Proyecto 001,701,tema 01
 18,Vanessa,Ives,2,1,0,2010,502,partido 02,2010003,Proyecto 003,701,tema 01
