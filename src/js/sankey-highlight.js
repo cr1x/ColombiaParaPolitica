@@ -1,15 +1,11 @@
 import * as d3 from './d3.min';
-import { sTooltip } from './sankey-draw';
+import { sTooltip, delay } from './sankey-draw';
 //
 
 let where = ['source', 'target'],
   whereR = ['target', 'source'];
 
-const delay = (time) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, time);
-  });
-};
+let alphaTip = 0.9;
 
 // links mousover nodeslighting
 const linksConnect = (id) => {
@@ -43,115 +39,6 @@ const linksConnect = (id) => {
     });
   });
   return flow;
-};
-
-// mousemove tooltip
-const linkTooltip = (e, d) => {
-  let wBody = document.body.offsetWidth;
-  let relativeX = (e.x / wBody) * 100;
-
-  document.documentElement.style.setProperty('--mouse-x', relativeX);
-
-  sTooltip
-    .style('left', `${e.x}px`)
-    .style('top', `${e.y - 3}px`)
-    .style('opacity', 1)
-    .select('#sTipBox')
-    .html(
-      `<div class="para--${d.paraPol}"></div>
-      <div class="tipC">
-      ${d.autor}<br>
-      ${d.partido}<br>
-      ${d.congreso}<br>
-      ${d.periodo}<br>
-      <span class="idP">#${d.idProyecto}</span><br>
-      <span class="proj">${d.proyecto}</span>
-      ${d.tema}
-      </div>`
-    );
-};
-
-// mouseover nodes
-const moveNodes = (e, d) => {
-  let wBody = document.body.offsetWidth;
-  let relativeX = (e.x / wBody) * 100;
-  document.documentElement.style.setProperty('--mouse-x', relativeX);
-
-  sTooltip
-    .style('left', `${e.x}px`)
-    .style('top', `${d.y0 + 4}px`)
-    .style('opacity', 1);
-};
-
-// mouseover nodes
-const overNodes = (e, d) => {
-  let content;
-  switch (d.lColumn) {
-    case 0:
-      content = `<div class="para--${d.paraPol}"></div>
-        <div class="tipC">
-        <b>${d.nombre} ${d.apellido}</b><br>
-        ${d.anno.join(', ')}<br>
-        ${d.value} proyectos
-        </div>`;
-      break;
-    case 1:
-      content = `<div class="para--${d.paraPol}"></div>
-        <div class="tipC">
-        <b>${d.nombre}</b><br>
-        ${d.periodo}<br>
-        ${d.value} proyectos<br>
-        ${d.congreso}<br>
-        ${d.partido}<br>
-        </div>`;
-      break;
-    case 2:
-      content = `<div class="para--${d.paraPol}"></div>
-        <div class="tipC">
-        <span class="idP">#${d.id}</span><br>
-        <span class="proj">${d.proyecto}</span>
-        ${d.periodo}<br>
-        ${d.value} autores<br>
-        Tema: ${d.tema}<br>
-        </div>`;
-      break;
-    case 3:
-      content = `<div class="para--${d.paraPol}"></div>
-        <div class="tipC">
-        <b>${d.tema}</b><br>
-        ${d.periodo}<br>
-        ${d.value} proyectos<br>
-        </div>`;
-      break;
-    case 4:
-      content = `<div class="para--${d.paraPol}"></div>
-        <div class="tipC">
-        <b>${d.tema}</b><br>
-        ${d.value} proyectos<br>
-        </div>`;
-      break;
-  }
-  sTooltip.select('#sTipBox').html(content);
-};
-
-// mouseout node
-const outNodes = (e) => {
-  sTooltip.style('opacity', 0);
-};
-
-// mouseover highlighting ON links flow
-const overlink = (e, d) => {
-  for (let link of d.connect) {
-    d3.select(link).classed('over', true);
-  }
-};
-
-// mouseout highlighting OFF links flow
-const outlink = (e, d) => {
-  for (let link of d.connect) {
-    d3.select(link).classed('over', false);
-  }
-  sTooltip.style('opacity', 0);
 };
 
 //
@@ -239,14 +126,136 @@ async function highlight_flow() {
   d3.selectAll('.node').on('click', highlight_flow);
 }
 
+//
+//
+// mousemove links
+const moveLinks = (e, d) => {
+  let wBody = document.body.offsetWidth;
+  let xRelative = (e.x / wBody) * 100;
+
+  document.documentElement.style.setProperty('--mouse-x', xRelative);
+
+  sTooltip.style('left', `${e.x}px`).style('top', `${e.y - 3}px`);
+};
+
+// mouseover links
+const overLinks = (e, d) => {
+  for (let link of d.connect) {
+    d3.select(link).classed('over', true);
+  }
+
+  switch (d.lColumn) {
+    case 1:
+      sTooltip
+        .style('opacity', alphaTip)
+        .select('#sTooltip--content')
+        .html(
+          `<div class="para--${d.paraPol}"></div>
+          <div class="tipContent">
+          ${d.autor}<br>
+          ${d.partido}<br>
+          ${d.congreso}<br>
+          ${d.periodo}<br>
+          <span class="idProject">#${d.idProyecto}</span><br>
+          <span class="project-ellipsis">${d.proyecto}</span>
+          ${d.tema}
+          </div>`
+        );
+      break;
+    default:
+      sTooltip.style('opacity', 0);
+      break;
+  }
+};
+
+// mouseout links
+const outLinks = (e, d) => {
+  for (let link of d.connect) {
+    d3.select(link).classed('over', false);
+  }
+  sTooltip.style('opacity', 0);
+};
+
+// mousemove nodes
+const moveNodes = (e, d) => {
+  let wBody = document.body.offsetWidth;
+  let xRelative = (e.x / wBody) * 100;
+  document.documentElement.style.setProperty('--mouse-x', xRelative);
+
+  sTooltip.style('left', `${e.x}px`);
+};
+
+// mouseover nodes
+const overNodes = (e, d) => {
+  let content,
+    ySankey = document.querySelector('#dataviz').offsetTop;
+  switch (d.lColumn) {
+    case 0:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipContent">
+        <b>${d.nombre} ${d.apellido}</b><br>
+        ${d.anno.join(', ')}<br>
+        ${d.value} proyectos
+        </div>`;
+      break;
+    case 1:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipContent">
+        <b>${d.nombre}</b><br>
+        ${d.periodo}<br>
+        ${d.value} proyectos<br>
+        ${d.congreso}<br>
+        ${d.partido}<br>
+        </div>`;
+      break;
+    case 2:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipContent">
+        <span class="idProject">#${d.id}</span><br>
+        <span class="project-ellipsis">${d.proyecto}</span>
+        ${d.periodo}<br>
+        ${d.value} autores<br>
+        Tema: ${d.tema}<br>
+        </div>`;
+      break;
+    case 3:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipContent">
+        <b>${d.tema}</b><br>
+        ${d.periodo}<br>
+        ${d.value} proyectos<br>
+        </div>`;
+      break;
+    case 4:
+      content = `<div class="para--${d.paraPol}"></div>
+        <div class="tipContent">
+        <b>${d.tema}</b><br>
+        ${d.value} proyectos<br>
+        </div>`;
+      break;
+  }
+
+  sTooltip
+    .style('opacity', alphaTip)
+    .style('top', `${d.y0 + ySankey + 4}px`)
+    .select('#sTooltip--content')
+    .html(content);
+};
+
+// mouseout node
+const outNodes = (e) => {
+  sTooltip.style('opacity', 0);
+};
+
 export {
   linksConnect,
   nodesConnect,
   moveNodes,
   overNodes,
   outNodes,
+  moveLinks,
+  overLinks,
+  outLinks,
   highlight_flow,
   linkTooltip,
-  overlink,
-  outlink,
 };

@@ -28,7 +28,7 @@ $sOptionsH: 60px;
 #sOptions {
   width: 100vw;
   height: $sOptionsH;
-  border-bottom: 2px solid darken(color.$bg, 10%);
+  border-bottom: 1px solid darken(color.$bg, 10%);
 }
 
 #dataviz {
@@ -54,41 +54,41 @@ input {
   pointer-events: none;
   transform: translate(-50%, 0);
   transition: opacity .2s ease-out;
+
+  &--content {
+    background: color.$toolTip;
+    position: absolute;
+    padding: 1rem 1.5rem 1rem 1.5rem;
+    bottom: 100%;
+    margin-bottom: 0.6rem;
+    left: 50%;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    border-radius: 2px;
+    color: color.$bg;
+    transform: translateX(calc(var(--mouse-x) * -1%));
+  }
+
+  &--mark {
+    width: 1rem;
+    height: 0.6rem;
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    border-left: solid transparent 0.5rem;
+    border-right: solid transparent 0.5rem;
+    border-top: solid 0.6rem color.$toolTip;
+    transform: translateX(calc(var(--mouse-x) * -1%));
+  }
 }
 
-#sTipBox {
-  background: color.$toolTip;
-  position: absolute;
-  padding: 1rem 1.5rem 1rem 1.5rem;
-  bottom: 100%;
-  margin-bottom: 0.6rem;
-  left: 50%;
-  width: 100%;
-  height: auto;
-  overflow: hidden;
-  border-radius: 2px;
-  color: color.$bg;
-  transform: translateX(calc(var(--mouse-x) * -1%));
-}
-
-.proj {
+.project-ellipsis {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   white-space: pre-wrap;
-}
-
-#sTipMark {
-  width: 1rem;
-  height: 0.6rem;
-  position: absolute;
-  left: 50%;
-  bottom: 100%;
-  border-left: solid transparent 0.5rem;
-  border-right: solid transparent 0.5rem;
-  border-top: solid 0.6rem color.$toolTip;
-  transform: translateX(calc(var(--mouse-x) * -1%));
 }
 
 .link {
@@ -251,10 +251,56 @@ input {
   pointer-events: none;
 }
 
-#update {
-  width: 10vw;
-  padding: 20px;
-  cursor: pointer;
-  pointer-events: none;
-  color: color.$bg;
+$switch-size: 1.2rem;
+$switch-padd: $switch-size / 6; // 3px;
+$switch-knob: calc($switch-size - $switch-padd * 2);
+
+.switch {
+  &--label {
+    height: 100%;
+    width: fit-content;
+    padding: 0 10px;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+    cursor: pointer;
+  }
+
+  &--button {
+    position: relative;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    height: $switch-size;
+    width: $switch-size * 1.8;
+    border-radius: 100px;
+    background: color.$neutral;
+    transition: background 320ms ease;
+
+    &:after {
+      content: "";
+      position: absolute;
+      left: $switch-padd;
+      top: $switch-padd;
+      display: block;
+      pointer-events: none;
+      height: $switch-knob;
+      width: $switch-knob;
+      background: color.$bg;
+      border-radius: 100px;
+      transition: left 320ms cubic-bezier(0.68, -0.55, 0.27, 01.55);
+    }
+
+    &[aria-checked="true"] {
+      background: color.$para;
+
+      &:after {
+        left: calc(100% - ($switch-padd + $switch-knob));
+      }
+    }
+  }
 }

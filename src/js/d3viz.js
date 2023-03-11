@@ -7,6 +7,7 @@ import { getValues } from './sankey-getValues';
 import {
   sData,
   column,
+  delay,
   sankey,
   nodesFix,
   guides,
@@ -192,3 +193,24 @@ const updateGraph = async () => {
   // console.log(`annos =`, column[3].nodes());
   // console.log(`temas =`, column[4].nodes());
 };
+
+const paraSwitch = async (evt) => {
+  const el = evt.target;
+  const check = el.getAttribute('aria-checked');
+  switch (check) {
+    case 'true':
+      el.setAttribute('aria-checked', 'false');
+      await delay(300);
+      nodes.classed('para', false);
+      links.classed('para', false);
+      break;
+    case 'false':
+      el.setAttribute('aria-checked', 'true');
+      await delay(300);
+      nodes.classed('para', true);
+      links.classed('para', true);
+      break;
+  }
+};
+
+document.querySelector('.switch--button').addEventListener('click', paraSwitch, false);

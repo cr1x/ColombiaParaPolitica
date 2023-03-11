@@ -11,9 +11,9 @@ import {
   moveNodes,
   overNodes,
   outNodes,
-  overlink,
-  outlink,
-  linkTooltip,
+  moveLinks,
+  overLinks,
+  outLinks,
 } from './sankey-highlight';
 
 // join d3 libraries
@@ -26,6 +26,13 @@ let sData;
 // column name => store nodes by layers
 let column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
 
+// delay function
+const delay = (time) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, time);
+  });
+};
+
 // build sankey chart
 const createSankey = async () => {
   // load CSV file
@@ -35,8 +42,8 @@ const createSankey = async () => {
 
 // tooltip div
 const sTooltip = d3.select('body').append('div').attr('id', 'sTooltip');
-sTooltip.append('div').attr('id', 'sTipBox');
-sTooltip.append('div').attr('id', 'sTipMark');
+sTooltip.append('div').attr('id', 'sTooltip--content');
+sTooltip.append('div').attr('id', 'sTooltip--mark');
 
 // append the svg object to the body of the page
 const svg = d3
@@ -79,10 +86,10 @@ const drawSankey = () => {
       return d.id;
     })
     .each((d) => (d.connect = linksConnect(d.id)))
-    .on('mouseover', overlink)
-    .on('mouseout', outlink);
+    .on('mouseover', overLinks)
+    .on('mouseout', outLinks);
 
-  links.filter((d) => d.lColumn === 1).on('mousemove', linkTooltip);
+  links.filter((d) => d.lColumn === 1).on('mousemove', moveLinks);
 
   // add in the nodes
   nodes = nodes
@@ -197,7 +204,18 @@ const drawSankey = () => {
   column[4]
     .append('text')
     .attr('class', (d) => `title--topic para--${d.paraPol}`)
-    .text((d) => d.nombre);
+    .text((d) => d.tema);
 };
 
-export { sData, column, sTooltip, sankey, nodesFix, guides, links, nodes, createSankey };
+export {
+  sData,
+  column,
+  delay,
+  sTooltip,
+  sankey,
+  nodesFix,
+  guides,
+  links,
+  nodes,
+  createSankey,
+};
