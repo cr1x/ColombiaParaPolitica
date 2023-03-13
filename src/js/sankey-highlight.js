@@ -20,7 +20,7 @@ const linksConnect = (id) => {
     flow.push(`#${d.id}`);
     where.forEach((x, i) => {
       np[i].push(d[whereR[i]]);
-      flow.push(`#node${d[whereR[i]].id}`);
+      flow.push(`#n${d[whereR[i]].id}`);
 
       let news = [];
 
@@ -31,7 +31,7 @@ const linksConnect = (id) => {
           d[`${x}Links`].forEach((e) => {
             flow.push(`#${e.id}`);
             news.push(e[whereR[i]]);
-            flow.push(`#node${e[whereR[i]].id}`);
+            flow.push(`#n${e[whereR[i]].id}`);
           });
         });
         np[i] = news;
@@ -49,7 +49,7 @@ const nodesConnect = (id) => {
     np = [next, prev],
     flow = [];
 
-  let nodeSel = d3.select(`#node${id}`);
+  let nodeSel = d3.select(`#n${id}`);
 
   nodeSel.each((d) => {
     where.forEach((x, i) => {
@@ -65,7 +65,7 @@ const nodesConnect = (id) => {
         news = [];
         n++;
         np[i].forEach((d) => {
-          flow.push({ level: n, id: `#node${d.id}` });
+          flow.push({ level: n, id: `#n${d.id}` });
           d[`${x}Links`].forEach((e) => {
             flow.push({ level: n + 1, id: `#${e.id}` });
             news.push(e[whereR[i]]);

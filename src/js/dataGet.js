@@ -1,6 +1,16 @@
 import * as d3 from './d3.min';
 import { dataPush } from './dataPush';
 
+//
+// async function for load data
+const dataGet = async () => {
+  // load CSV file
+  const getData = await dataPush();
+  // build data
+  const data = await buildData(getData);
+  return data;
+};
+
 // data load and build main array data
 const buildData = (data) => {
   // data containers
@@ -39,15 +49,17 @@ const buildData = (data) => {
   });
 
   // fix assignment according to year
-  sData.nodes.map((d) => {
-    Math.min(...d.anno) == 2002 || Math.min(...d.anno) == 0
-      ? (d.fix = 0)
-      : Math.min(...d.anno) == 2006
-      ? (d.fix = 1)
-      : Math.min(...d.anno) == 2010
-      ? (d.fix = 2)
-      : (d.fix = 3);
-  });
+  sData.nodes
+    .filter((d) => d.lColumn == 1 || d.lColumn == 2 || d.lColumn == 3)
+    .map((d) => {
+      Math.min(...d.anno) == 2002
+        ? (d.fix = 0)
+        : Math.min(...d.anno) == 2006
+        ? (d.fix = 1)
+        : Math.min(...d.anno) == 2010
+        ? (d.fix = 2)
+        : (d.fix = 3);
+    });
 
   // nodes sort
   sData.nodes.sort((a, b) => d3.ascending(Math.min(...a.anno), Math.min(...b.anno)));
@@ -100,15 +112,6 @@ const buildData = (data) => {
   // console.log('links =', sData.links);
 
   return sData;
-};
-//
-// async function for load data
-const dataGet = async () => {
-  // load CSV file
-  const getData = await dataPush();
-  // build data
-  const data = await buildData(getData);
-  return data;
 };
 
 export { dataGet };

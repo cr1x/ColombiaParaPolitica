@@ -1,6 +1,17 @@
 import * as d3 from './d3.min';
 import * as csvData from 'url:../data/data.csv';
 
+//
+// async function for load data
+const dataPush = async () => {
+  // load CSV file
+  const csv = await d3.csv(csvData);
+  // build data
+  const data = await dataLoad(csv);
+  return data;
+};
+
+//
 const dataLoad = (dataCsv) => {
   // data containers
   let nodes = [];
@@ -24,6 +35,7 @@ const dataLoad = (dataCsv) => {
       old: +d.old,
       nodeWid: 5,
       lColumn: 0,
+      fix: 0,
     });
     nodes.push({
       id: +(d.idAutor + d.anno),
@@ -41,6 +53,17 @@ const dataLoad = (dataCsv) => {
       lColumn: 1,
     });
     nodes.push({
+      id: +(d.idPartido + d.anno),
+      partido: d.partido,
+      anno: +d.anno,
+      periodo: `${d.anno}-${+d.anno + 4}`,
+      idPartido: +d.idPartido,
+      partido: d.partido,
+      nGroup: +d.idPartido,
+      nodeWid: 5,
+      lColumn: 2,
+    });
+    nodes.push({
       id: +d.idProyecto,
       proyecto: d.proyecto,
       anno: +d.anno,
@@ -49,7 +72,7 @@ const dataLoad = (dataCsv) => {
       idTema: +d.idTema,
       tema: d.tema,
       nodeWid: 5,
-      lColumn: 2,
+      lColumn: 3,
     });
     nodes.push({
       id: +(d.idTema + d.anno),
@@ -59,22 +82,24 @@ const dataLoad = (dataCsv) => {
       idTema: +d.idTema,
       tema: d.tema,
       nodeWid: 5,
-      lColumn: 3,
+      lColumn: 4,
+      fix: 0,
     });
     nodes.push({
       id: +d.idTema,
       tema: d.tema,
-      anno: 0,
+      anno: +d.anno,
       idTema: +d.idTema,
       nGroup: +d.idTema,
       nodeWid: 5,
-      lColumn: 4,
+      lColumn: 5,
+      fix: 0,
     });
 
     // Links
     links.push({
       source: +(d.idAutor + d.anno),
-      target: +d.idProyecto,
+      target: +(d.idPartido + d.anno),
       value: 1,
       idProyecto: d.idProyecto,
       proyecto: d.proyecto,
@@ -88,6 +113,24 @@ const dataLoad = (dataCsv) => {
       congreso: +d.idCongreso,
       paraPol: +d.paraPol,
       lColumn: 1,
+    });
+
+    links.push({
+      source: +(d.idPartido + d.anno),
+      target: +d.idProyecto,
+      value: 1,
+      idProyecto: d.idProyecto,
+      proyecto: d.proyecto,
+      tema: d.tema,
+      autor: `${d.nombre} ${d.apellido}`,
+      idPartido: +d.idPartido,
+      partido: d.partido,
+      periodo: `${d.anno}-${+d.anno + 4}`,
+      anno: +d.anno,
+      idCongreso: +d.idCongreso,
+      congreso: +d.idCongreso,
+      paraPol: +d.paraPol,
+      lColumn: 2,
     });
 
     // links temporales
@@ -113,7 +156,7 @@ const dataLoad = (dataCsv) => {
       tema: d.tema,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
-      lColumn: 2,
+      lColumn: 3,
     });
     linksTemp.push({
       source: +(d.idTema + d.anno),
@@ -124,7 +167,7 @@ const dataLoad = (dataCsv) => {
       tema: d.tema,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
-      lColumn: 3,
+      lColumn: 4,
     });
 
     nodes
@@ -144,15 +187,6 @@ const dataLoad = (dataCsv) => {
       });
   });
   return [nodes, links, linksTemp];
-};
-
-// async function for load data
-const dataPush = async () => {
-  // load CSV file
-  const csv = await d3.csv(csvData);
-  // build data
-  const data = await dataLoad(csv);
-  return data;
 };
 
 export { dataPush };

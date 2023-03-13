@@ -5,84 +5,74 @@ import * as d3 from './d3.min';
 //
 //
 const sankeyLinkPath = (link) => {
-  let offset = 0;
-
-  let sx = link.source.x1,
-    tx = link.target.x0,
-    sy0 = link.y0 + 0.5 - link.width / 2,
-    sy1 = link.y0 - 0.5 + link.width / 2,
-    ty0 = link.y1 + 0.5 - link.width / 2,
-    ty1 = link.y1 - 0.5 + link.width / 2;
-
-  let halfx = (tx - sx) / 2;
+  let sX = link.source.x1,
+    tX = link.target.x0,
+    sY = link.y0,
+    tY = link.y1;
 
   let path = d3.path();
-  path.moveTo(sx, sy0);
+  path.moveTo(sX, sY);
 
-  let cpx1 = sx + halfx + 5,
-    cpy1 = sy0 + offset,
-    cpx2 = sx + halfx + 5,
-    cpy2 = ty0 - offset;
+  switch (link.lColumn) {
+    case 0:
+    case 4:
+      path.lineTo(tX, tY);
+      break;
+    case 1:
+    case 2:
+      {
+        let xHalf = (tX - sX) / 2,
+          cpx1 = sX + xHalf,
+          cpx2 = sX + xHalf,
+          sWid = link.source.nodeWid,
+          tWid = link.target.nodeWid,
+          sX2,
+          tX2;
 
-  path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, tx, ty0);
-  path.lineTo(tx, ty1);
+        switch (link.source.fix) {
+          case 0:
+            sX2 = sX + sWid * 2;
+            cpx1 = cpx1 + sWid * 2;
+            cpx2 = cpx2 + tWid;
+            path.lineTo(sX2, sY);
+            path.bezierCurveTo(cpx1, sY, cpx2, tY, tX, tY);
+            break;
+          case 1:
+            sX2 = sX + sWid;
+            tX2 = tX - tWid;
+            path.lineTo(sX2, sY);
+            path.bezierCurveTo(cpx1, sY, cpx2, tY, tX2, tY);
+            path.lineTo(tX, tY);
+            break;
+          case 2:
+            sX2 = sX + sWid;
+            tX2 = tX - tWid;
+            path.lineTo(sX2, sY);
+            path.bezierCurveTo(cpx1, sY, cpx2, tY, tX2, tY);
+            path.lineTo(tX, tY);
+            break;
+          case 3:
+            cpx1 = cpx1 - sWid;
+            cpx2 = cpx2 - tWid * 2;
+            tX2 = tX - tWid * 2;
+            path.bezierCurveTo(cpx1, sY, cpx2, tY, tX2, tY);
+            path.lineTo(tX, tY);
+            break;
+        }
+      }
+      break;
+    case 3:
+      {
+        let xHalf = (tX - sX) / 2,
+          cpx1 = sX + xHalf,
+          cpx2 = sX + xHalf;
 
-  cpx1 = sx + halfx;
-  cpy1 = ty1 - offset;
-  cpx2 = sx + halfx;
-  cpy2 = sy1 + offset;
-  path.bezierCurveTo(cpx1, cpy1, cpx2, cpy2, sx, sy1);
-  path.lineTo(sx, sy0);
+        path.bezierCurveTo(cpx1, sY, cpx2, tY, tX, tY);
+      }
+      break;
+  }
 
   return path.toString();
 };
-
-const area = '6';
-const line = `${area - 1}`;
-const rotate = '30';
-
-const patternC1 = d3
-  .select('defs')
-  .append('pattern')
-  .attr('id', 'patternC1')
-  .attr('width', area)
-  .attr('height', area / 2)
-  .attr('patternUnits', 'userSpaceOnUse')
-  .attr('patternTransform', `rotate(${rotate})`)
-  .append('rect')
-  .attr('width', line)
-  .attr('height', area / 2)
-  .attr('fill', 'white');
-
-const maskC1 = d3
-  .select('defs')
-  .append('mask')
-  .attr('id', 'maskC1')
-  .append('rect')
-  .attr('width', '100%')
-  .attr('height', '100%')
-  .attr('fill', 'url(#patternC1)');
-
-const patternC2 = d3
-  .select('defs')
-  .append('pattern')
-  .attr('id', 'patternC2')
-  .attr('width', area)
-  .attr('height', area / 2)
-  .attr('patternUnits', 'userSpaceOnUse')
-  .attr('patternTransform', `rotate(-${rotate})`)
-  .append('rect')
-  .attr('width', line)
-  .attr('height', area / 2)
-  .attr('fill', 'white');
-
-const maskC2 = d3
-  .select('defs')
-  .append('mask')
-  .attr('id', 'maskC2')
-  .append('rect')
-  .attr('width', '100%')
-  .attr('height', '100%')
-  .attr('fill', 'url(#patternC2)');
 
 export { sankeyLinkPath };

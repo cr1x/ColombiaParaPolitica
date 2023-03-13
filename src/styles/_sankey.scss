@@ -5,22 +5,30 @@ body {
   background: color.$bg;
 }
 
-@mixin para-scale($where) {
+@mixin para-scale($attr...) {
   @for $i from 0 through color.$topic-stops {
-    &.para--#{($i * 20)} {
-      #{$where}: mix(color.$para, color.$topic, $i * 20%);
+    .para--#{($i * 20)} {
+      @each $atr in $attr {
+        #{$atr}: mix(color.$para, color.$topic, $i * 20%);
+      }
     }
   }
 }
 
-@mixin ppColor($where) {
+@mixin ppColor($attr...) {
 
   @each $pp-name,
   $pp-color in color.$partidos {
     &--#{$pp-name} {
-      #{$where}: $pp-color;
+      @each $atr in $attr {
+        #{$atr}: $pp-color;
+      }
     }
   }
+}
+
+@mixin bgDark($attr, $amount) {
+  #{$attr}: darken(color.$bg, $amount * 1%);
 }
 
 $sOptionsH: 60px;
@@ -28,7 +36,7 @@ $sOptionsH: 60px;
 #sOptions {
   width: 100vw;
   height: $sOptionsH;
-  border-bottom: 1px solid darken(color.$bg, 10%);
+  // border-bottom: 1px solid darken(color.$bg, 3%);
 }
 
 #dataviz {
@@ -109,7 +117,16 @@ input {
     fill: none;
   }
 
-  &.aut,
+  &.para {
+    @include para-scale(stroke);
+  }
+
+  &.aut {
+    @include bgDark(stroke, 2);
+    mix-blend-mode: multiply;
+  }
+
+  &.pol,
   &.proj {
 
     // &.con {
@@ -122,18 +139,8 @@ input {
     }
 
     &.para {
-      stroke: color.$neutral;
-
-      .para--100 {
-        stroke: color.$para;
-      }
-    }
-  }
-
-  &.topic {
-    &.para {
-      path {
-        @include para-scale(stroke);
+      .para--0 {
+        stroke: color.$neutral;
       }
     }
   }
@@ -143,6 +150,26 @@ input {
   pointer-events: bounding-box;
   cursor: pointer;
   stroke: none;
+
+  text {
+    @include bgDark(fill, 5)
+  }
+
+  &.para {
+    @include para-scale(fill);
+
+    text {
+      fill: color.$bg;
+    }
+  }
+
+  .nBg {
+    fill: color.$bg;
+  }
+
+  .pp {
+    @include ppColor(fill);
+  }
 
   .nRect {
     stroke: none;
@@ -160,17 +187,20 @@ input {
   }
 
   &.autor {
-    fill: color.$neutral;
+    .nRect {
+      @include bgDark(fill, 6);
+    }
 
     text {
       fill: scale-color(color.$neutral, $blackness: 90%);
     }
 
     .old {
+      opacity: .4;
       fill: color.$bg;
 
       &--2 {
-        fill: scale-color(color.$neutral, $alpha: -85%);
+        @include bgDark(fill, 2);
         mix-blend-mode: multiply;
       }
     }
@@ -182,32 +212,46 @@ input {
 
       .old--2 {
         &.para--100 {
-          fill: scale-color(color.$para, $alpha: -90%);
+          // fill: scale-color(color.$para, $alpha: -90%);
         }
       }
     }
   }
 
   &.lapse {
-    fill: color.$bg;
 
+    // fill: color.$bg;
     &.para {
       .pp {
-        @include ppColor(fill);
+        // @include ppColor(fill);
+      }
+    }
+  }
+
+  &.pol {
+
+    // fill: color.$bg;
+    .pp {
+      // @include ppColor(stroke);
+    }
+
+    &.para {
+      rect {
+        // @include para-scale(fill);
       }
     }
   }
 
   &.proj {
-    fill: color.$bg;
 
+    // fill: color.$bg;
     .pp {
-      @include ppColor(fill);
+      // @include ppColor(fill);
     }
 
     &.para {
       text {
-        @include para-scale(fill);
+        // @include para-scale(fill);
       }
     }
   }
@@ -215,11 +259,11 @@ input {
   &.anno {
     &.para {
       rect {
-        @include para-scale(fill);
+        // @include para-scale(fill);
       }
 
       text {
-        fill: color.$bg
+        // fill: color.$bg
       }
     }
   }
@@ -227,12 +271,12 @@ input {
   &.topic {
     &.para {
       rect {
-        @include para-scale(fill);
+        // @include para-scale(fill);
       }
     }
 
     text {
-      fill: color.$bg;
+      // fill: color.$bg;
     }
   }
 }
@@ -244,10 +288,13 @@ input {
 }
 
 .guide {
-  stroke: color.$bg;
-  stroke-opacity: .6;
+  // stroke: black;
+  @include bgDark(stroke, 25);
+  stroke-opacity: 1;
   stroke-width: 1;
+  stroke-dasharray: 3 5;
   fill: none;
+  mix-blend-mode: multiply;
   pointer-events: none;
 }
 

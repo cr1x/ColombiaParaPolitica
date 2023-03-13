@@ -9,12 +9,14 @@ import {
   column,
   delay,
   sankey,
-  nodesFix,
   guides,
   links,
   nodes,
   createSankey,
 } from './sankey-draw';
+
+// Link path generator
+import { sankeyLinkPath } from './sankeyLinkPath';
 
 // join d3 libraries
 const d3 = {
@@ -30,13 +32,18 @@ let margin = 20,
   nPadding = 6,
   sWidth = 0,
   sHeigh = 0,
-  vPadding = 4;
+  vPadding = 3,
+  ppWidth = 6;
 
+// [autores, periodos, partidos, proyectos, annos, temas];
 // columns percentage
-let colPercent = [0, 20, 72, 96];
-// column name guide
-// column = [autores, periodos, proyectos, annos, temas];
-let nWidth = [8, 24, 26 + vPadding / 2, 32, 10];
+let colPercent = [0, 0, 48, 85, 98, 100];
+// nodes width by column
+let nWidth = [0, 24, 24, 32, 32, 5];
+let pd = ppWidth + vPadding;
+nWidth[1] = nWidth[1] + pd;
+nWidth[2] = nWidth[2] + pd;
+nWidth[3] = nWidth[3] + pd;
 
 //
 // build sankey chart
@@ -65,7 +72,15 @@ const updateGraph = async () => {
     col.each((d) => (d.nodeWid = nWidth[i]));
   });
 
-  let values = await getValues(sWidth, sHeigh, margin, nWidth, colPercent, vPadding);
+  let values = await getValues(
+    sWidth,
+    sHeigh,
+    margin,
+    nWidth,
+    colPercent,
+    ppWidth,
+    vPadding
+  );
 
   d3.select('#sankey').attr('width', sWidth).attr('height', sHeigh);
 
@@ -81,55 +96,68 @@ const updateGraph = async () => {
 
   links
     .selectAll('path')
-    .attr('d', d3.sankeyLinkHorizontal())
+    // .attr('d', d3.sankeyLinkHorizontal())
+    .attr('d', (d) => sankeyLinkPath(d))
     .attr('stroke-width', (d) => d.width - 1);
 
   nodes
-    .selectAll('rect')
+    .selectAll('.nRect')
+    .attr('y', (d) => d.y0 + 0.5)
+    .attr('height', (d) => d.y1 - d.y0 - 1);
+
+  d3.selectAll([...column[0], ...column[1], ...column[2], ...column[4], ...column[5]])
+    .selectAll('.nRect')
+    .attr('x', (d) => d.x0);
+
+  column[3].selectAll('.nRect').attr('x', (d) => d.x0 + ppWidth + vPadding);
+
+  d3.selectAll([...column[1], ...column[2], ...column[3]])
+    .selectAll('.nRect')
+    .attr('width', (d) => d.nodeWid - ppWidth - vPadding);
+
+  d3.selectAll([...column[0], ...column[4]])
+    .selectAll('.nRect')
+    .attr('width', (d) => d.nodeWid);
+
+  d3.selectAll('.nBg')
     .attr('x', (d) => d.x0)
     .attr('y', (d) => d.y0 + 0.5)
     .attr('width', (d) => d.nodeWid)
     .attr('height', (d) => d.y1 - d.y0 - 1);
 
-  column[1]
-    .selectAll('.nRect')
-    .attr('x', (d) => d.x0 + vPadding / 2)
-    .attr('width', (d) => d.nodeWid - vPadding);
+  d3.selectAll([...column[1], ...column[2]])
+    .selectAll('.ppRect')
+    .attr('x', (d) => d.x1 - ppWidth - vPadding / 2)
+    .attr('y', (d) => d.y0 + 0.5)
+    .attr('width', ppWidth)
+    .attr('height', (d) => d.y1 - d.y0 - 1);
 
-  column[2].each(function (d) {
+  column[3].each(function (d) {
     d3.select(this)
-      .selectAll('.pRect')
-      .attr('x', d.x0 + vPadding / 2)
+      .selectAll('.ppRect')
+      .attr('x', (d) => d.x0 + vPadding / 2)
       .attr('y', (e, i) => {
         return d.targetLinks[i].y1 - d.targetLinks[i].width / 2 + 0.5;
       })
-      .attr('width', d.nodeWid / 5)
+      .attr('width', ppWidth)
       .attr('height', (e, i) => {
         return d.targetLinks[i].width - 1;
       })
       .attr('class', (e, i) => {
-        return `pRect pp--${d.targetLinks[i].idPartido}`;
+        return `ppRect pp--${d.targetLinks[i].idPartido}`;
       });
   });
 
-  column[4]
+  column[5]
     .selectAll('.nRect')
-    .attr('x', (d) => d.x0 + 2)
-    .attr('width', values.title4Wid - 2);
+    .attr('x', (d) => d.x0)
+    .attr('width', values.title5Wid);
 
-  // line "fix" position
-  nodesFix.each(function (d) {
-    d3.select(this)
-      .selectAll('.fix')
-      .attr('d', (e, j) => {
-        return d3.line()([
-          [values.points[j][0][0], d.y0 + 1],
-          [values.points[j][0][0], d.y1 - 0.5],
-        ]);
-      });
-  });
-
-  d3.selectAll('.old').attr('x', '0').attr('width', values.title0Wid);
+  d3.selectAll('.old')
+    .attr('x', '0')
+    .attr('y', (d) => d.y0 + 0.5)
+    .attr('width', values.title0Wid)
+    .attr('height', (d) => d.y1 - d.y0 - 1);
 
   // add in the title for the nodes
   column[0]
@@ -148,50 +176,41 @@ const updateGraph = async () => {
     .attr('alignment-baseline', 'hanging')
     .attr('baseline-shift', '-10%');
 
-  d3.selectAll([...column[1], ...column[2], ...column[3]])
+  d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
     .selectAll('.title--value')
-    .attr('y', (d) => (d.y1 + d.y0) / 2)
-    .attr('alignment-baseline', 'central');
-
-  column[1]
-    .selectAll('.title--value')
-    .attr('x', (d) => d.x0 - vPadding)
-    .attr('text-anchor', 'end');
-
-  column[2]
-    .selectAll('.title--value')
-    .attr('x', (d) => d.x0 + d.nodeWid / 2 + vPadding)
+    .attr('x', (d) =>
+      d.lColumn == 4 ? d.x0 + d.nodeWid / 2 : d.x0 + (d.nodeWid - ppWidth - vPadding) / 2
+    )
+    .attr('y', (d) => (d.y1 + d.y0) / 2 - 0.2)
+    .attr('alignment-baseline', 'central')
     .attr('text-anchor', 'middle');
 
-  d3.selectAll([...column[1], ...column[3]])
-    .selectAll('.title--value')
-    .attr('x', (d) => d.x0 + d.nodeWid / 2)
-    .attr('text-anchor', 'middle');
-
-  column[4]
+  column[5]
     .selectAll('text')
     .attr('x', (d) => d.x0 + d.nodeWid + vPadding)
     .attr('y', (d) => (d.y1 + d.y0) / 2)
     .attr('text-anchor', 'start');
 
-  column[4]
+  column[5]
     .selectAll('.title--topic')
     .attr('alignment-baseline', 'baseline')
     .attr('baseline-shift', '10%');
 
-  column[4]
+  column[5]
     .selectAll('.title--value')
     .attr('dx', '.2%')
     .attr('alignment-baseline', 'hanging')
     .attr('baseline-shift', '-30%');
 
   // console.log(links.nodes());
+  // console.log(links.filter((d) => d.lColumn == 1).nodes());
   // console.log(nodes.nodes());
   // console.log(`autores =`, column[0].nodes());
   // console.log(`periodos =`, column[1].nodes());
-  // console.log(`proyectos =`, column[2].nodes());
-  // console.log(`annos =`, column[3].nodes());
-  // console.log(`temas =`, column[4].nodes());
+  // console.log(`partidos =`, column[2].nodes());
+  // console.log(`proyectos =`, column[3].nodes());
+  // console.log(`annos =`, column[4].nodes());
+  // console.log(`temas =`, column[5].nodes());
 };
 
 const paraSwitch = async (evt) => {

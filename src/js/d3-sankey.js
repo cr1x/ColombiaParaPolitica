@@ -290,7 +290,7 @@
 
       let nodesAll = columns.flat();
 
-      const pyGroup = 3; // value group padding
+      const pyGroup = 4; // value group padding
 
       // grouped nodes by nGroup (tema)
       for (let i = 0; i < newCols.length; ++i) {
@@ -317,7 +317,7 @@
 
       const ky = getKy();
 
-      for (let cols of [newCols[1], newCols[2]]) {
+      for (let cols of [newCols[1], newCols[2], newCols[3]]) {
         let y = margen;
         for (let node of cols) {
           for (let i = 0; i < node.length; i++) {
@@ -326,14 +326,15 @@
             for (const link of node[i].sourceLinks) {
               link.width = link.value * ky;
             }
-            if (i + 1 == node.length) {
-              y = node[i].y1 + py * pyGroup;
-            } else {
-              y = node[i].y1 + py;
-            }
+            i + 1 == node.length
+              ? (y = node[i].y1 + py * pyGroup)
+              : node[i].lColumn == 3
+              ? (y = node[i].y1 + py)
+              : (y = node[i].y1);
           }
         }
       }
+
       for (let node of [...newCols[0].flat()]) {
         let y = node.sourceLinks[0].target.y0;
         node.y0 = y;
@@ -343,20 +344,7 @@
         }
       }
 
-      // for (let node of cols) {
-      //   node.reverse();
-      //   let last = node[i].targetLinks.length - 1;
-      //   let y = node[0].targetLinks[0].source.y0;
-      //   for (let i = 0; i < node.length; i++) {
-      //     node[i].y0 = y;
-      //     node[i].y1 = y + node[i].value * ky;
-      //     y = node[i].y1;
-      //     for (const link of node[i].sourceLinks) {
-      //       link.width = link.value * ky;
-      //     }
-      //   }
-      // }
-      for (let node of [...newCols[3], ...newCols[4]]) {
+      for (let node of [...newCols[4], ...newCols[5]]) {
         let lastNode = node.length - 1;
         let lastLink = node[lastNode].targetLinks.length - 1;
         let y = node[lastNode].targetLinks[lastLink].source.y1;

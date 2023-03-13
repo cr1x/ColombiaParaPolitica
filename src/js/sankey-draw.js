@@ -24,7 +24,7 @@ const d3 = {
 // main data container
 let sData;
 // column name => store nodes by layers
-let column = ['autores', 'periodos', 'proyectos', 'annos', 'temas'];
+let column = ['autores', 'periodos', 'partidos', 'proyectos', 'annos', 'temas'];
 
 // delay function
 const delay = (time) => {
@@ -68,7 +68,7 @@ const drawSankey = () => {
   graph = sankey(sData);
 
   // year guides by column
-  for (let i = 0; i < column.length - 1; ++i) {
+  for (let i = 1; i < column.length - 2; ++i) {
     for (let j = 0; j < 4; ++j) {
       guides.append('path').attr('class', 'guide');
     }
@@ -82,7 +82,7 @@ const drawSankey = () => {
     .enter()
     .append('g')
     .attr('id', (d, i) => {
-      d.id = `link${i + 1}`;
+      d.id = `l${i + 1}`;
       return d.id;
     })
     .each((d) => (d.connect = linksConnect(d.id)))
@@ -97,7 +97,7 @@ const drawSankey = () => {
     .data(graph.nodes)
     .enter()
     .append('g')
-    .attr('id', (d) => `node${d.id}`)
+    .attr('id', (d) => `n${d.id}`)
     .each((d) => (d.connect = nodesConnect(d.id)))
     .on('mousemove', moveNodes)
     .on('mouseover', overNodes)
@@ -110,7 +110,7 @@ const drawSankey = () => {
   }
 
   // assigment tp nodes & links paraPol value
-  d3.selectAll([...column[2], ...column[3], ...column[4]]).each((d) => {
+  d3.selectAll([...column[2], ...column[3], ...column[4], ...column[5]]).each((d) => {
     let para = Math.round(
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
     );
@@ -126,7 +126,9 @@ const drawSankey = () => {
       ? (para = 80)
       : (para = para);
     d.paraPol = para;
-    d.sourceLinks.forEach((e) => (e.paraPol = para));
+    d.sourceLinks.forEach((e) => {
+      d.lColumn == 2 ? (e.paraPol = e.paraPol) : (e.paraPol = para);
+    });
   });
 
   nodes.attr('class', (d) =>
@@ -135,8 +137,10 @@ const drawSankey = () => {
       : d.depth === 1
       ? `node lapse para`
       : d.depth === 2
-      ? `node proj para`
+      ? `node pol para`
       : d.depth === 3
+      ? `node proj para`
+      : d.depth === 4
       ? `node anno para`
       : `node topic t--${d.idTema} para`
   );
@@ -146,42 +150,36 @@ const drawSankey = () => {
     d.lColumn === 0
       ? `link aut pp--${d.idPartido} con--${d.idCongreso} para`
       : d.lColumn === 1
+      ? `link pol pp--${d.idPartido} con--${d.idCongreso} para`
+      : d.lColumn === 2
       ? `link proj pp--${d.idPartido} con--${d.idCongreso} para`
       : `link topic tem--${d.idTema} para`
   );
 
   // add links path
-  links.append('path').attr('class', (d) => `para--${d.paraPol}`);
+  links.append('path').attr('class', (d) => (d.lColumn == 0 ? `` : `para--${d.paraPol}`));
 
-  // add the rectangles for the nodes
+  // add the rectangles for the nodes old
   column[0]
     .append('rect')
-    .attr('class', (d) => (d.old > 1 ? `old old--${d.old} para--${d.paraPol}` : `old`));
+    .attr('class', (d) => (d.old > 1 ? `old old--${d.old}` : `old`));
 
-  // nodesFix
-  nodesFix = column[0].filter((d) => d.fix > 0);
-
-  nodesFix.each(function (d) {
-    let self = d3.select(this);
-    d3.range(d.fix).forEach(function () {
-      self.append('path').attr('class', `fix`);
-    });
-  });
+  d3.selectAll([...column[1], ...column[2], ...column[3]])
+    .append('rect')
+    .attr('class', 'nBg');
 
   nodes
     .append('rect')
-    .attr('class', (d) =>
-      d.depth === 0
-        ? `nRect para--${d.paraPol}`
-        : d.depth === 1
-        ? `nRect pp--${d.idPartido}`
-        : `nRect para--${d.paraPol}`
-    );
+    .attr('class', (d) => (d.lColumn == 0 ? `nRect` : `nRect para--${d.paraPol}`));
 
-  column[2].each(function (d) {
+  d3.selectAll([...column[1], ...column[2]])
+    .append('rect')
+    .attr('class', (d) => `ppRect pp--${d.idPartido}`);
+
+  column[3].each(function (d) {
     let self = d3.select(this);
     for (let i = 0; i < d.targetLinks.length; ++i) {
-      self.append('rect').attr('class', 'pRect');
+      self.append('rect').attr('class', 'ppRect');
     }
   });
 
@@ -196,26 +194,15 @@ const drawSankey = () => {
     .attr('class', (d) => `title--apellido para--${d.paraPol}`)
     .text((d) => d.apellido);
 
-  d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
+  d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4], ...column[5]])
     .append('text')
-    .attr('class', (d) => `title--value para--${d.paraPol}`)
+    .attr('class', `title--value`)
     .text((d) => d.value);
 
-  column[4]
+  column[5]
     .append('text')
-    .attr('class', (d) => `title--topic para--${d.paraPol}`)
+    .attr('class', `title--topic`)
     .text((d) => d.tema);
 };
 
-export {
-  sData,
-  column,
-  delay,
-  sTooltip,
-  sankey,
-  nodesFix,
-  guides,
-  links,
-  nodes,
-  createSankey,
-};
+export { sData, column, delay, sTooltip, sankey, guides, links, nodes, createSankey };
