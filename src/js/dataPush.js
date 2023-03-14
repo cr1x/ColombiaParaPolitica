@@ -14,10 +14,10 @@ const dataPush = async () => {
 //
 const dataLoad = (dataCsv) => {
   // data containers
-  let nodes = [];
-  let links = [];
-  // temporary data container
-  let linksTemp = [];
+  let nodes = [],
+    links = [],
+    linksTemp = [],
+    partidos = [];
 
   // load data in the container
   dataCsv.forEach((d) => {
@@ -58,7 +58,6 @@ const dataLoad = (dataCsv) => {
       anno: +d.anno,
       periodo: `${d.anno}-${+d.anno + 4}`,
       idPartido: +d.idPartido,
-      partido: d.partido,
       nGroup: +d.idPartido,
       nodeWid: 5,
       lColumn: 2,
@@ -185,8 +184,12 @@ const dataLoad = (dataCsv) => {
           ? (d.congreso = 'Senado')
           : (d.congreso = 'Cámara de Representantes');
       });
+
+    partidos.push(+d.idPartido);
   });
-  return [nodes, links, linksTemp];
+  partidos = [...new Set(partidos)].sort();
+
+  return [nodes, links, linksTemp, partidos];
 };
 
 export { dataPush };

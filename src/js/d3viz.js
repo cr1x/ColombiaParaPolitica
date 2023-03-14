@@ -9,7 +9,8 @@ import {
   column,
   delay,
   sankey,
-  guides,
+  guidesY,
+  guidesP,
   links,
   nodes,
   createSankey,
@@ -40,6 +41,7 @@ let margin = 20,
 let colPercent = [0, 0, 48, 85, 98, 100];
 // nodes width by column
 let nWidth = [0, 24, 24, 32, 32, 5];
+
 let pd = ppWidth + vPadding;
 nWidth[1] = nWidth[1] + pd;
 nWidth[2] = nWidth[2] + pd;
@@ -90,7 +92,9 @@ const updateGraph = async () => {
     .margen(margin)
     .layersPos(values.layerPos);
 
-  guides.attr('d', (d, i) => d3.line()(values.points[i]));
+  console.log(values.points);
+
+  guidesY.attr('d', (d, i) => d3.line()(values.points[i]));
 
   graph = sankey(sData);
 
@@ -159,6 +163,33 @@ const updateGraph = async () => {
     .attr('width', values.title0Wid)
     .attr('height', (d) => d.y1 - d.y0 - 1);
 
+  //
+  sData.partidos.forEach((pp) => {
+    let xs = [],
+      ys = [],
+      points = [];
+
+    column[2]
+      .filter((d) => d.idPartido == pp)
+      .each((d) => {
+        xs.push(d.x0);
+        ys.push(d.y0);
+        ys.push(d.y1);
+      });
+    xs.forEach((x) => {
+      x = x + (nWidth[2] - ppWidth - vPadding) / 2;
+      points.push([
+        [x, Math.min(...ys) - nPadding * 1.5],
+        [x, Math.max(...ys) + nPadding * 1.5],
+      ]);
+    });
+
+    guidesP
+      .filter(`.pp--${pp}`)
+      .attr('d', (d, i) => d3.line()(points[i]))
+      .attr('stroke-width', ppWidth + 1);
+  });
+
   // add in the title for the nodes
   column[0]
     .selectAll('text')
@@ -179,7 +210,11 @@ const updateGraph = async () => {
   d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
     .selectAll('.title--value')
     .attr('x', (d) =>
-      d.lColumn == 4 ? d.x0 + d.nodeWid / 2 : d.x0 + (d.nodeWid - ppWidth - vPadding) / 2
+      d.lColumn == 3
+        ? d.x0 + (d.nodeWid + ppWidth + vPadding) / 2
+        : d.lColumn == 4
+        ? d.x0 + d.nodeWid / 2
+        : d.x0 + (d.nodeWid - ppWidth - vPadding) / 2
     )
     .attr('y', (d) => (d.y1 + d.y0) / 2 - 0.2)
     .attr('alignment-baseline', 'central')

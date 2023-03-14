@@ -42,13 +42,26 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, ppWidth, vPaddin
     calcPercent(colPercent[5])
   );
 
+  let gLayers = [layerPos[1], layerPos[2], layerPos[3]];
+
   // guides position "4" by layer
-  for (let i = 1; i < layerPos.length - 2; ++i) {
+  for (let i = 0; i < gLayers.length; ++i) {
     for (let j = 0; j < 4; ++j) {
-      // d.x0 + (d.nodeWid - ppWidth - vPadding) / 2
-      // let x = layerPos[i] + (nWidth[i] - ppWidth - vPadding) / 2 + nWidth[i] * j;
-      let x = layerPos[i] + (nWidth[i] - ppWidth - vPadding) / 2 + nWidth[i] * j;
-      let line = [
+      let x, line;
+
+      switch (i) {
+        case 0:
+          x = gLayers[i] + (nWidth[i + 1] - ppWidth - vPadding) / 2 + nWidth[i + 1] * j;
+          break;
+        case 1:
+          x = gLayers[i] + (nWidth[i + 1] - ppWidth - vPadding) / 2 + nWidth[i + 1] * j;
+          break;
+        case 2:
+          x = gLayers[i] + (nWidth[i + 1] + ppWidth + vPadding) / 2 + nWidth[i + 1] * j;
+          break;
+      }
+
+      line = [
         [x, 0],
         [x, sHeigh - 10],
       ];

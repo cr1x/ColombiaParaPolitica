@@ -287,7 +287,7 @@ input {
   stroke-opacity: 1;
 }
 
-.guide {
+.guideY {
   // stroke: black;
   @include bgDark(stroke, 25);
   stroke-opacity: 1;
@@ -296,6 +296,17 @@ input {
   fill: none;
   mix-blend-mode: multiply;
   pointer-events: none;
+}
+
+.guideP {
+  stroke-linecap: round;
+  fill: none;
+  // mix-blend-mode: multiply;
+  pointer-events: none;
+
+  &.pp {
+    @include ppColor(stroke);
+  }
 }
 
 $switch-size: 1.2rem;

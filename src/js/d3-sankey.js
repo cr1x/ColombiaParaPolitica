@@ -290,7 +290,7 @@
 
       let nodesAll = columns.flat();
 
-      const pyGroup = 4; // value group padding
+      const pyGroup = 6; // value group padding
 
       // grouped nodes by nGroup (tema)
       for (let i = 0; i < newCols.length; ++i) {

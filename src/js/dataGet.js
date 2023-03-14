@@ -14,7 +14,7 @@ const dataGet = async () => {
 // data load and build main array data
 const buildData = (data) => {
   // data containers
-  let sData = { nodes: data[0], links: data[1] };
+  let sData = { nodes: data[0], links: data[1], partidos: data[3] };
   // temporary data container
   let linksTemp = data[2];
 

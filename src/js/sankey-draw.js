@@ -56,11 +56,11 @@ const svg = d3
 // Set the sankey diagram properties
 const sankey = d3.sankey();
 
-// const defs = svg.append('defs');
-let nodesFix;
-let links = svg.append('g').attr('id', 'links');
-let guides = svg.append('g').attr('id', 'guides');
-let nodes = svg.append('g').attr('id', 'nodes');
+let links = svg.append('g').attr('id', 'links'),
+  guides = svg.append('g').attr('id', 'guides'),
+  nodes = svg.append('g').attr('id', 'nodes'),
+  guidesY,
+  guidesP;
 
 //
 // append elements of the graph
@@ -68,12 +68,12 @@ const drawSankey = () => {
   graph = sankey(sData);
 
   // year guides by column
-  for (let i = 1; i < column.length - 2; ++i) {
+  for (let i = 0; i < 3; ++i) {
     for (let j = 0; j < 4; ++j) {
-      guides.append('path').attr('class', 'guide');
+      guides.append('path').attr('class', 'guideY');
     }
   }
-  guides = d3.selectAll('.guide');
+  guidesY = d3.selectAll('.guideY');
 
   // add in the links
   links = links
@@ -108,6 +108,15 @@ const drawSankey = () => {
   for (let i = 0; i < column.length; ++i) {
     column[i] = nodes.filter((d) => d.depth === i);
   }
+
+  // guides by column "partidos"
+  column[2].each((d) => {
+    guides
+      .append('path')
+      .attr('class', `guideP pp--${d.idPartido}`)
+      .attr('data-pp', d.idPartido);
+  });
+  guidesP = d3.selectAll('.guideP');
 
   // assigment tp nodes & links paraPol value
   d3.selectAll([...column[2], ...column[3], ...column[4], ...column[5]]).each((d) => {
@@ -205,4 +214,15 @@ const drawSankey = () => {
     .text((d) => d.tema);
 };
 
-export { sData, column, delay, sTooltip, sankey, guides, links, nodes, createSankey };
+export {
+  sData,
+  column,
+  delay,
+  sTooltip,
+  sankey,
+  guidesY,
+  guidesP,
+  links,
+  nodes,
+  createSankey,
+};
