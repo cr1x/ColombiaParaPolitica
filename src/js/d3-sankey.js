@@ -78,14 +78,32 @@
     for (const node of nodes) {
       let y0 = node.y0;
       let y1 = y0;
-      for (const link of node.sourceLinks) {
+      node.sourceLinks.sort((a, b) => a.idProyecto - b.idProyecto);
+      node.sourceLinks.forEach((link, i) => {
         link.y0 = y0 + link.width / 2;
-        y0 += link.width;
-      }
-      for (const link of node.targetLinks) {
+        if (
+          link.lColumn == 2 &&
+          i < node.sourceLinks.length - 1 &&
+          link.idProyecto == node.sourceLinks[i + 1].idProyecto
+        ) {
+          y0 = y0;
+        } else {
+          y0 += link.width;
+        }
+      });
+      node.targetLinks.sort((a, b) => a.idProyecto - b.idProyecto);
+      node.targetLinks.forEach((link, i) => {
         link.y1 = y1 + link.width / 2;
-        y1 += link.width;
-      }
+        if (
+          link.lColumn == 1 &&
+          i < node.targetLinks.length - 1 &&
+          link.idProyecto == node.targetLinks[i + 1].idProyecto
+        ) {
+          y1 = y1;
+        } else {
+          y1 += link.width;
+        }
+      });
     }
   }
 
@@ -104,7 +122,8 @@
     let nodes = defaultNodes;
     let links = defaultLinks;
     let iterations = 0;
-    let margen = 20;
+    let margin = 20;
+    let pyGroup = 2;
     let layersPos = [];
 
     function sankey() {
@@ -118,6 +137,7 @@
       computeNodeHeights(graph);
       computeNodeBreadths(graph);
       computeLinkBreadths(graph);
+      reorderLinks(graph.nodes);
       return graph;
     }
 
@@ -185,8 +205,12 @@
       return arguments.length ? ((iterations = +_), sankey) : iterations;
     };
 
-    sankey.margen = function (_) {
-      return arguments.length ? ((margen = +_), sankey) : margen;
+    sankey.margin = function (_) {
+      return arguments.length ? ((margin = +_), sankey) : margin;
+    };
+
+    sankey.pyGroup = function (_) {
+      return arguments.length ? ((pyGroup = +_), sankey) : pyGroup;
     };
 
     sankey.layersPos = function (_) {
@@ -216,15 +240,34 @@
       }
     }
 
+    // function computeNodeValues({ nodes }) {
+    //   for (const node of nodes) {
+    //     node.value =
+    //       node.fixedValue === undefined
+    //         ? Math.max(
+    //             d3Array.sum(node.sourceLinks, value),
+    //             d3Array.sum(node.targetLinks, value)
+    //           )
+    //         : node.fixedValue;
+    //   }
+    // }
+
     function computeNodeValues({ nodes }) {
       for (const node of nodes) {
-        node.value =
-          node.fixedValue === undefined
-            ? Math.max(
-                d3Array.sum(node.sourceLinks, value),
-                d3Array.sum(node.targetLinks, value)
-              )
-            : node.fixedValue;
+        if (node.fixedValue === undefined) {
+          if (node.lColumn === 2) {
+            let uniqS = [...new Set(node.sourceLinks.map((d) => d.idProyecto))];
+            let uniqT = [...new Set(node.targetLinks.map((d) => d.idProyecto))];
+            node.value = Math.max(uniqS.length, uniqT.length);
+          } else {
+            node.value = Math.max(
+              d3Array.sum(node.sourceLinks, value),
+              d3Array.sum(node.targetLinks, value)
+            );
+          }
+        } else {
+          node.value = node.fixedValue;
+        }
       }
     }
 
@@ -286,16 +329,13 @@
 
     // edited
     function initializeNodeBreadths(columns) {
-      const newCols = new Array(...columns); // clone array columns
-
-      let nodesAll = columns.flat();
-
-      const pyGroup = 6; // value group padding
+      const newColumns = [...columns]; // clone array columns
+      const nodesAll = columns.flat();
 
       // grouped nodes by nGroup (tema)
-      for (let i = 0; i < newCols.length; ++i) {
-        newCols[i] = Array.from(
-          d3Array.group(newCols[i], (d) => d.nGroup),
+      for (let i = 0; i < newColumns.length; ++i) {
+        newColumns[i] = Array.from(
+          d3Array.group(newColumns[i], (d) => d.nGroup),
           ([key, values]) => values
         );
       }
@@ -303,39 +343,41 @@
       // get groups padding
       const getKy = () => {
         let kyVal = [];
-        for (const cols of newCols) {
+        for (const column of newColumns) {
           let kyTemp =
             (y1 -
               y0 -
-              (d3Array.sum(cols, (c) => c.length) - 1 + (cols.length - 1) * pyGroup) *
-                py) /
-            d3Array.sum(cols, (c) => d3Array.sum(c, value));
-          kyVal.push(kyTemp);
+              ((d3Array.sum(column, (c) => c.length) - 1) * py +
+                (column.length - 1) * (pyGroup * py))) /
+            d3Array.sum(column, (c) => d3Array.sum(c, value));
+          kyVal.push(Math.floor(kyTemp));
         }
-        return Math.min(...kyVal);
+        kyVal.sort();
+
+        return kyVal[1];
       };
 
       const ky = getKy();
 
-      for (let cols of [newCols[1], newCols[2], newCols[3]]) {
-        let y = margen;
-        for (let node of cols) {
-          for (let i = 0; i < node.length; i++) {
-            node[i].y0 = y;
-            node[i].y1 = node[i].y0 + node[i].value * ky;
-            for (const link of node[i].sourceLinks) {
+      for (const column of [newColumns[1], newColumns[2], newColumns[3]]) {
+        let y = margin;
+        for (const group of column) {
+          for (let i = 0; i < group.length; i++) {
+            group[i].y0 = y;
+            group[i].y1 = group[i].y0 + group[i].value * ky;
+            for (const link of group[i].sourceLinks) {
               link.width = link.value * ky;
             }
-            i + 1 == node.length
-              ? (y = node[i].y1 + py * pyGroup)
-              : node[i].lColumn == 3
-              ? (y = node[i].y1 + py)
-              : (y = node[i].y1);
+            i + 1 == group.length
+              ? (y = group[i].y1 + py * pyGroup)
+              : group[i].lColumn == 3
+              ? (y = group[i].y1 + py)
+              : (y = group[i].y1);
           }
         }
       }
 
-      for (let node of [...newCols[0].flat()]) {
+      for (const node of newColumns[0].flat()) {
         let y = node.sourceLinks[0].target.y0;
         node.y0 = y;
         node.y1 = node.y0 + node.value * ky;
@@ -344,7 +386,7 @@
         }
       }
 
-      for (let node of [...newCols[4], ...newCols[5]]) {
+      for (const node of [...newColumns[4], ...newColumns[5]]) {
         let lastNode = node.length - 1;
         let lastLink = node[lastNode].targetLinks.length - 1;
         let y = node[lastNode].targetLinks[lastLink].source.y1;

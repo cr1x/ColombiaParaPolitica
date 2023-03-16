@@ -163,6 +163,10 @@ input {
     }
   }
 
+  .ppRect {
+    stroke: color.$bg;
+  }
+
   .nBg {
     fill: color.$bg;
   }
@@ -299,13 +303,13 @@ input {
 }
 
 .guideP {
-  stroke-linecap: round;
+  // stroke: color.$bg;
+  @include bgDark(stroke, 8);
   fill: none;
-  // mix-blend-mode: multiply;
   pointer-events: none;
 
   &.pp {
-    @include ppColor(stroke);
+    // @include ppColor(fill);
   }
 }
 

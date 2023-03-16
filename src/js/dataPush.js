@@ -30,7 +30,7 @@ const dataLoad = (dataCsv) => {
       nombre: d.nombre,
       apellido: d.apellido,
       anno: +d.anno,
-      nGroup: 'autor',
+      nGroup: +d.idAutor,
       paraPol: +d.paraPol,
       old: +d.old,
       nodeWid: 5,
@@ -100,7 +100,7 @@ const dataLoad = (dataCsv) => {
       source: +(d.idAutor + d.anno),
       target: +(d.idPartido + d.anno),
       value: 1,
-      idProyecto: d.idProyecto,
+      idProyecto: +d.idProyecto,
       proyecto: d.proyecto,
       tema: d.tema,
       autor: `${d.nombre} ${d.apellido}`,
@@ -111,6 +111,7 @@ const dataLoad = (dataCsv) => {
       idCongreso: +d.idCongreso,
       congreso: +d.idCongreso,
       paraPol: +d.paraPol,
+      idAutor: +d.idAutor,
       lColumn: 1,
     });
 
@@ -118,7 +119,7 @@ const dataLoad = (dataCsv) => {
       source: +(d.idPartido + d.anno),
       target: +d.idProyecto,
       value: 1,
-      idProyecto: d.idProyecto,
+      idProyecto: +d.idProyecto,
       proyecto: d.proyecto,
       tema: d.tema,
       autor: `${d.nombre} ${d.apellido}`,
@@ -129,6 +130,7 @@ const dataLoad = (dataCsv) => {
       idCongreso: +d.idCongreso,
       congreso: +d.idCongreso,
       paraPol: +d.paraPol,
+      idAutor: +d.idAutor,
       lColumn: 2,
     });
 

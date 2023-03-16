@@ -29,23 +29,20 @@ const d3 = {
 const sankeyBox = document.querySelector('#dataviz');
 
 // set the dimensions and margins of the graph
-let margin = 20,
+let margen = 20,
   nPadding = 6,
   sWidth = 0,
   sHeigh = 0,
-  vPadding = 3,
-  ppWidth = 6;
+  vPadding = 4,
+  ppWidth = 8,
+  strokeW = 1.5,
+  gPadding = 4;
 
 // [autores, periodos, partidos, proyectos, annos, temas];
 // columns percentage
 let colPercent = [0, 0, 48, 85, 98, 100];
 // nodes width by column
-let nWidth = [0, 24, 24, 32, 32, 5];
-
-let pd = ppWidth + vPadding;
-nWidth[1] = nWidth[1] + pd;
-nWidth[2] = nWidth[2] + pd;
-nWidth[3] = nWidth[3] + pd;
+let nWidth = [0, 24, 28, 32, 32, 5];
 
 //
 // build sankey chart
@@ -69,30 +66,22 @@ const ro = new ResizeObserver((entries) => {
 //
 // update graph size
 const updateGraph = async () => {
+  console.clear();
   // update nodeWidth in data
   column.forEach((col, i) => {
     col.each((d) => (d.nodeWid = nWidth[i]));
   });
 
-  let values = await getValues(
-    sWidth,
-    sHeigh,
-    margin,
-    nWidth,
-    colPercent,
-    ppWidth,
-    vPadding
-  );
+  let values = await getValues(sWidth, sHeigh, margen, nWidth, colPercent);
 
   d3.select('#sankey').attr('width', sWidth).attr('height', sHeigh);
 
   sankey
-    .size([sWidth - values.textWid, sHeigh - margin])
+    .size([sWidth - values.textWid, sHeigh - margen])
     .nodePadding(nPadding)
-    .margen(margin)
+    .margin(margen)
+    .pyGroup(gPadding)
     .layersPos(values.layerPos);
-
-  console.log(values.points);
 
   guidesY.attr('d', (d, i) => d3.line()(values.points[i]));
 
@@ -104,58 +93,40 @@ const updateGraph = async () => {
     .attr('d', (d) => sankeyLinkPath(d))
     .attr('stroke-width', (d) => d.width - 1);
 
+  // nodes
+  //   .selectAll('.nBg')
+  //   .attr('x', (d) => d.x0)
+  //   .attr('y', (d) => d.y0 + 0.5)
+  //   .attr('width', (d) => d.nodeWid)
+  //   .attr('height', (d) => d.y1 - d.y0 - 1);
+
   nodes
     .selectAll('.nRect')
-    .attr('y', (d) => d.y0 + 0.5)
-    .attr('height', (d) => d.y1 - d.y0 - 1);
-
-  d3.selectAll([...column[0], ...column[1], ...column[2], ...column[4], ...column[5]])
-    .selectAll('.nRect')
-    .attr('x', (d) => d.x0);
-
-  column[3].selectAll('.nRect').attr('x', (d) => d.x0 + ppWidth + vPadding);
-
-  d3.selectAll([...column[1], ...column[2], ...column[3]])
-    .selectAll('.nRect')
-    .attr('width', (d) => d.nodeWid - ppWidth - vPadding);
-
-  d3.selectAll([...column[0], ...column[4]])
-    .selectAll('.nRect')
-    .attr('width', (d) => d.nodeWid);
-
-  d3.selectAll('.nBg')
     .attr('x', (d) => d.x0)
     .attr('y', (d) => d.y0 + 0.5)
-    .attr('width', (d) => d.nodeWid)
+    .attr('width', (d) => (d.lColumn == 5 ? values.title5Wid : d.nodeWid))
     .attr('height', (d) => d.y1 - d.y0 - 1);
 
-  d3.selectAll([...column[1], ...column[2]])
+  column[1]
     .selectAll('.ppRect')
-    .attr('x', (d) => d.x1 - ppWidth - vPadding / 2)
-    .attr('y', (d) => d.y0 + 0.5)
+    .attr('x', (d) => d.x1 - ppWidth / 2)
+    .attr('y', (d) => d.y0 - strokeW)
+    .attr('rx', ppWidth / 2)
     .attr('width', ppWidth)
-    .attr('height', (d) => d.y1 - d.y0 - 1);
+    .attr('height', (d) => d.y1 - d.y0 + strokeW * 2)
+    .attr('stroke-width', strokeW);
 
   column[3].each(function (d) {
     d3.select(this)
       .selectAll('.ppRect')
-      .attr('x', (d) => d.x0 + vPadding / 2)
-      .attr('y', (e, i) => {
-        return d.targetLinks[i].y1 - d.targetLinks[i].width / 2 + 0.5;
-      })
+      .attr('x', (d) => d.x0 - ppWidth / 2)
+      .attr('y', (e, i) => d.targetLinks[i].y1 - d.targetLinks[i].width / 2)
       .attr('width', ppWidth)
-      .attr('height', (e, i) => {
-        return d.targetLinks[i].width - 1;
-      })
-      .attr('class', (e, i) => {
-        return `ppRect pp--${d.targetLinks[i].idPartido}`;
-      });
+      .attr('height', (e, i) => d.targetLinks[i].width)
+      .attr('rx', ppWidth / 2)
+      .attr('stroke-width', strokeW)
+      .attr('class', (e, i) => `ppRect pp--${d.targetLinks[i].idPartido}`);
   });
-
-  column[5]
-    .selectAll('.nRect')
-    .attr('x', (d) => d.x0)
-    .attr('width', values.title5Wid);
 
   d3.selectAll('.old')
     .attr('x', '0')
@@ -164,31 +135,77 @@ const updateGraph = async () => {
     .attr('height', (d) => d.y1 - d.y0 - 1);
 
   //
+  // sData.partidos.forEach((pp) => {
+  //   let points = [];
+
+  //   column[2]
+  //     .filter((d) => d.idPartido == pp)
+  //     .each((d) => {
+  //       let x = d.x0 + nWidth[2] / 2;
+  //       points.push([
+  //         [x, d.y0 - nPadding * 1.5],
+  //         [x, d.y1 + nPadding * 1.5],
+  //       ]);
+  //     });
+
+  //   guidesP
+  //     .filter(`.pp--${pp}`)
+  //     .attr('d', (d, i) => d3.line()(points[i]))
+  //     .attr('stroke-width', ppWidth);
+  // });
+
+  //
   sData.partidos.forEach((pp) => {
-    let xs = [],
-      ys = [],
-      points = [];
+    let points = [];
 
     column[2]
       .filter((d) => d.idPartido == pp)
       .each((d) => {
-        xs.push(d.x0);
-        ys.push(d.y0);
-        ys.push(d.y1);
+        let x = d.x0 + (nWidth[2] - ppWidth) / 2;
+        let y = d.y0 - nPadding * 2.2;
+        let h = d.y1 + nPadding * 2.2 - y;
+        points.push([x, y, h]);
       });
-    xs.forEach((x) => {
-      x = x + (nWidth[2] - ppWidth - vPadding) / 2;
-      points.push([
-        [x, Math.min(...ys) - nPadding * 1.5],
-        [x, Math.max(...ys) + nPadding * 1.5],
-      ]);
-    });
 
     guidesP
       .filter(`.pp--${pp}`)
-      .attr('d', (d, i) => d3.line()(points[i]))
-      .attr('stroke-width', ppWidth + 1);
+      .attr('x', (d, i) => points[i][0])
+      .attr('y', (d, i) => points[i][1])
+      .attr('width', ppWidth)
+      .attr('height', (d, i) => points[i][2])
+      .attr('rx', ppWidth / 2)
+      .attr('stroke-width', strokeW);
   });
+
+  //
+  // sData.partidos.forEach((pp) => {
+  //   let xs = [],
+  //     ys = [],
+  //     points = [];
+
+  //   column[2]
+  //     .filter((d) => d.idPartido == pp)
+  //     .each((d) => {
+  //       xs.push(d.x0);
+  //       ys.push(d.y0);
+  //       ys.push(d.y1);
+  //     });
+  //   xs.forEach((x) => {
+  //     x = x + (nWidth[2] - ppWidth) / 2;
+  //     let y = Math.min(...ys) - nPadding * 2.2;
+  //     let h = Math.max(...ys) + nPadding * 2.2 - y;
+  //     points.push([x, y, h]);
+  //   });
+
+  //   guidesP
+  //     .filter(`.pp--${pp}`)
+  //     .attr('x', (d, i) => points[i][0])
+  //     .attr('y', (d, i) => points[i][1])
+  //     .attr('width', ppWidth)
+  //     .attr('height', (d, i) => points[i][2])
+  //     .attr('rx', ppWidth / 2)
+  //     .attr('stroke-width', strokeW);
+  // });
 
   // add in the title for the nodes
   column[0]
@@ -210,15 +227,17 @@ const updateGraph = async () => {
   d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
     .selectAll('.title--value')
     .attr('x', (d) =>
-      d.lColumn == 3
-        ? d.x0 + (d.nodeWid + ppWidth + vPadding) / 2
-        : d.lColumn == 4
-        ? d.x0 + d.nodeWid / 2
-        : d.x0 + (d.nodeWid - ppWidth - vPadding) / 2
+      d.lColumn == 1
+        ? d.x1 - ppWidth / 2 - vPadding - strokeW
+        : d.lColumn == 3
+        ? d.x0 + strokeW + ppWidth / 2 + vPadding
+        : d.x0 + d.nodeWid / 2
     )
     .attr('y', (d) => (d.y1 + d.y0) / 2 - 0.2)
     .attr('alignment-baseline', 'central')
-    .attr('text-anchor', 'middle');
+    .attr('text-anchor', (d) =>
+      d.lColumn == 1 ? 'end' : d.lColumn == 3 ? 'start' : 'middle'
+    );
 
   column[5]
     .selectAll('text')

@@ -6,7 +6,7 @@ let title0Wid, title5Wid, textWid, wTotal;
 const calcPercent = (percentage) => Math.floor((wTotal / 100) * percentage) + title0Wid;
 
 // get max width of autor titles & tema titles
-const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, ppWidth, vPadding) => {
+const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent) => {
   let titles0 = [],
     titles5 = [],
     points = [];
@@ -51,13 +51,13 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent, ppWidth, vPaddin
 
       switch (i) {
         case 0:
-          x = gLayers[i] + (nWidth[i + 1] - ppWidth - vPadding) / 2 + nWidth[i + 1] * j;
+          x = gLayers[i] + nWidth[i + 1] + nWidth[i + 1] * j;
           break;
         case 1:
-          x = gLayers[i] + (nWidth[i + 1] - ppWidth - vPadding) / 2 + nWidth[i + 1] * j;
+          x = gLayers[i] + nWidth[i + 1] / 2 + nWidth[i + 1] * j;
           break;
         case 2:
-          x = gLayers[i] + (nWidth[i + 1] + ppWidth + vPadding) / 2 + nWidth[i + 1] * j;
+          x = gLayers[i] + nWidth[i + 1] * j;
           break;
       }
 
