@@ -103,6 +103,7 @@ input {
   opacity: .4;
   transition: opacity .2s linear;
   mix-blend-mode: multiply;
+  fill: none;
 
   &.fixed2 {
     opacity: .7;
@@ -113,8 +114,11 @@ input {
     opacity: .9;
   }
 
-  path {
-    fill: none;
+  &.anno {
+    &.para {
+      stroke: none;
+      @include para-scale(fill);
+    }
   }
 
   &.para {

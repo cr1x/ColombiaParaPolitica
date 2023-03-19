@@ -93,6 +93,11 @@ const updateGraph = async () => {
     .attr('d', (d) => sankeyLinkPath(d))
     .attr('stroke-width', (d) => d.width - 1);
 
+  links
+    .filter((d) => d.lColumn == 3)
+    .selectAll('path')
+    .attr('stroke-width', '0');
+
   // nodes
   //   .selectAll('.nBg')
   //   .attr('x', (d) => d.x0)
@@ -176,36 +181,6 @@ const updateGraph = async () => {
       .attr('rx', ppWidth / 2)
       .attr('stroke-width', strokeW);
   });
-
-  //
-  // sData.partidos.forEach((pp) => {
-  //   let xs = [],
-  //     ys = [],
-  //     points = [];
-
-  //   column[2]
-  //     .filter((d) => d.idPartido == pp)
-  //     .each((d) => {
-  //       xs.push(d.x0);
-  //       ys.push(d.y0);
-  //       ys.push(d.y1);
-  //     });
-  //   xs.forEach((x) => {
-  //     x = x + (nWidth[2] - ppWidth) / 2;
-  //     let y = Math.min(...ys) - nPadding * 2.2;
-  //     let h = Math.max(...ys) + nPadding * 2.2 - y;
-  //     points.push([x, y, h]);
-  //   });
-
-  //   guidesP
-  //     .filter(`.pp--${pp}`)
-  //     .attr('x', (d, i) => points[i][0])
-  //     .attr('y', (d, i) => points[i][1])
-  //     .attr('width', ppWidth)
-  //     .attr('height', (d, i) => points[i][2])
-  //     .attr('rx', ppWidth / 2)
-  //     .attr('stroke-width', strokeW);
-  // });
 
   // add in the title for the nodes
   column[0]

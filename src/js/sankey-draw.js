@@ -159,6 +159,8 @@ const drawSankey = () => {
       ? `link pol pp--${d.idPartido} con--${d.idCongreso} para`
       : d.lColumn === 2
       ? `link proj pp--${d.idPartido} con--${d.idCongreso} para`
+      : d.lColumn === 3
+      ? `link anno tem--${d.idTema} para`
       : `link topic tem--${d.idTema} para`
   );
 

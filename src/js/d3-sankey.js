@@ -254,19 +254,17 @@
 
     function computeNodeValues({ nodes }) {
       for (const node of nodes) {
-        if (node.fixedValue === undefined) {
-          if (node.lColumn === 2) {
-            let uniqS = [...new Set(node.sourceLinks.map((d) => d.idProyecto))];
-            let uniqT = [...new Set(node.targetLinks.map((d) => d.idProyecto))];
-            node.value = Math.max(uniqS.length, uniqT.length);
-          } else {
-            node.value = Math.max(
-              d3Array.sum(node.sourceLinks, value),
-              d3Array.sum(node.targetLinks, value)
-            );
-          }
+        if (node.lColumn === 2) {
+          let uniqS = [...new Set(node.sourceLinks.map((d) => d.idProyecto))];
+          let uniqT = [...new Set(node.targetLinks.map((d) => d.idProyecto))];
+          node.value = Math.max(uniqS.length, uniqT.length);
+        } else if (node.lColumn === 4) {
+          node.value = Math.max(node.sourceLinks.length, node.targetLinks.length);
         } else {
-          node.value = node.fixedValue;
+          node.value = Math.max(
+            d3Array.sum(node.sourceLinks, value),
+            d3Array.sum(node.targetLinks, value)
+          );
         }
       }
     }
@@ -362,18 +360,18 @@
       for (const column of [newColumns[1], newColumns[2], newColumns[3]]) {
         let y = margin;
         for (const group of column) {
-          for (let i = 0; i < group.length; i++) {
-            group[i].y0 = y;
-            group[i].y1 = group[i].y0 + group[i].value * ky;
-            for (const link of group[i].sourceLinks) {
+          group.forEach((node, i) => {
+            node.y0 = y;
+            node.y1 = node.y0 + node.value * ky;
+            for (const link of node.sourceLinks) {
               link.width = link.value * ky;
             }
             i + 1 == group.length
-              ? (y = group[i].y1 + py * pyGroup)
-              : group[i].lColumn == 3
-              ? (y = group[i].y1 + py)
-              : (y = group[i].y1);
-          }
+              ? (y = node.y1 + py * pyGroup)
+              : node.lColumn == 3
+              ? (y = node.y1 + py)
+              : (y = node.y1);
+          });
         }
       }
 
@@ -386,19 +384,30 @@
         }
       }
 
-      for (const node of [...newColumns[4], ...newColumns[5]]) {
-        let lastNode = node.length - 1;
-        let lastLink = node[lastNode].targetLinks.length - 1;
-        let y = node[lastNode].targetLinks[lastLink].source.y1;
-        for (let i = node.length - 1; i >= 0; i--) {
-          node[i].y0 = y - node[i].value * ky;
-          node[i].y1 = node[i].y0 + node[i].value * ky;
-          y = node[i].y0;
-          for (const link of node[i].sourceLinks) {
+      for (const group of newColumns[4]) {
+        let y = group[0].targetLinks[0].source.y0 + 35;
+        for (const node of group) {
+          node.y0 = y;
+          node.y1 = node.y0 + node.value * ky;
+          for (const link of node.sourceLinks) {
             link.width = link.value * ky;
           }
+          y = node.y1;
         }
       }
+
+      for (const group of newColumns[5]) {
+        let y = group[0].targetLinks[0].source.y0;
+        for (const node of group) {
+          node.y0 = y;
+          node.y1 = node.y0 + node.value * ky;
+          for (const link of node.sourceLinks) {
+            link.width = link.value * ky;
+          }
+          y = node.y1;
+        }
+      }
+
       reorderLinks(nodesAll);
     }
 

@@ -16,8 +16,10 @@ const dataLoad = (dataCsv) => {
   // data containers
   let nodes = [],
     links = [],
-    linksTemp = [],
-    partidos = [];
+    partidos = [],
+    linksAuth = [],
+    linksProj = [],
+    linksTopi = [];
 
   // load data in the container
   dataCsv.forEach((d) => {
@@ -135,7 +137,7 @@ const dataLoad = (dataCsv) => {
     });
 
     // links temporales
-    linksTemp.push({
+    linksAuth.push({
       source: +d.idAutor,
       target: +(d.idAutor + d.anno),
       value: 0,
@@ -146,41 +148,46 @@ const dataLoad = (dataCsv) => {
       idPartido: +d.idPartido,
       partido: d.partido,
       paraPol: +d.paraPol,
+      idProyecto: +d.idProyecto,
       lColumn: 0,
     });
-    linksTemp.push({
+
+    linksProj.push({
       source: +d.idProyecto,
       target: +(d.idTema + d.anno),
-      value: 0,
+      value: 1,
       nombre: `${d.proyecto} ${d.anno}`,
       idTema: +d.idTema,
       tema: d.tema,
+      idProyecto: +d.idProyecto,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
       lColumn: 3,
     });
-    linksTemp.push({
+
+    linksTopi.push({
       source: +(d.idTema + d.anno),
       target: +d.idTema,
       value: 0,
       nombre: `${+d.anno} ${d.tema}`,
       idTema: +d.idTema,
       tema: d.tema,
+      idProyecto: +d.idProyecto,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
       lColumn: 4,
     });
 
-    nodes
-      .filter((d) => d.lColumn === 1)
-      .forEach((d) => {
-        d.idCongreso === 1
-          ? (d.congreso = 'Senado')
-          : (d.congreso = 'Cámara de Representantes');
-      });
+    // nodes
+    //   .filter((d) => d.lColumn === 1)
+    //   .forEach((d) => {
+    //     d.idCongreso === 1
+    //       ? (d.congreso = 'Senado')
+    //       : (d.congreso = 'Cámara de Representantes');
+    //   });
 
     links
-      .filter((d) => d.lColumn === 1)
+      .filter((d) => d.lColumn == 1 || d.lColumn == 2)
       .forEach((d) => {
         d.idCongreso === 1
           ? (d.congreso = 'Senado')
@@ -191,7 +198,7 @@ const dataLoad = (dataCsv) => {
   });
   partidos = [...new Set(partidos)].sort();
 
-  return [nodes, links, linksTemp, partidos];
+  return [nodes, links, partidos, linksAuth, linksProj, linksTopi];
 };
 
 export { dataPush };
