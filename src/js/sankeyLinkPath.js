@@ -10,7 +10,11 @@ const sankeyLinkPath = (link) => {
     sW = link.source.nodeWid,
     tX = link.target.x0,
     tY = link.y1,
-    tW = link.target.nodeWid;
+    tW = link.target.nodeWid,
+    sX2 = sX,
+    tX2 = tX;
+
+  let half, cpx1, sY0, sY1, tY0, tY1;
 
   let path = d3.path();
   path.moveTo(sX, sY);
@@ -21,167 +25,88 @@ const sankeyLinkPath = (link) => {
       path.lineTo(tX, tY);
       break;
     case 1:
-      switch (link.source.fix) {
-        case 0:
-          {
-            let sX2 = sX + sW * 3;
-            let tX2 = tX - tW;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
-        case 1:
-          {
-            let sX2 = sX + sW * 2;
-            let tX2 = tX - tW * 2;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
-        case 2:
-          {
-            let sX2 = sX + sW;
-            let tX2 = tX - tW * 2;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
-        case 3:
-          {
-            let sX2 = sX;
-            let tX2 = tX - tW * 3;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
+      {
+        switch (link.source.fix) {
+          case 0:
+            sX2 += sW * 3;
+            tX2 -= tW;
+            break;
+          case 1:
+            sX2 += sW * 2;
+            tX2 -= tW * 2;
+            break;
+          case 2:
+            sX2 += sW;
+            tX2 -= tW * 2;
+            break;
+          case 3:
+            // sX2 = sX;
+            tX2 -= tW * 3;
+            break;
+        }
+        half = (tX2 - sX2) / 2;
+        cpx1 = sX2 + half;
+
+        path.lineTo(sX2, sY);
+        path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
+        path.lineTo(tX, tY);
       }
       break;
     case 2:
-      switch (link.source.fix) {
-        case 0:
-          {
-            let sX2 = sX + sW * 3;
-            let tX2 = tX;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
-        case 1:
-          {
-            let sX2 = sX + sW * 2;
-            let tX2 = tX - tW;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
-        case 2:
-          {
-            let sX2 = sX + sW;
-            let tX2 = tX - tW;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
-        case 3:
-          {
-            let sX2 = sX + sW;
-            let tX2 = tX - tW * 2;
-            let half = (tX2 - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.lineTo(sX2, sY);
-            path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
-            path.lineTo(tX, tY);
-          }
-          break;
+      {
+        switch (link.source.fix) {
+          case 0:
+            sX2 += sW * 3;
+            break;
+          case 1:
+            sX2 += sW * 2;
+            tX2 -= tW;
+            break;
+          case 2:
+            sX2 += sW;
+            tX2 -= tW;
+            break;
+          case 3:
+            sX2 += sW;
+            tX2 -= tW * 2;
+            break;
+        }
+        half = (tX2 - sX2) / 2;
+        cpx1 = sX2 + half;
+
+        path.lineTo(sX2, sY);
+        path.bezierCurveTo(cpx1, sY, cpx1, tY, tX2, tY);
+        path.lineTo(tX, tY);
       }
       break;
     case 3:
-      switch (link.source.fix) {
-        case 0:
-          {
-            let sX2 = sX + sW * 2;
-            let sY0 = link.source.y0 + 0.5;
-            let sY1 = link.source.y1 - 0.5;
-            let tY0 = link.y1 - link.width / 2 + 0.5;
-            let tY1 = link.y1 + link.width / 2 - 0.5;
-            let half = (tX - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.moveTo(sX, sY0);
-            path.bezierCurveTo(cpx1, sY0, cpx1, tY0, tX, tY0);
-            path.lineTo(tX, tY1);
-            path.bezierCurveTo(cpx1, tY1, cpx1, sY1, sX, sY1);
-            path.closePath();
-          }
-          break;
-        case 1:
-          {
-            let sX2 = sX + sW * 2;
-            let sY0 = link.source.y0 + 0.5;
-            let sY1 = link.source.y1 - 0.5;
-            let tY0 = link.y1 - link.width / 2 + 0.5;
-            let tY1 = link.y1 + link.width / 2 - 0.5;
-            let half = (tX - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.moveTo(sX, sY0);
-            path.bezierCurveTo(cpx1, sY0, cpx1, tY0, tX, tY0);
-            path.lineTo(tX, tY1);
-            path.bezierCurveTo(cpx1, tY1, cpx1, sY1, sX, sY1);
-            path.closePath();
-          }
-          break;
-        case 2:
-          {
-            let sX2 = sX + sW;
-            let sY0 = link.source.y0 + 0.5;
-            let sY1 = link.source.y1 - 0.5;
-            let tY0 = link.y1 - link.width / 2 + 0.5;
-            let tY1 = link.y1 + link.width / 2 - 0.5;
-            let half = (tX - sX2) / 2;
-            let cpx1 = sX2 + half;
-            path.moveTo(sX, sY0);
-            path.bezierCurveTo(cpx1, sY0, cpx1, tY0, tX, tY0);
-            path.lineTo(tX, tY1);
-            path.bezierCurveTo(cpx1, tY1, cpx1, sY1, sX, sY1);
-            path.closePath();
-          }
-          break;
-        case 3:
-          {
-            let sY0 = link.source.y0 + 0.5;
-            let sY1 = link.source.y1 - 0.5;
-            let tY0 = link.y1 - link.width / 2 + 0.5;
-            let tY1 = link.y1 + link.width / 2 - 0.5;
-            let half = (tX - sX) / 2;
-            let cpx1 = sX + half;
-            path.moveTo(sX, sY0);
-            path.bezierCurveTo(cpx1, sY0, cpx1, tY0, tX, tY0);
-            path.lineTo(tX, tY1);
-            path.bezierCurveTo(cpx1, tY1, cpx1, sY1, sX, sY1);
-            path.closePath();
-            // path.lineTo(sX, sY0);
-          }
-          break;
+      {
+        switch (link.source.fix) {
+          case 0:
+            sX2 += sW * 2.5;
+            break;
+          case 1:
+            sX2 += sW;
+            break;
+          case 2:
+            sX2 += sW / 2;
+            break;
+        }
+
+        sY0 = link.source.y0 + 0.5;
+        sY1 = link.source.y1 - 0.5;
+        tY0 = link.y1 - link.width / 2 + 0.5;
+        tY1 = link.y1 + link.width / 2 - 0.5;
+        half = (tX - sX2) / 2;
+        cpx1 = sX2 + half;
+
+        path.moveTo(sX, sY0);
+        path.lineTo(sX2, sY0);
+        path.bezierCurveTo(cpx1, sY0, cpx1, tY0, tX, tY0);
+        path.lineTo(tX, tY1);
+        path.bezierCurveTo(cpx1, tY1, cpx1, sY1, sX2, sY1);
+        path.lineTo(sX, sY1);
+        path.closePath();
       }
       break;
   }

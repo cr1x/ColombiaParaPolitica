@@ -385,7 +385,7 @@
       }
 
       for (const group of newColumns[4]) {
-        let y = group[0].targetLinks[0].source.y0 + 35;
+        let y = group[0].targetLinks[0].source.y0 + 18;
         for (const node of group) {
           node.y0 = y;
           node.y1 = node.y0 + node.value * ky;

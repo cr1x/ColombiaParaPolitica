@@ -100,8 +100,8 @@ input {
 }
 
 .link {
-  opacity: .4;
-  transition: opacity .2s linear;
+  opacity: 0.9;
+  transition: stroke .2s linear;
   mix-blend-mode: multiply;
   fill: none;
 
@@ -155,14 +155,10 @@ input {
   cursor: pointer;
   stroke: none;
 
-  text {
-    @include bgDark(fill, 5)
-  }
-
   &.para {
     @include para-scale(fill);
 
-    text {
+    .title--value {
       fill: color.$bg;
     }
   }
@@ -225,67 +221,15 @@ input {
       }
     }
   }
+}
 
-  &.lapse {
+.pp {
+  stroke: none;
 
-    // fill: color.$bg;
-    &.para {
-      .pp {
-        // @include ppColor(fill);
-      }
-    }
-  }
-
-  &.pol {
-
-    // fill: color.$bg;
-    .pp {
-      // @include ppColor(stroke);
-    }
-
-    &.para {
-      rect {
-        // @include para-scale(fill);
-      }
-    }
-  }
-
-  &.proj {
-
-    // fill: color.$bg;
-    .pp {
-      // @include ppColor(fill);
-    }
-
-    &.para {
-      text {
-        // @include para-scale(fill);
-      }
-    }
-  }
-
-  &.anno {
-    &.para {
-      rect {
-        // @include para-scale(fill);
-      }
-
-      text {
-        // fill: color.$bg
-      }
-    }
-  }
-
-  &.topic {
-    &.para {
-      rect {
-        // @include para-scale(fill);
-      }
-    }
-
-    text {
-      // fill: color.$bg;
-    }
+  &.pp {
+    @include ppColor(fill);
+    fill-opacity: 0.8;
+    // mix-blend-mode: multiply;
   }
 }
 
@@ -307,13 +251,11 @@ input {
 }
 
 .guideP {
-  // stroke: color.$bg;
-  @include bgDark(stroke, 8);
-  fill: none;
+  stroke: color.$bg;
   pointer-events: none;
 
   &.pp {
-    // @include ppColor(fill);
+    @include ppColor(fill);
   }
 }
 

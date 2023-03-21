@@ -25,7 +25,7 @@ $font-sankey: 'Inter';
   &--topic {
     text-transform: capitalize;
     font-size: clamp(.9rem, calc(.3rem + .9vw), 1rem);
-    font-variation-settings: 'wght' 600, 'slnt' 0;
+    font-variation-settings: 'wght' 400, 'slnt' 0;
   }
 
   &--value {

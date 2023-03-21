@@ -36,7 +36,7 @@ let margen = 20,
   vPadding = 4,
   ppWidth = 8,
   strokeW = 1.5,
-  gPadding = 4;
+  gPadding = 5;
 
 // [autores, periodos, partidos, proyectos, annos, temas];
 // columns percentage
@@ -89,7 +89,6 @@ const updateGraph = async () => {
 
   links
     .selectAll('path')
-    // .attr('d', d3.sankeyLinkHorizontal())
     .attr('d', (d) => sankeyLinkPath(d))
     .attr('stroke-width', (d) => d.width - 1);
 
@@ -97,13 +96,6 @@ const updateGraph = async () => {
     .filter((d) => d.lColumn == 3)
     .selectAll('path')
     .attr('stroke-width', '0');
-
-  // nodes
-  //   .selectAll('.nBg')
-  //   .attr('x', (d) => d.x0)
-  //   .attr('y', (d) => d.y0 + 0.5)
-  //   .attr('width', (d) => d.nodeWid)
-  //   .attr('height', (d) => d.y1 - d.y0 - 1);
 
   nodes
     .selectAll('.nRect')
@@ -141,25 +133,35 @@ const updateGraph = async () => {
 
   //
   // sData.partidos.forEach((pp) => {
-  //   let points = [];
+  //   let xs = [],
+  //     ys = [],
+  //     s = 2;
 
   //   column[2]
   //     .filter((d) => d.idPartido == pp)
   //     .each((d) => {
-  //       let x = d.x0 + nWidth[2] / 2;
-  //       points.push([
-  //         [x, d.y0 - nPadding * 1.5],
-  //         [x, d.y1 + nPadding * 1.5],
-  //       ]);
+  //       xs.push(d.x0);
+  //       xs.push(d.x1);
+  //       ys.push(d.y0);
+  //       ys.push(d.y1);
   //     });
 
-  //   guidesP
-  //     .filter(`.pp--${pp}`)
-  //     .attr('d', (d, i) => d3.line()(points[i]))
-  //     .attr('stroke-width', ppWidth);
+  //   let x0 = Math.min(...xs);
+  //   let x1 = Math.max(...xs);
+  //   let y0 = Math.min(...ys) - nPadding * (gPadding / 2) + s;
+  //   let y1 = Math.max(...ys) + nPadding * (gPadding / 2) - s;
+
+  //   pps
+  //     .select(`.pp--${pp}`)
+  //     .attr('x', x0)
+  //     .attr('y', y0)
+  //     .attr('width', x1 - x0)
+  //     .attr('height', y1 - y0)
+  //     .attr('rx', '0');
   // });
 
-  //
+  console.log(guidesP.nodes());
+
   sData.partidos.forEach((pp) => {
     let points = [];
 
@@ -199,37 +201,34 @@ const updateGraph = async () => {
     .attr('alignment-baseline', 'hanging')
     .attr('baseline-shift', '-10%');
 
-  d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4]])
-    .selectAll('.title--value')
+  d3.selectAll('.title--value')
     .attr('x', (d) =>
       d.lColumn == 1
         ? d.x1 - ppWidth / 2 - vPadding - strokeW
+        : d.lColumn == 2 || d.lColumn == 4
+        ? d.x0 + d.nodeWid / 2
         : d.lColumn == 3
         ? d.x0 + strokeW + ppWidth / 2 + vPadding
-        : d.x0 + d.nodeWid / 2
+        : d.x0 + d.nodeWid + vPadding
     )
     .attr('y', (d) => (d.y1 + d.y0) / 2 - 0.2)
     .attr('alignment-baseline', 'central')
     .attr('text-anchor', (d) =>
-      d.lColumn == 1 ? 'end' : d.lColumn == 3 ? 'start' : 'middle'
+      d.lColumn == 1 ? 'end' : d.lColumn == 3 || d.lColumn == 5 ? 'start' : 'middle'
     );
 
   column[5]
-    .selectAll('text')
-    .attr('x', (d) => d.x0 + d.nodeWid + vPadding)
-    .attr('y', (d) => (d.y1 + d.y0) / 2)
+    .selectAll('.title--topic')
+    .attr('x', (d) => d.x0 + vPadding)
+    .attr('y', (d) => d.y0 - 5)
+    .attr('alignment-baseline', 'baseline')
     .attr('text-anchor', 'start');
 
-  column[5]
-    .selectAll('.title--topic')
-    .attr('alignment-baseline', 'baseline')
-    .attr('baseline-shift', '10%');
-
-  column[5]
-    .selectAll('.title--value')
-    .attr('dx', '.2%')
-    .attr('alignment-baseline', 'hanging')
-    .attr('baseline-shift', '-30%');
+  // column[5]
+  //   .selectAll('.title--value')
+  //   .attr('dx', '.2%')
+  //   .attr('alignment-baseline', 'hanging')
+  //   .attr('baseline-shift', '-30%');
 
   // console.log(links.nodes());
   // console.log(links.filter((d) => d.lColumn == 1).nodes());

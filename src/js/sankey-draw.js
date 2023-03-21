@@ -57,10 +57,9 @@ const svg = d3
 const sankey = d3.sankey();
 
 let links = svg.append('g').attr('id', 'links'),
-  guides = svg.append('g').attr('id', 'guides'),
-  nodes = svg.append('g').attr('id', 'nodes'),
-  guidesY,
-  guidesP;
+  guidesY = svg.append('g').attr('id', 'guidesY'),
+  guidesP = svg.append('g').attr('id', 'guidesP'),
+  nodes = svg.append('g').attr('id', 'nodes');
 
 //
 // append elements of the graph
@@ -70,7 +69,7 @@ const drawSankey = () => {
   // year guides by column
   for (let i = 0; i < 3; ++i) {
     for (let j = 0; j < 4; ++j) {
-      guides.append('path').attr('class', 'guideY');
+      guidesY.append('path').attr('class', 'guideY');
     }
   }
   guidesY = d3.selectAll('.guideY');
@@ -111,9 +110,9 @@ const drawSankey = () => {
 
   // guides by column "partidos"
   column[2].each((d) => {
-    guides.append('rect').attr('class', `guideP pp--${d.idPartido}`);
+    guidesP.append('rect').attr('class', `guideP pp--${d.idPartido}`);
   });
-  guidesP = d3.selectAll('.guideP');
+  guidesP = guidesP.selectAll('.guideP');
 
   // assigment tp nodes & links paraPol value
   d3.selectAll([...column[2], ...column[3], ...column[4], ...column[5]]).each((d) => {
@@ -172,10 +171,6 @@ const drawSankey = () => {
     .append('rect')
     .attr('class', (d) => (d.old > 1 ? `old old--${d.old}` : `old`));
 
-  // d3.selectAll([...column[1], ...column[2], ...column[3]])
-  //   .append('rect')
-  //   .attr('class', 'nBg');
-
   nodes
     .append('rect')
     .attr('class', (d) => (d.lColumn == 0 ? `nRect` : `nRect para--${d.paraPol}`));
@@ -207,7 +202,7 @@ const drawSankey = () => {
 
   column[5]
     .append('text')
-    .attr('class', `title--topic`)
+    .attr('class', (d) => `title--topic para--${d.paraPol}`)
     .text((d) => d.tema);
 };
 
