@@ -41,7 +41,8 @@ $sOptionsH: 60px;
 
 #dataviz {
   width: 100vw;
-  height: calc(100vh - $sOptionsH);
+  height: calc(60vh - $sOptionsH);
+  min-height: 470px;
   background: color.$bg;
 }
 
@@ -61,10 +62,10 @@ input {
   height: 0;
   pointer-events: none;
   transform: translate(-50%, 0);
-  transition: opacity .2s ease-out;
+  transition: opacity .3s ease-out;
 
   &--content {
-    background: color.$toolTip;
+    background-color: color.$toolTip;
     position: absolute;
     padding: 1rem 1.5rem 1rem 1.5rem;
     bottom: 100%;
@@ -76,6 +77,12 @@ input {
     border-radius: 2px;
     color: color.$bg;
     transform: translateX(calc(var(--mouse-x) * -1%));
+    transition: background-color .3s ease-out;
+
+    &.pp {
+      color: color.$toolTip;
+      @include ppColor(background-color);
+    }
   }
 
   &--mark {
@@ -86,8 +93,15 @@ input {
     bottom: 100%;
     border-left: solid transparent 0.5rem;
     border-right: solid transparent 0.5rem;
-    border-top: solid 0.6rem color.$toolTip;
+    border-top-style: solid;
+    border-top-width: 0.6rem;
+    border-top-color: color.$toolTip;
     transform: translateX(calc(var(--mouse-x) * -1%));
+    transition: border-top-color .3s ease-out;
+
+    &.pp {
+      @include ppColor(border-top-color);
+    }
   }
 }
 
@@ -100,14 +114,14 @@ input {
 }
 
 .link {
-  opacity: 0.9;
-  transition: stroke .2s linear;
+  opacity: 0.4;
+  // transition: opacity 180ms linear;
   mix-blend-mode: multiply;
   fill: none;
 
   &.fixed2 {
     opacity: .7;
-    transition: opacity .3s linear;
+    // transition: opacity .3s linear;
   }
 
   &.over {
@@ -126,8 +140,20 @@ input {
   }
 
   &.aut {
-    @include bgDark(stroke, 2);
+    opacity: .7;
     mix-blend-mode: multiply;
+
+    &.para {
+      .para {
+        &--0 {
+          stroke: scale-color(color.$neutral, $alpha: -82%);
+        }
+
+        &--100 {
+          stroke: scale-color(color.$para, $alpha: -92%);
+        }
+      }
+    }
   }
 
   &.pol,
@@ -148,12 +174,39 @@ input {
       }
     }
   }
+
+  &.pol {
+    opacity: 0;
+
+    &.over {
+      opacity: .9;
+    }
+  }
+}
+
+.bgLink {
+  opacity: 0.4;
+
+  &.pp {
+    @include ppColor(fill);
+  }
+
+  .para {
+    &--0 {
+      fill: color.$neutral;
+    }
+
+    &--100 {
+      fill: color.$para;
+    }
+  }
 }
 
 .node {
   pointer-events: bounding-box;
   cursor: pointer;
   stroke: none;
+  fill: transparent;
 
   &.para {
     @include para-scale(fill);
@@ -165,10 +218,6 @@ input {
 
   .ppRect {
     stroke: color.$bg;
-  }
-
-  .nBg {
-    fill: color.$bg;
   }
 
   .pp {
@@ -190,6 +239,23 @@ input {
     }
   }
 
+  &.lapse {
+    .nRect {
+      stroke: color.$bg;
+    }
+
+    // .nRect {
+    //   &.para {
+    //     &--0 {
+    //       fill: scale-color(color.$neutral, $alpha: -82%);
+    //     }
+    //     &--100 {
+    //       fill: scale-color(color.$para, $alpha: -92%);
+    //     }
+    //   }
+    // }
+  }
+
   &.autor {
     .nRect {
       @include bgDark(fill, 6);
@@ -200,7 +266,7 @@ input {
     }
 
     .old {
-      opacity: .4;
+      opacity: .7;
       fill: color.$bg;
 
       &--2 {
@@ -215,8 +281,14 @@ input {
       }
 
       .old--2 {
-        &.para--100 {
-          // fill: scale-color(color.$para, $alpha: -90%);
+        &.para {
+          &--0 {
+            fill: scale-color(color.$neutral, $alpha: -82%);
+          }
+
+          &--100 {
+            fill: scale-color(color.$para, $alpha: -92%);
+          }
         }
       }
     }
@@ -241,10 +313,10 @@ input {
 
 .guideY {
   // stroke: black;
-  @include bgDark(stroke, 25);
+  @include bgDark(stroke, 20);
   stroke-opacity: 1;
   stroke-width: 1;
-  stroke-dasharray: 3 5;
+  stroke-dasharray: 4 5;
   fill: none;
   mix-blend-mode: multiply;
   pointer-events: none;
@@ -252,6 +324,7 @@ input {
 
 .guideP {
   stroke: color.$bg;
+  stroke: none;
   pointer-events: none;
 
   &.pp {

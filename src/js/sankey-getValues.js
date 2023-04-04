@@ -47,21 +47,9 @@ const getValues = (sWidth, sHeigh, sMargin, nWidth, colPercent) => {
   // guides position "4" by layer
   for (let i = 0; i < gLayers.length; ++i) {
     for (let j = 0; j < 4; ++j) {
-      let x, line;
+      let x = gLayers[i] + nWidth[i + 1] / 2 + nWidth[i + 1] * j;
 
-      switch (i) {
-        case 0:
-          x = gLayers[i] + nWidth[i + 1] + nWidth[i + 1] * j;
-          break;
-        case 1:
-          x = gLayers[i] + nWidth[i + 1] / 2 + nWidth[i + 1] * j;
-          break;
-        case 2:
-          x = gLayers[i] + nWidth[i + 1] * j;
-          break;
-      }
-
-      line = [
+      let line = [
         [x, 0],
         [x, sHeigh - 10],
       ];

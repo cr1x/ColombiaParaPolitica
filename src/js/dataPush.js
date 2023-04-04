@@ -104,6 +104,7 @@ const dataLoad = (dataCsv) => {
       value: 1,
       idProyecto: +d.idProyecto,
       proyecto: d.proyecto,
+      idTema: +d.idTema,
       tema: d.tema,
       autor: `${d.nombre} ${d.apellido}`,
       idPartido: +d.idPartido,
@@ -114,6 +115,7 @@ const dataLoad = (dataCsv) => {
       congreso: +d.idCongreso,
       paraPol: +d.paraPol,
       idAutor: +d.idAutor,
+      authProj: +(d.idAutor + d.idProyecto),
       lColumn: 1,
     });
 
@@ -133,6 +135,8 @@ const dataLoad = (dataCsv) => {
       congreso: +d.idCongreso,
       paraPol: +d.paraPol,
       idAutor: +d.idAutor,
+      idTema: +d.idTema,
+      authProj: +(d.idAutor + d.idProyecto),
       lColumn: 2,
     });
 
@@ -144,6 +148,7 @@ const dataLoad = (dataCsv) => {
       nombre: `${d.nombre} ${d.apellido} ${d.anno}`,
       periodo: `${d.anno}-${+d.anno + 4}`,
       anno: +d.anno,
+      idAutor: +d.idAutor,
       idCongreso: +d.idCongreso,
       idPartido: +d.idPartido,
       partido: d.partido,

@@ -57,9 +57,10 @@ const svg = d3
 const sankey = d3.sankey();
 
 let links = svg.append('g').attr('id', 'links'),
-  guidesY = svg.append('g').attr('id', 'guidesY'),
   guidesP = svg.append('g').attr('id', 'guidesP'),
-  nodes = svg.append('g').attr('id', 'nodes');
+  guidesY = svg.append('g').attr('id', 'guidesY'),
+  nodes = svg.append('g').attr('id', 'nodes'),
+  bgLinks;
 
 //
 // append elements of the graph
@@ -74,6 +75,21 @@ const drawSankey = () => {
   }
   guidesY = d3.selectAll('.guideY');
 
+  const nodes1 = graph.nodes.filter((d) => d.lColumn == 1);
+
+  nodes1.forEach((node) => {
+    links
+      .selectAll('.bgLink')
+      .data(nodes1)
+      .enter()
+      .append('g')
+      .attr('id', (d) => `bg${d.id}`)
+      .attr('class', (d) => `bgLink pp--${d.idPartido} para`)
+      .append('path')
+      .attr('class', (d) => `para--${d.paraPol}`);
+  });
+  bgLinks = d3.selectAll('.bgLink');
+
   // add in the links
   links = links
     .selectAll('.link')
@@ -81,14 +97,14 @@ const drawSankey = () => {
     .enter()
     .append('g')
     .attr('id', (d, i) => {
-      d.id = `l${i + 1}`;
-      return d.id;
+      d.id = i + 1;
+      return `l${d.id}`;
     })
     .each((d) => (d.connect = linksConnect(d.id)))
     .on('mouseover', overLinks)
     .on('mouseout', outLinks);
 
-  links.filter((d) => d.lColumn === 1).on('mousemove', moveLinks);
+  links.filter((d) => d.lColumn == 1 || d.lColumn == 2).on('mousemove', moveLinks);
 
   // add in the nodes
   nodes = nodes
@@ -114,8 +130,43 @@ const drawSankey = () => {
   });
   guidesP = guidesP.selectAll('.guideP');
 
+  column[1].each((d) => {
+    d.totalPara = d3.sum(d.sourceLinks, (e) => e.paraPol);
+  });
+
   // assigment tp nodes & links paraPol value
-  d3.selectAll([...column[2], ...column[3], ...column[4], ...column[5]]).each((d) => {
+  column[2].each((d) => {
+    let targets = Array.from([
+      ...new Map(d.targetLinks.map((obj) => [obj['idAutor'], obj])).values(),
+    ]);
+
+    d.totalPara = d3.sum(targets, (d) => d.paraPol) / 100;
+
+    let para = Math.round(
+      (d3.sum(targets, (d) => d.paraPol) / (targets.length * 100)) * 100
+    );
+    para < 20
+      ? (para = 0)
+      : para >= 20 && para < 40
+      ? (para = 20)
+      : para >= 40 && para < 60
+      ? (para = 40)
+      : para >= 60 && para < 80
+      ? (para = 60)
+      : para >= 80 && para < 100
+      ? (para = 80)
+      : (para = para);
+
+    d.paraPol = para;
+
+    d.totalProj = Array.from(
+      d3.group(d.targetLinks, (d) => d.idProyecto),
+      ([value]) => value
+    ).length;
+  });
+
+  // assigment tp nodes & links paraPol value
+  d3.selectAll([...column[3], ...column[4], ...column[5]]).each((d) => {
     let para = Math.round(
       (d3.sum(d.targetLinks, (e) => e.paraPol) / (d.targetLinks.length * 100)) * 100
     );
@@ -132,7 +183,7 @@ const drawSankey = () => {
       : (para = para);
     d.paraPol = para;
     d.sourceLinks.forEach((e) => {
-      d.lColumn == 2 ? (e.paraPol = e.paraPol) : (e.paraPol = para);
+      e.paraPol = para;
     });
   });
 
@@ -164,18 +215,24 @@ const drawSankey = () => {
   );
 
   // add links path
-  links.append('path').attr('class', (d) => (d.lColumn == 0 ? `` : `para--${d.paraPol}`));
+  links.append('path').attr('class', (d) => `para--${d.paraPol}`);
 
   // add the rectangles for the nodes old
   column[0]
     .append('rect')
-    .attr('class', (d) => (d.old > 1 ? `old old--${d.old}` : `old`));
+    .attr('class', (d) => (d.old > 1 ? `old old--${d.old} para--${d.paraPol}` : `old`));
 
   nodes
     .append('rect')
-    .attr('class', (d) => (d.lColumn == 0 ? `nRect` : `nRect para--${d.paraPol}`));
+    .attr('class', (d) =>
+      d.lColumn == 0 || d.lColumn == 3
+        ? `nRect`
+        : d.lColumn == 1
+        ? `nRect pp--${d.idPartido}`
+        : `nRect para--${d.paraPol}`
+    );
 
-  column[1].append('rect').attr('class', (d) => `ppRect pp--${d.idPartido}`);
+  // column[1].append('rect').attr('class', (d) => `ppRect pp--${d.idPartido}`);
 
   column[3].each(function (d) {
     let self = d3.select(this);
@@ -195,10 +252,11 @@ const drawSankey = () => {
     .attr('class', (d) => `title--apellido para--${d.paraPol}`)
     .text((d) => d.apellido);
 
-  d3.selectAll([...column[1], ...column[2], ...column[3], ...column[4], ...column[5]])
+  d3.selectAll([...column[1], ...column[2], ...column[4], ...column[5]])
     .append('text')
     .attr('class', `title--value`)
-    .text((d) => d.value);
+    .text('88');
+  // .text((d) => d.value);
 
   column[5]
     .append('text')
@@ -216,5 +274,6 @@ export {
   guidesP,
   links,
   nodes,
+  bgLinks,
   createSankey,
 };

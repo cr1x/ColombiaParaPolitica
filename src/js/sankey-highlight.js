@@ -14,31 +14,98 @@ const linksConnect = (id) => {
     np = [next, prev],
     flow = [];
 
-  let linkSel = d3.select(`#${id}`);
+  let linkSel = d3.select(`#l${id}`);
 
   linkSel.each((d) => {
-    flow.push(`#${d.id}`);
+    flow.push(`#l${d.id}`);
+
     where.forEach((x, i) => {
       np[i].push(d[whereR[i]]);
       flow.push(`#n${d[whereR[i]].id}`);
 
       let news = [];
-
       while (np[i].length) {
         news = [];
 
-        np[i].forEach((d) => {
-          d[`${x}Links`].forEach((e) => {
-            flow.push(`#${e.id}`);
-            news.push(e[whereR[i]]);
-            flow.push(`#n${e[whereR[i]].id}`);
+        np[i].forEach((e) => {
+          e[`${x}Links`].forEach((f) => {
+            switch (f.lColumn) {
+              case 1:
+                switch (d.lColumn) {
+                  case 2:
+                    if (f.idAutor == d.idAutor && f.idProyecto == d.idProyecto) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                  case 3:
+                    if (f.idProyecto == d.idProyecto) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                  case 4:
+                    if (f.idTema == d.idTema) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                  default:
+                    flow.push(`#l${f.id}`);
+                    flow.push(`#n${f[whereR[i]].id}`);
+                    news.push(f[whereR[i]]);
+                    break;
+                }
+                break;
+              case 2:
+                switch (d.lColumn) {
+                  case 0:
+                    if (f.idAutor == d.idAutor) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                  case 1:
+                    if (f.idAutor == d.idAutor && f.idProyecto == d.idProyecto) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                  case 3:
+                    if (f.idProyecto == d.idProyecto) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                  case 4:
+                    if (f.idTema == d.idTema) {
+                      flow.push(`#l${f.id}`);
+                      flow.push(`#n${f[whereR[i]].id}`);
+                      news.push(f[whereR[i]]);
+                    }
+                    break;
+                }
+                break;
+              default:
+                news.push(f[whereR[i]]);
+                flow.push(`#l${f.id}`);
+                flow.push(`#n${f[whereR[i]].id}`);
+                break;
+            }
           });
         });
         np[i] = news;
       }
     });
   });
-  return flow;
+
+  return [...new Set(flow)];
 };
 
 //
@@ -54,7 +121,7 @@ const nodesConnect = (id) => {
   nodeSel.each((d) => {
     where.forEach((x, i) => {
       d[`${x}Links`].forEach((e) => {
-        flow.push({ level: 0, id: `#${e.id}` });
+        flow.push({ level: 0, id: `#l${e.id}` });
         np[i].push(e[whereR[i]]);
       });
 
@@ -67,7 +134,7 @@ const nodesConnect = (id) => {
         np[i].forEach((d) => {
           flow.push({ level: n, id: `#n${d.id}` });
           d[`${x}Links`].forEach((e) => {
-            flow.push({ level: n + 1, id: `#${e.id}` });
+            flow.push({ level: n + 1, id: `#l${e.id}` });
             news.push(e[whereR[i]]);
           });
         });
@@ -146,21 +213,20 @@ const overLinks = (e, d) => {
 
   switch (d.lColumn) {
     case 1:
+    case 2:
       sTooltip
         .style('opacity', alphaTip)
         .select('#sTooltip--content')
+        .attr('class', `pp pp--${d.idPartido}`)
         .html(
-          `<div class="para--${d.paraPol}"></div>
-          <div class="tipContent">
+          `
           ${d.autor}<br>
-          ${d.partido}<br>
-          ${d.congreso}<br>
           ${d.periodo}<br>
-          <span class="idProject">#${d.idProyecto}</span><br>
+          <span class="idProject"> Proyecto ${d.idProyecto}</span><br>
           <span class="project-ellipsis">${d.proyecto}</span>
-          ${d.tema}
-          </div>`
+          ${d.tema}`
         );
+      sTooltip.select('#sTooltip--mark').attr('class', `pp pp--${d.idPartido}`);
       break;
     default:
       sTooltip.style('opacity', 0);
@@ -239,7 +305,10 @@ const overNodes = (e, d) => {
     .style('opacity', alphaTip)
     .style('top', `${d.y0 + ySankey + 4}px`)
     .select('#sTooltip--content')
+    .attr('class', ``)
     .html(content);
+
+  sTooltip.select('#sTooltip--mark').attr('class', ``);
 };
 
 // mouseout node
