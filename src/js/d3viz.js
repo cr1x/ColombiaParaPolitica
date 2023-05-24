@@ -9,16 +9,17 @@ import {
   column,
   delay,
   sankey,
-  guidesY,
-  guidesP,
+  years,
+  gradients,
   links,
   nodes,
+  partidos,
   bgLinks,
   createSankey,
 } from './sankey-draw';
 
 // Link path generator
-import { sankeyLinkPath, bgLinkPath } from './sankeyLinkPath';
+import { sankeyLinkPath, bgLinkPath, optPath } from './sankeyLinkPath';
 
 // join d3 libraries
 const d3 = {
@@ -27,24 +28,25 @@ const d3 = {
 };
 
 // div size observer
-const sankeyBox = document.querySelector('#dataviz');
+const vizBox = document.querySelector('#dataviz');
 
 // set the dimensions and margins of the graph
-let margen = 20,
-  nPadding = 6,
+let nPadding = 3,
+  gPadding = 10,
   sWidth = 0,
   sHeigh = 0,
-  vPadding = 4,
-  ppWidth = 8,
-  strokeW = 1,
-  gPadding = 6,
-  rx = 2;
+  optH,
+  marginLeft,
+  marginTop,
+  marginBottom,
+  letterW,
+  letterH;
 
 // [autores, periodos, partidos, proyectos, annos, temas];
 // columns percentage
-let colPercent = [0, 2, 42, 80, 96, 100];
+const colPercent = [0, 2, 38, 72, 86, 100];
 // nodes width by column
-let nWidth = [0, 20, 20, 20, 34, 5];
+const nWidth = [1.2, 5, 5, 5, 5, 0];
 
 //
 // build sankey chart
@@ -52,7 +54,7 @@ const buildSankey = async () => {
   // create elements of sankey
   await createSankey();
   // add observer to sankey container
-  ro.observe(sankeyBox);
+  ro.observe(vizBox);
 };
 buildSankey();
 
@@ -65,36 +67,157 @@ const ro = new ResizeObserver((entries) => {
   updateGraph();
 });
 
+const letterUpdate = () => {
+  let letter = document.querySelector('#letter').getBBox();
+  letterW = Math.ceil(letter.width);
+  letterH = Math.ceil(letter.height);
+
+  console.log('letter', letterW, letterH);
+
+  marginLeft = letterW * 4;
+  optH = letterH * 4;
+  sWidth > 680 ? (marginTop = letterH * 6 + optH) : (marginTop = letterH * 10 + optH);
+  marginBottom = letterH;
+};
+
 //
 // update graph size
 const updateGraph = async () => {
-  // console.clear();
+  console.clear();
+
+  await delay(300);
+  await letterUpdate();
+
+  // nWidth[0] = letterW / 5;
+  nWidth[1] = letterW * 2.4;
+  nWidth[2] = letterW * 2.4;
+  nWidth[3] = letterW * 2.4;
+  nWidth[4] = letterW * 4;
+  nWidth[5] = letterW * 10;
+
+  let values = await getValues(sWidth, marginLeft, nWidth, colPercent);
+
+  let namePos = values.layerPos[0] - (values.textWid - marginLeft) - 6;
+
+  let ySenado = 5,
+    yCamara = 20,
+    optStroke = 4;
+
+  d3.selectAll('.optCong')
+    .attr('x', namePos)
+    .attr('y', (d, i) => (i == 0 ? ySenado : yCamara));
+
+  d3.selectAll('.optText')
+    .attr('x', (d, i) => values.optText[i] + 2)
+    .attr('y', ySenado);
+
+  d3.selectAll('.optPath')
+    .attr('d', (d, i) => {
+      let curve,
+        x0 = values.optPos[0],
+        x1 = values.optPos[1],
+        x2 = values.optPos[2],
+        y0 = ySenado,
+        y1 = yCamara;
+      i == 0
+        ? (curve = optPath(x0, x1, x2, y0, y1 - optStroke - 1))
+        : (curve = `M-1,-1M${x0},${y1}L${x2},${y1}`);
+
+      return curve;
+    })
+    .attr('stroke-width', optStroke);
+
+  let nX = 0;
+  d3.selectAll('.optRect')
+    .attr('x', () => {
+      let posX = values.optPos[nX + 2] + 2;
+      nX == 3 ? (nX = 0) : nX++;
+      return posX;
+    })
+    .attr('y', (d, i) =>
+      i < 4 ? yCamara - optStroke * 1.5 - 1 : yCamara - optStroke / 2
+    )
+    .attr('width', values.optPos[3] - values.optPos[2] - 2)
+    .attr('height', optStroke);
+
+  let nYear = 0;
+  years
+    .selectAll('.year')
+    .attr('x', (d, i) => values.yearsPos[i])
+    .attr('y', () => {
+      let h = optH;
+      sWidth > 680 ? (h += letterH * 1.4) : (h += letterH * 4);
+      let posY = h + nYear * 4;
+      nYear == 3 ? (nYear = 0) : nYear++;
+      return posY;
+    });
+
+  let nLine = 0;
+  years.selectAll('.yearLine').attr('d', (d, i) => {
+    let x,
+      y0,
+      h = optH;
+    x = values.yearsPos[i];
+    sWidth > 680 ? (h += letterH * 1.8) : (h += letterH * 4.8);
+    y0 = h + nLine * 4;
+    nLine == 3 ? (nLine = 0) : nLine++;
+    return `M-1,-1M${x},${sHeigh}L${x},${y0}`;
+  });
+
+  let titlesCol = years.selectAll('.titleCol');
+
+  titlesCol.each(function (d, i) {
+    const self = d3.select(this);
+    self
+      .selectAll('tspan')
+      .attr('x', values.yearsPos[4 * i] - letterW * 2.5)
+      .attr('text-anchor', (d, j) => {
+        if (sWidth > 680) {
+          if (j == 0) {
+            return i == 3 ? 'start' : 'end';
+          } else {
+            return 'start';
+          }
+        } else {
+          return 'start';
+        }
+      })
+      .attr('dy', (d, j) => {
+        if (j == 1) {
+          if (sWidth > 680) {
+            return i == 3 ? '1.4em' : 0;
+          } else {
+            return '1.4em';
+          }
+        } else {
+          return 0;
+        }
+      })
+      .attr('y', optH);
+  });
 
   // update nodeWidth in data
   column.forEach((col, i) => {
     col.each((d) => (d.nodeWid = nWidth[i]));
   });
 
-  let values = await getValues(sWidth, sHeigh, margen, nWidth, colPercent);
-
-  d3.select('#sankey').attr('width', sWidth).attr('height', sHeigh);
+  // d3.select('#sankey').attr('width', sWidth).attr('height', sHeigh);
 
   sankey
-    .size([sWidth - values.textWid, sHeigh - margen])
+    // .size([sWidth - values.textWid, sHeigh - marginTop - marginBottom])
+    .extent([
+      [0, marginTop],
+      [sWidth - values.textWid, sHeigh - marginBottom],
+    ])
     .nodePadding(nPadding)
-    .margin(margen)
     .pyGroup(gPadding)
     .layersPos(values.layerPos);
 
-  guidesY.attr('d', (d, i) => d3.line()(values.points[i]));
-
   graph = sankey(sData);
-
-  const nodes1 = graph.nodes.filter((d) => d.lColumn == 1);
 
   links
     .selectAll('path')
-    .attr('d', (d) => sankeyLinkPath(d))
+    .attr('d', (d) => 'M-1,-1' + sankeyLinkPath(d, nPadding))
     .attr('stroke-width', (d) => d.width - 1);
 
   links
@@ -106,137 +229,112 @@ const updateGraph = async () => {
 
   nodes
     .selectAll('.nRect')
-    .attr('x', (d) => (d.lColumn == 1 || d.lColumn == 2 ? d.x0 - 3 : d.x0))
-    .attr('y', (d) => d.y0 + 0.5)
+    .attr('x', (d) => (d.lColumn == 1 || d.lColumn == 2 ? d.x0 - 0.75 : d.x0))
+    .attr('y', (d) => (d.lColumn == 2 ? d.y0 - 1.5 : d.y0 + 0.5))
     .attr('width', (d) =>
       d.lColumn == 1 || d.lColumn == 2
-        ? d.nodeWid + 6
-        : d.lColumn == 5
-        ? values.title5Wid
+        ? d.nodeWid + 1.5
+        : d.lColumn == 3
+        ? d.nodeWid + 4
         : d.nodeWid
     )
-    .attr('height', (d) => d.y1 - d.y0 - 1)
-    .attr('rx', (d) => (d.lColumn == 1 ? rx : 0));
+    .attr('height', (d) =>
+      d.lColumn == 0
+        ? d.y1 - d.y0 - 1 + (d.sourceLinks.length - 1) * nPadding
+        : d.lColumn == 2
+        ? d.y1 - d.y0 + 3
+        : d.lColumn == 5
+        ? d.y1 - d.y0 - 1 + (d.targetLinks.length - 1) * nPadding
+        : d.y1 - d.y0 - 1
+    )
+    .attr('stroke', 'url(#gradientYear)')
+    .attr('stroke-width', '4');
+
+  column[5]
+    .selectAll('.bgTopic')
+    .attr('x', values.layerPos[4])
+    .attr('y', (d) => d.y0 - 24)
+    .attr('width', nWidth[4] * 2)
+    .attr('height', '24');
 
   column[3].each(function (d) {
     d3.select(this)
       .selectAll('.ppRect')
-      .attr('x', (d) => d.x0)
-      .attr('y', (e, i) => d.targetLinks[i].y1 - d.targetLinks[i].width / 2)
-      .attr('width', (d) => d.nodeWid)
-      .attr('height', (e, i) => d.targetLinks[i].width)
-      .attr('rx', rx)
-      .attr('stroke-width', strokeW)
+      .attr('x', (d) => d.x0 - 0.75)
+      .attr('y', (e, i) => d.targetLinks[i].y1 - d.targetLinks[i].width / 2 + 0.5)
+      .attr('width', (d) => d.nodeWid + 1.5)
+      .attr('height', (e, i) => d.targetLinks[i].width - 1)
       .attr('class', (e, i) => `ppRect pp--${d.targetLinks[i].idPartido}`);
   });
 
   d3.selectAll('.old')
     .attr('x', '0')
     .attr('y', (d) => d.y0 + 0.5)
-    .attr('width', values.title0Wid)
-    .attr('height', (d) => d.y1 - d.y0 - 1);
+    .attr('width', values.textWid)
+    .attr('height', (d) => d.y1 - d.y0 - 1 + (d.sourceLinks.length - 1) * nPadding);
 
-  //
+  gradients
+    .attr('x', (d) =>
+      d.lColumn == 2 ? values.layerPos[2] - d.nodeWid * 1.5 : d.x0 - nWidth[4] + 0.5
+    )
+    .attr('y', (d) => d.y0 + 0.5)
+    .attr('width', (d) => (d.lColumn == 2 ? d.nodeWid * 7 : nWidth[4] + 0.5))
+    .attr('height', (d) =>
+      d.lColumn == 5
+        ? d.y1 - d.y0 - 1 + (d.targetLinks.length - 1) * nPadding
+        : d.y1 - d.y0 - 1
+    );
+
+  partidos
+    .selectAll('rect')
+    .attr('x', values.layerPos[2])
+    .attr('width', nWidth[2] * 4)
+    .attr('height', nPadding * (gPadding / 2) + 6);
+
   sData.partidos.forEach((pp) => {
-    let xs = [],
-      ys = [],
-      points = [],
-      reduce = 2;
-
+    let ys = [];
     column[2]
-      .filter((d) => d.idPartido == pp)
+      .filter((d) => d.idPartido == pp.idPartido)
       .each((d) => {
-        xs.push(d.x0);
         ys.push(d.y0);
-        ys.push(d.y1);
       });
-    xs.forEach((x) => {
-      x += (nWidth[2] - ppWidth + reduce) / 2;
-      let y = Math.min(...ys) - nPadding * 2;
-      let h = Math.max(...ys) + nPadding * 2 - y;
-      points.push([x, y, h]);
-    });
+    let y = d3.min(ys);
 
-    guidesP
-      .filter(`.pp--${pp}`)
-      .attr('x', (d, i) => points[i][0])
-      .attr('y', (d, i) => points[i][1])
-      .attr('width', ppWidth - reduce)
-      .attr('height', (d, i) => points[i][2])
-      .attr('rx', rx)
-      .attr('stroke-width', strokeW);
+    partidos
+      .filter((d) => d.idPartido == pp.idPartido)
+      .selectAll('rect')
+      .attr('y', y - nPadding * (gPadding / 2) - 6);
+
+    partidos
+      .filter((d) => d.idPartido == pp.idPartido)
+      .select('foreignObject')
+      .attr('x', values.layerPos[2] - nWidth[2] * 0.75)
+      .attr('y', y - nPadding * (gPadding / 2) - 1)
+      .attr('width', nWidth[2] * 5.5)
+      .attr('height', nPadding * (gPadding / 2));
   });
-
-  //
-  // sData.partidos.forEach((pp) => {
-  //   let points = [];
-
-  //   column[2]
-  //     .filter((d) => d.idPartido == pp)
-  //     .each((d) => {
-  //       let x = d.x0 + (nWidth[2] - ppWidth) / 2;
-  //       let y = d.y0 - nPadding * 2.2;
-  //       let h = d.y1 + nPadding * 2.2 - y;
-  //       points.push([x, y, h]);
-  //     });
-
-  //   guidesP
-  //     .filter(`.pp--${pp}`)
-  //     .attr('x', (d, i) => points[i][0])
-  //     .attr('y', (d, i) => points[i][1])
-  //     .attr('width', ppWidth)
-  //     .attr('height', (d, i) => points[i][2])
-  //     .attr('rx', ppWidth / 2)
-  //     .attr('stroke-width', strokeW);
-  // });
 
   // add in the title for the nodes
   column[0]
     .selectAll('text')
-    .attr('x', (d) => d.x0 - d.nodeWid * d.fix - 6)
-    .attr('y', (d) => (d.y1 + d.y0) / 2)
-    .attr('text-anchor', 'end');
-
-  column[0]
-    .selectAll('.title--nombre')
-    .attr('alignment-baseline', 'baseline')
-    .attr('baseline-shift', '10%');
-
-  column[0]
-    .selectAll('.title--apellido')
-    .attr('alignment-baseline', 'hanging')
-    .attr('baseline-shift', '-10%');
+    .attr('x', namePos)
+    .attr('y', (d) => (d.y1 + d.y0) / 2 + ((d.sourceLinks.length - 1) * nPadding) / 2);
 
   d3.selectAll('.title--value')
-    .attr('x', (d) =>
-      d.lColumn == 1
-        ? d.x0 + d.nodeWid / 2
-        : d.lColumn == 2 || d.lColumn == 4
-        ? d.x0 + d.nodeWid / 2
-        : d.lColumn == 3
-        ? d.x0 + strokeW + ppWidth / 2 + vPadding
-        : d.x0 + d.nodeWid + vPadding
-    )
-    .attr('y', (d) => (d.y1 + d.y0) / 2 - 0.2)
-    .attr('alignment-baseline', 'central')
-    .attr('text-anchor', (d) => (d.lColumn == 3 || d.lColumn == 5 ? 'start' : 'middle'));
+    .attr('x', (d) => (d.lColumn == 5 ? d.x0 + 6 : d.x0 + d.nodeWid / 2))
+    .attr('y', (d) =>
+      d.lColumn == 5
+        ? (d.y1 + d.y0) / 2 + ((d.targetLinks.length - 1) * nPadding) / 2
+        : (d.y1 + d.y0) / 2
+    );
 
   column[5]
     .selectAll('.title--topic')
-    .attr('x', (d) => d.x0 + vPadding)
-    .attr('y', (d) => d.y0 - 5)
-    .attr('alignment-baseline', 'baseline')
-    .attr('text-anchor', 'start');
-
-  // column[5]
-  //   .selectAll('.title--value')
-  //   .attr('dx', '.2%')
-  //   .attr('alignment-baseline', 'hanging')
-  //   .attr('baseline-shift', '-30%');
+    .attr('x', values.layerPos[4] - letterW)
+    .attr('y', (d) => d.y0 - 8);
 
   // console.log(links.nodes());
-  // console.log(links.filter((d) => d.lColumn == 0).nodes());
-  // console.log(links.filter((d) => d.lColumn == 2).nodes());
+  // console.log(links.filter((d) => d.lColumn == 1).nodes());
   // console.log(nodes.nodes());
   // console.log(`autores =`, column[0].nodes());
   // console.log(`periodos =`, column[1].nodes());

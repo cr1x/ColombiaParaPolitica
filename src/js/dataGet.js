@@ -157,6 +157,34 @@ const buildData = (data) => {
     d.target = sData.nodes.map((obj) => obj.id).indexOf(d.target);
   });
 
+  // partidos group by 'id' and 'anno'
+  let uniqueP = d3.group(
+    sData.partidos,
+    (d) => d.idPartido,
+    (d) => d.anno
+  );
+
+  // array with the years of each node + order
+  uniqueP = Array.from(uniqueP, (entry) => {
+    return {
+      key: entry[0],
+      value: Array.from(entry[1].keys()).sort(),
+    };
+  });
+
+  // unique partidos by 'id'
+  sData.partidos = Array.from([
+    ...new Map(sData.partidos.map((obj) => [obj['idPartido'], obj])).values(),
+  ]);
+
+  // assigment of years array by 'id' in the main array
+  sData.partidos.forEach((obj) => {
+    let index = uniqueP.findIndex((p) => p.key == obj.idPartido);
+    obj.anno = uniqueP[index].value;
+  });
+
+  sData.partidos.sort((a, b) => d3.ascending(a.idPartido, b.idPartido));
+
   // console.log('nodes =', sData.nodes);
   // console.log('links =', sData.links);
   // console.log(sData.links.filter((d) => d.lColumn == 4));

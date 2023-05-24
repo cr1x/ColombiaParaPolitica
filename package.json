@@ -6,17 +6,23 @@
   "browserslist": "> 0.5%, last 2 versions, not dead",
   "scripts": {
     "start": "parcel src/index.html --no-source-maps --open",
-    "build": "parcel build"
+    "prebuild": "rimraf public",
+    "build": "parcel build src/index.html --dist-dir public --no-source-maps --no-cache --public-url ./",
+    "predeploy": "rimraf public && parcel build src/index.html --dist-dir public --no-source-maps --no-cache --public-url ./",
+    "deploy": "gh-pages -d public",
+    "reinstall": "rimraf .parcel-cache && rimraf dist && rimraf public && rimraf node_modules && npm install"
   },
   "author": "Cr1x",
   "license": "ISC",
   "devDependencies": {
     "@parcel/transformer-sass": "^2.8.2",
-    "buffer": "^5.7.1",
     "d3": "^7.8.2",
     "d3-sankey": "^0.12.3",
-    "parcel": "^2.8.2",
-    "process": "^0.11.10",
-    "util": "^0.12.5"
+    "gh-pages": "^5.0.0",
+    "lucide": "^0.220.0",
+    "parcel": "^2.8.2"
+  },
+  "dependencies": {
+    "rimraf": "^5.0.1"
   }
 }

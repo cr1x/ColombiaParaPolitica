@@ -1,10 +1,10 @@
 // para política colors
-$para: #de425b;
-$topic: #7dadcc; // #e5e2d6;
-$topic-stops: 5;
+$para: #c7095b; // dd1b4c ee1762 ed008a
+$nopara: #638cbb; // 6c9fb9 5596dc
+$stops: 5;
 // general
-$bg: #f3efe7;
-$neutral: scale-color($topic, $lightness: 30%, $saturation: -40%);
+$bg: #c6c1b7; //f3efe7 eeeae3
+$neutral: scale-color($nopara, $lightness: 30%, $saturation: -40%);
 $partidos: (
   501: #f3d852,
   502: #81B29A,

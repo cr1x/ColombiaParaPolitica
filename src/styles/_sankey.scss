@@ -2,15 +2,68 @@
 @use 'colors' as color;
 
 body {
+  height: 100%;
+  min-height: 100vh;
   background: color.$bg;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: center;
+  justify-content: space-between;
 }
 
 @mixin para-scale($attr...) {
-  @for $i from 0 through color.$topic-stops {
-    .para--#{($i * 20)} {
-      @each $atr in $attr {
-        #{$atr}: mix(color.$para, color.$topic, $i * 20%);
+  @for $i from 0 through color.$stops {
+    @each $atr in $attr {
+      .para--0 {
+        #{$atr}: mix(color.$para, color.$nopara, 0%);
       }
+
+      .para--25 {
+        #{$atr}: mix(color.$para, color.$nopara, 30%);
+      }
+
+      .para--50 {
+        #{$atr}: mix(color.$para, color.$nopara, 60%);
+      }
+
+      .para--75,
+      .para--100 {
+        #{$atr}: mix(color.$para, color.$nopara, 100%);
+      }
+    }
+  }
+}
+
+@mixin para-gradient() {
+
+  // @for $i from 0 through color.$stops {
+  //   &--#{($i * 20)} {
+  //     .stop {
+  //       stop-color: mix(color.$para, color.$nopara, $i * 20%);
+  //     }
+  //   }
+  // }
+  &--0 {
+    .stop {
+      stop-color: mix(color.$para, color.$nopara, 0%);
+    }
+  }
+
+  &--25 {
+    .stop {
+      stop-color: mix(color.$para, color.$nopara, 30%);
+    }
+  }
+
+  &--50 {
+    .stop {
+      stop-color: mix(color.$para, color.$nopara, 60%);
+    }
+  }
+
+  &--100 {
+    .stop {
+      stop-color: mix(color.$para, color.$nopara, 100%);
     }
   }
 }
@@ -31,27 +84,13 @@ body {
   #{$attr}: darken(color.$bg, $amount * 1%);
 }
 
-$sOptionsH: 60px;
-
-#sOptions {
-  width: 100vw;
-  height: $sOptionsH;
-  // border-bottom: 1px solid darken(color.$bg, 3%);
-}
-
 #dataviz {
   width: 100vw;
-  height: calc(60vh - $sOptionsH);
+  height: 60vh;
   min-height: 470px;
+  margin: 20px 0;
   background: color.$bg;
-}
-
-input {
-  &[type=checkbox] {
-    height: 0;
-    width: 0;
-    visibility: hidden;
-  }
+  position: relative;
 }
 
 #sTooltip {
@@ -113,10 +152,35 @@ input {
   white-space: pre-wrap;
 }
 
+.pattern {
+  &--c1 {
+    fill: #ef5375;
+  }
+}
+
+#options {
+  path {
+    stroke: color.$nopara;
+    stroke-opacity: 0.7;
+
+    &:nth-of-type(2) {
+      mask: url(#maskC2);
+    }
+  }
+
+  @include para-scale(fill);
+
+  rect {
+    &:nth-of-type(n+5) {
+      mask: url(#maskC2);
+    }
+  }
+}
+
 .link {
-  opacity: 0.4;
+  opacity: 0.6;
   // transition: opacity 180ms linear;
-  mix-blend-mode: multiply;
+  // mix-blend-mode: multiply;
   fill: none;
 
   &.fixed2 {
@@ -135,22 +199,28 @@ input {
     }
   }
 
-  &.para {
-    @include para-scale(stroke);
+  &.topic {
+    &.para {
+      @include para-scale(stroke);
+    }
   }
 
   &.aut {
-    opacity: .7;
-    mix-blend-mode: multiply;
+    @include bgDark(stroke, 20);
+    opacity: 0.07;
 
+    // mix-blend-mode: multiply;
     &.para {
       .para {
         &--0 {
-          stroke: scale-color(color.$neutral, $alpha: -82%);
+          // stroke: scale-color(color.$nopara, $alpha: -82%);
+          stroke: color.$nopara;
         }
 
         &--100 {
-          stroke: scale-color(color.$para, $alpha: -92%);
+          // stroke: scale-color(color.$para, $alpha: -92%);
+          stroke: color.$para;
+          opacity: 0.5;
         }
       }
     }
@@ -158,20 +228,24 @@ input {
 
   &.pol,
   &.proj {
-
-    // &.con {
-    //   &--1 {
-    //     stroke-dasharray: 4 1.5;
-    //   }
-    // }
-    &.pp {
-      @include ppColor(stroke);
+    &.camara {
+      mask: url(#maskC2);
     }
 
     &.para {
-      .para--0 {
-        stroke: color.$neutral;
+      .para {
+        &--0 {
+          stroke: color.$nopara;
+        }
+
+        &--100 {
+          stroke: color.$para;
+        }
       }
+    }
+
+    .pp {
+      @include ppColor(stroke);
     }
   }
 
@@ -185,20 +259,26 @@ input {
 }
 
 .bgLink {
-  opacity: 0.4;
+  opacity: 0.6;
 
-  &.pp {
-    @include ppColor(fill);
+  &.camara {
+    mask: url(#maskC2);
   }
 
-  .para {
-    &--0 {
-      fill: color.$neutral;
-    }
+  &.para {
+    .para {
+      &--0 {
+        fill: color.$nopara;
+      }
 
-    &--100 {
-      fill: color.$para;
+      &--100 {
+        fill: color.$para;
+      }
     }
+  }
+
+  .pp {
+    @include ppColor(fill);
   }
 }
 
@@ -208,16 +288,26 @@ input {
   stroke: none;
   fill: transparent;
 
+  .bgTopic {
+    fill: color.$bg;
+    pointer-events: none;
+  }
+
   &.para {
     @include para-scale(fill);
+  }
 
-    .title--value {
-      fill: color.$bg;
-    }
+  .title--value {
+    @include bgDark(fill, 20);
+    pointer-events: none;
+  }
+
+  .title--topic {
+    @include bgDark(fill, 50);
   }
 
   .ppRect {
-    stroke: color.$bg;
+    // stroke: color.$bg;
   }
 
   .pp {
@@ -239,106 +329,294 @@ input {
     }
   }
 
-  &.lapse {
-    .nRect {
-      stroke: color.$bg;
-    }
-
-    // .nRect {
-    //   &.para {
-    //     &--0 {
-    //       fill: scale-color(color.$neutral, $alpha: -82%);
-    //     }
-    //     &--100 {
-    //       fill: scale-color(color.$para, $alpha: -92%);
-    //     }
-    //   }
-    // }
-  }
-
   &.autor {
     .nRect {
-      @include bgDark(fill, 6);
+      @include bgDark(fill, 20);
     }
 
     text {
-      fill: scale-color(color.$neutral, $blackness: 90%);
+      // fill: scale-color(color.$nopara, $blackness: 90%);
+      // @include bgDark(fill, 20);
     }
 
     .old {
-      opacity: .7;
-      fill: color.$bg;
+      // @include bgDark(fill, 20);
+      opacity: 0.07;
 
       &--2 {
-        @include bgDark(fill, 2);
-        mix-blend-mode: multiply;
+        @include bgDark(fill, 20);
+        // mix-blend-mode: multiply;
       }
     }
 
     &.para {
-      .para--100 {
-        fill: color.$para;
+      .para {
+        &--100 {
+          fill: color.$para;
+        }
+
+        &--0 {
+          fill: color.$nopara;
+        }
+      }
+
+      text {
+        &.para {
+          &--100 {
+            fill: darken(color.$para, 4%);
+          }
+
+          &--0 {
+            fill: darken(color.$nopara, 10%);
+          }
+        }
       }
 
       .old--2 {
+
+        // fill-opacity: 0.5;
         &.para {
           &--0 {
-            fill: scale-color(color.$neutral, $alpha: -82%);
+            // fill: scale-color(color.$nopara, $alpha: -82%);
           }
 
           &--100 {
-            fill: scale-color(color.$para, $alpha: -92%);
+            // fill: scale-color(color.$para, $alpha: -92%);
+            opacity: 0.04;
           }
         }
       }
     }
   }
-}
 
-.pp {
-  stroke: none;
+  &.lapse,
+  &.pol {
+    &.para {
+      .title--value {
+        @include bgDark(fill, 50);
+      }
+    }
+  }
 
-  &.pp {
-    @include ppColor(fill);
-    fill-opacity: 0.8;
-    // mix-blend-mode: multiply;
+  &.anno,
+  &.topic {
+    pointer-events: auto;
+
+    &.para {
+
+      // @include para-scale(fill);
+      @for $i from 0 through color.$stops {
+        .nRect {
+          // &.para--#{($i * 20)} {
+          //   $tone: mix(color.$para, color.$nopara, $i * 20%);
+          //   fill: url("#gradTema--#{($i * 20)}") $tone;
+          // }
+          // @include para-scale(fill);
+        }
+      }
+
+      .title--value {
+        fill: color.$bg;
+      }
+    }
+  }
+
+  &.proj {
+    &.para {
+      .nRect {
+        // fill-opacity: 0.7;
+      }
+    }
   }
 }
 
-.fix {
-  stroke: scale-color(color.$bg, $lightness: -50%);
-  stroke-width: 0.5;
-  stroke-opacity: 1;
+#gradYear {
+  .stop {
+    &--Year0 {
+      stop-color: darken(color.$bg, 30%);
+    }
+
+    // &--Year1 {
+    //   stop-color: mix(darken(color.$bg, 30%), white, 50%);
+    // }
+    &--Year2 {
+      stop-color: white;
+    }
+  }
 }
 
-.guideY {
-  // stroke: black;
-  @include bgDark(stroke, 20);
-  stroke-opacity: 1;
-  stroke-width: 1;
-  stroke-dasharray: 4 5;
+.yearLine {
   fill: none;
-  mix-blend-mode: multiply;
+  stroke-opacity: 1;
+  // stroke: url(#gradYear);
+  stroke: white;
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  // mix-blend-mode: multiply;
+  // mix-blend-mode: hard-light;
   pointer-events: none;
-}
 
-.guideP {
-  stroke: color.$bg;
-  stroke: none;
-  pointer-events: none;
-
-  &.pp {
-    @include ppColor(fill);
+  &:nth-last-of-type(1) {
+    // @include bgDark(stroke, 40);
   }
 }
 
-$switch-size: 1.2rem;
-$switch-padd: $switch-size / 6; // 3px;
+// .yearLine:nth-of-type(n+5):nth-of-type(-n+8) {
+//   // @include bgDark(stroke, 8);
+//   // stroke: white;
+//   // @include bgDark(stroke, 40);
+//   // stroke-width: 1;
+//   // stroke-dasharray: 2.5;
+//   // stroke-opacity: 0.8;
+//   // mix-blend-mode: hard-light;
+// }
+#years {
+  text {
+    @include bgDark(fill, 50);
+  }
+
+  // .titleCol {
+  //   text:nth-of-type(2) {
+  //     fill: color.$bg;
+  //   }
+  //   .titleBold {
+  //     @include bgDark(fill, 50);
+  //   }
+  //   &:nth-of-type(3) {
+  //     text:nth-of-type(2) {
+  //       @include bgDark(fill, 50);
+  //     }
+  //   }
+  // }
+}
+
+.partido {
+  rect {
+    fill: color.$bg;
+
+    &.pp {
+      @include ppColor(fill);
+    }
+  }
+}
+
+.pNameBox {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.pName {
+  @include bgDark(color, 50);
+  text-align: center;
+  white-space: nowrap;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.5;
+}
+
+#gradients {
+  pointer-events: none;
+}
+
+#gradDouble,
+#gradSingle {
+  @include para-gradient();
+}
+
+.grad {
+  // mask: url(#maskGrad);
+}
+
+.gradDouble {
+  stroke: none;
+  mask: url(#maskGrad);
+
+  &.para {
+
+    // @for $i from 0 through color.$stops {
+    //   .para--#{($i * 20)} {
+    //     $tone: mix(color.$para, color.$nopara, $i * 20%);
+    //     fill: url('#gradDouble--#{($i * 20)}') $tone;
+    //   }
+    // }
+    .para--0 {
+      // $tone: mix(color.$para, color.$nopara, 0%);
+      fill: url('#gradDouble--0');
+    }
+
+    .para--25 {
+      fill: url('#gradDouble--25');
+    }
+
+    .para--50 {
+      fill: url('#gradDouble--50');
+    }
+
+    .para--100 {
+      fill: url('#gradDouble--100');
+    }
+  }
+}
+
+.grad3 {
+  mask: url(#maskGrad);
+}
+
+.gradSingle {
+  stroke: none;
+
+  &.para {
+
+    // @for $i from 0 through color.$stops {
+    //   .para--#{($i * 20)} {
+    //     $tone: mix(color.$para, color.$nopara, $i * 20%);
+    //     fill: url('#gradSingle--#{($i * 20)}') $tone;
+    //   }
+    // }
+    .para--0 {
+      // $tone: mix(color.$para, color.$nopara, 0%);
+      fill: url('#gradSingle--0');
+    }
+
+    .para--25 {
+      fill: url('#gradSingle--25');
+    }
+
+    .para--50 {
+      fill: url('#gradSingle--50');
+    }
+
+    .para--100 {
+      fill: url('#gradSingle--100');
+    }
+  }
+}
+
+#switchBox {
+  width: fit-content;
+  position: absolute;
+  top: 5px;
+  right: 2%;
+}
+
+input {
+  &[type=checkbox] {
+    height: 0;
+    width: 0;
+    visibility: hidden;
+  }
+}
+
+$switch-size: 1rem;
+$switch-padd: calc($switch-size / 6);
 $switch-knob: calc($switch-size - $switch-padd * 2);
 
 .switch {
   &--label {
-    height: 100%;
+    // height: 100%;
     width: fit-content;
     padding: 0 10px;
     display: flex;
@@ -359,7 +637,7 @@ $switch-knob: calc($switch-size - $switch-padd * 2);
     height: $switch-size;
     width: $switch-size * 1.8;
     border-radius: 100px;
-    background: color.$neutral;
+    background: color.$nopara;
     transition: background 320ms ease;
 
     &:after {
@@ -383,5 +661,37 @@ $switch-knob: calc($switch-size - $switch-padd * 2);
         left: calc(100% - ($switch-padd + $switch-knob));
       }
     }
+  }
+}
+
+footer {
+  width: 100vw;
+  height: 10vh;
+  @include bgDark(background, 3);
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 10px 20px;
+}
+
+.lucide {
+  @include bgDark(stroke, 40);
+  stroke-width: 1.2;
+  width: 24;
+  transition: stroke 250ms ease-out;
+
+  &:hover {
+    @include bgDark(stroke, 60);
+  }
+}
+
+footer {
+  a {
+    width: fit-content;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    // border: 1px solid red;
   }
 }

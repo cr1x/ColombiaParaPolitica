@@ -4,7 +4,7 @@ import * as d3 from './d3.min';
 // Weird Sankey Links: https://observablehq.com/@enjalot/weird-sankey-links
 //
 //
-const sankeyLinkPath = (link) => {
+const sankeyLinkPath = (link, py) => {
   let sX0 = link.source.x1,
     sY0 = link.y0,
     sW = link.source.nodeWid,
@@ -22,7 +22,7 @@ const sankeyLinkPath = (link) => {
 
   switch (link.lColumn) {
     case 0:
-    case 4:
+      sY0 += py * link.source.sourceLinks.indexOf(link);
       path.moveTo(sX0, sY0);
       path.lineTo(tX0, tY0);
       linkCurve = path.toString();
@@ -30,20 +30,20 @@ const sankeyLinkPath = (link) => {
     case 1:
       switch (link.source.fix) {
         case 0:
-          sX2 += sW * 4.5;
-          tX2 -= tW * 1.5;
+          sX2 += sW * 4.2;
+          tX2 -= tW * 1.7;
           break;
         case 1:
-          sX2 += sW * 3.5;
-          tX2 -= tW * 2.5;
+          sX2 += sW * 3;
+          tX2 -= tW * 2.7;
           break;
         case 2:
-          sX2 += sW * 2.5;
-          tX2 -= tW * 3.5;
+          sX2 += sW * 2;
+          tX2 -= tW * 3.7;
           break;
         case 3:
-          sX2 += sW * 1.5;
-          tX2 -= tW * 4.5;
+          sX2 += sW * 1;
+          tX2 -= tW * 4.7;
           break;
       }
       points = [
@@ -59,19 +59,20 @@ const sankeyLinkPath = (link) => {
     case 2:
       switch (link.source.fix) {
         case 0:
-          sX2 += sW * 4;
+          sX2 += sW * 3.7;
+          tX2 -= tW * 1.2;
           break;
         case 1:
-          sX2 += sW * 3;
-          tX2 -= tW;
+          sX2 += sW * 2.5;
+          tX2 -= tW * 1.7;
           break;
         case 2:
-          sX2 += sW * 2;
-          tX2 -= tW * 2;
+          sX2 += sW * 1.7;
+          tX2 -= tW * 2.2;
           break;
         case 3:
-          sX2 += sW;
-          tX2 -= tW * 3;
+          sX2 += sW * 1.2;
+          tX2 -= tW * 2.7;
           break;
       }
       mid = sX2 + (tX2 - sX2) / 2;
@@ -86,32 +87,44 @@ const sankeyLinkPath = (link) => {
       {
         switch (link.source.fix) {
           case 0:
-            sX2 = sX0 + sW * 2;
+            sX2 += sW * 2.6;
             break;
           case 1:
-            sX2 = sX0 + sW;
+            sX2 += sW * 1.6;
             break;
           case 2:
-            sX2 = sX0 + sW;
+            sX2 += sW;
+            break;
+          case 3:
+            // sX2 -= sW / 4;
             break;
         }
 
+        tX2 -= tW / 2;
         sY0 = link.source.y0 + 0.5;
         sY1 = link.source.y1 - 0.5;
         tY0 = link.y1 - link.width / 2 + 0.5;
         tY1 = link.y1 + link.width / 2 - 0.5;
-        mid = sX2 + (tX0 - sX2) / 2;
+        mid = sX2 + (tX2 - sX2) / 2;
 
         path.moveTo(sX0, sY0);
         path.lineTo(sX2, sY0);
-        path.bezierCurveTo(mid, sY0, mid, tY0, tX0, tY0);
+        path.bezierCurveTo(mid, sY0, mid, tY0, tX2, tY0);
+        path.lineTo(tX0, tY0);
         path.lineTo(tX0, tY1);
+        path.lineTo(tX2, tY1);
         path.bezierCurveTo(mid, tY1, mid, sY1, sX2, sY1);
         path.lineTo(sX0, sY1);
         path.closePath();
 
         linkCurve = path.toString();
       }
+      break;
+    case 4:
+      tY0 += py * link.target.targetLinks.indexOf(link);
+      path.moveTo(sX0, sY0);
+      path.lineTo(tX0, tY0);
+      linkCurve = path.toString();
       break;
   }
 
@@ -140,20 +153,20 @@ const bgLinkPath = (data) => {
 
   switch (data.fix) {
     case 0:
-      sX2 += sW * 4.5;
-      tX2 -= tW * 1.5;
+      sX2 += sW * 4.2;
+      tX2 -= tW * 1.7;
       break;
     case 1:
-      sX2 += sW * 3.5;
-      tX2 -= tW * 2.5;
+      sX2 += sW * 3;
+      tX2 -= tW * 2.7;
       break;
     case 2:
-      sX2 += sW * 2.5;
-      tX2 -= tW * 3.5;
+      sX2 += sW * 2;
+      tX2 -= tW * 3.7;
       break;
     case 3:
-      sX2 += sW * 1.5;
-      tX2 -= tW * 4.5;
+      sX2 += sW * 1;
+      tX2 -= tW * 4.7;
       break;
   }
 
@@ -169,4 +182,63 @@ const bgLinkPath = (data) => {
   return area(points);
 };
 
-export { sankeyLinkPath, bgLinkPath };
+const optPath = (x0, x1, x2, y0, y1) => {
+  const path = d3.path(),
+    w = x1 - x0,
+    m2 = w / 2,
+    m6 = w / 6;
+
+  path.moveTo(x0, y0);
+  path.bezierCurveTo(x0 + m2, y0, x0 + m2 + m6, y1, x1, y1);
+  path.lineTo(x2, y1);
+
+  return path.toString();
+};
+
+// links patterns
+const patternC2 = d3
+  .select('defs')
+  .append('pattern')
+  .attr('id', 'patternC2')
+  .attr('width', '4')
+  .attr('height', '4')
+  .attr('patternUnits', 'userSpaceOnUse')
+  .attr('patternTransform', 'rotate(30)')
+  .append('rect')
+  .attr('width', '3')
+  .attr('height', '4')
+  .attr('fill', 'white');
+
+const maskC2 = d3
+  .select('defs')
+  .append('mask')
+  .attr('id', 'maskC2')
+  .append('rect')
+  .attr('width', '100%')
+  .attr('height', '100%')
+  .attr('fill', 'url(#patternC2)');
+
+const patternGrad = d3
+  .select('defs')
+  .append('pattern')
+  .attr('id', 'patternGrad')
+  .attr('width', '4')
+  .attr('height', '4')
+  .attr('patternUnits', 'userSpaceOnUse')
+  .attr('patternTransform', 'rotate(30)')
+  .append('rect')
+  .attr('width', '3.8')
+  .attr('height', '4')
+  .attr('transform', 'translate(0,0)')
+  .attr('fill', 'white');
+
+const maskGrad = d3
+  .select('defs')
+  .append('mask')
+  .attr('id', 'maskGrad')
+  .append('rect')
+  .attr('width', '100%')
+  .attr('height', '100%')
+  .attr('fill', 'url(#patternGrad)');
+
+export { sankeyLinkPath, bgLinkPath, optPath };

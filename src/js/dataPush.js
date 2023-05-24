@@ -1,5 +1,5 @@
 import * as d3 from './d3.min';
-import * as csvData from 'url:../data/data.csv';
+import csvData from 'url:../data/data.csv';
 
 //
 // async function for load data
@@ -199,11 +199,23 @@ const dataLoad = (dataCsv) => {
           : (d.congreso = 'Cámara de Representantes');
       });
 
-    partidos.push(+d.idPartido);
+    partidos.push({
+      idPartido: +d.idPartido,
+      partido: d.partido,
+      anno: +d.anno,
+    });
   });
-  partidos = [...new Set(partidos)].sort();
+  // partidos = [...new Set(partidos)].sort();
 
   return [nodes, links, partidos, linksAuth, linksProj, linksTopi];
 };
 
 export { dataPush };
+
+// "@parcel/transformer-sass": "^2.8.2",
+//   "buffer": "^5.7.1",
+//   "d3": "^7.8.2",
+//   "d3-sankey": "^0.12.3",
+//   "parcel": "^2.8.2",
+//   "process": "^0.11.10",
+//   "util": "^0.12.5"
