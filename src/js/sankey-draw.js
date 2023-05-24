@@ -197,10 +197,10 @@ for (let i = 0; i < 4; i++) {
     .attr('class', `optRect para--${optPercent[i]}`)
     .attr('stroke', 'none');
 }
-for (let i = 0; i < 4; i++) {
+for (let j = 0; j < 4; j++) {
   options
     .append('rect')
-    .attr('class', `optRect para--${optPercent[i]}`)
+    .attr('class', `optRect para--${optPercent[j]}`)
     .attr('stroke', 'none');
 }
 
@@ -208,13 +208,13 @@ for (let i = 0; i < 4; i++) {
 const createSankey = async () => {
   // load CSV file
   sData = await dataGet();
-  drawSankey();
+  await drawSankey();
 };
 
 //
 // append elements of the graph
-const drawSankey = () => {
-  graph = sankey(sData);
+const drawSankey = async () => {
+  const graph = sankey(sData);
 
   // year guides by column
   for (let j = 0; j < 3; j++) {

@@ -13,6 +13,8 @@ const sankeyLinkPath = (link, py) => {
     tW = link.target.nodeWid,
     sX2 = sX0,
     tX2 = tX0,
+    sY1,
+    tY1,
     mid,
     linkCurve,
     points = [];

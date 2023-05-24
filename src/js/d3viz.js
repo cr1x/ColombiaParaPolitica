@@ -213,7 +213,7 @@ const updateGraph = async () => {
     .pyGroup(gPadding)
     .layersPos(values.layerPos);
 
-  graph = sankey(sData);
+  const graph = sankey(sData);
 
   links
     .selectAll('path')
